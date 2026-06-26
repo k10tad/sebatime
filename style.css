@@ -14,10 +14,10 @@ body {
 }
 
 .container {
-    display: flex;
-    height: 100vh;
+    display:flex;
+    min-height:100vh;
 
-    background: rgba(0, 0, 0, 0.45);
+    background: rgba(0,0,0,.45);
     backdrop-filter: blur(2px);
 }
 
@@ -412,6 +412,19 @@ button:active{
     #weather-card {
         text-align: center;
     }
+}
+@media (max-width:768px){
+
+    html,
+    body{
+        height:auto;
+        min-height:100%;
+    }
+
+    .container{
+        min-height:100dvh;
+    }
+
 }
 /* スマホの白背景つぶし */
 html,
