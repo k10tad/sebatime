@@ -12,7 +12,7 @@ setInterval(updateClock, 1000);
 console.log("clock OK");
 
 loadWeather();
-console.log("weather called");
+console.log("Weather called");
 
 preloadImages();
 console.log("preload OK");
