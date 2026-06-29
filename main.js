@@ -18,7 +18,7 @@ preloadImages();
 console.log("preload OK");
 
 scheduleNextBlink();
-console.log("blink called");
+console.log("blink.js called");
 
-console.log("main end");
+console.log("main.js end");
 
