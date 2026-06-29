@@ -10,12 +10,12 @@ const bgm = new Audio("music/bgm.mp3");
 bgm.loop = true;
 bgm.volume = 0.18;
 
-const startSound = new Audio("sound/start2.mp3");
+const startSound = new Audio("sound/page.mp3");
 startSound.volume = 0.4;
 
 const roomEffects = [
     "sound/pen.mp3",
-    "sound/start.mp3"
+    "sound/page.mp3"
 ];
 
 let roomEffectTimer = null;
