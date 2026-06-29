@@ -16,3 +16,5 @@ preloadImages();
 scheduleNextBlink();
 
 message.textContent = getWelcomeMessage();
+
+loadSleepRecord();

@@ -419,3 +419,55 @@ button:active {
     font-size: 14px;
     opacity: 0.8;
 }
+
+.sleep-box {
+    margin-top: 24px;
+    padding: 18px 22px;
+    width: 300px;
+
+    background: rgba(0, 0, 0, 0.35);
+    backdrop-filter: blur(8px);
+    border-radius: 18px;
+
+    color: white;
+    text-align: center;
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.35);
+}
+
+.sleep-box h2 {
+    margin: 0 0 12px;
+    font-size: 20px;
+}
+
+#sleepTimer {
+    font-size: 30px;
+    letter-spacing: 2px;
+    margin-bottom: 6px;
+}
+
+#sleepStatus,
+#sleepLastRecord {
+    font-size: 14px;
+    opacity: 0.8;
+    margin-top: 8px;
+}
+
+.sleep-buttons {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-top: 12px;
+}
+
+.sleep-buttons button {
+    font-size: 13px;
+    padding: 8px 12px;
+}
+
+@media screen and (max-width: 768px) {
+    .sleep-box {
+        width: 100%;
+        box-sizing: border-box;
+    }
+}

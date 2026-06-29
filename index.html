@@ -67,7 +67,7 @@
     <button id="reset">リセット</button>
 </div>
     <button id="summaryButton">今日の総括</button>
-    
+
 <div class="task-box">
     <h2>Today's Tasks</h2>
 
@@ -79,6 +79,23 @@
     <ul id="taskList"></ul>
 </div>
 
+<div class="sleep-box">
+    <h2>Sleep Record</h2>
+
+    <div class="sleep-time">
+        <div id="sleepTimer">00:00:00</div>
+        <div id="sleepStatus">まだ記録していません</div>
+    </div>
+
+    <div class="sleep-buttons">
+        <button id="sleepStart">寝る</button>
+        <button id="sleepStop">起きた</button>
+        <button id="sleepReset">睡眠リセット</button>
+    </div>
+
+    <div id="sleepLastRecord">前回の睡眠：--</div>
+</div>
+
     </div>
 
 </div>
@@ -87,6 +104,7 @@
 <script src="sound.js"></script>
 <script src="timer.js"></script>
 <script src="tasks.js"></script>
+<script src="sleep.js"></script>
 <script src="weather.js"></script>
 <script src="clock.js"></script>
 <script src="blink.js"></script>
