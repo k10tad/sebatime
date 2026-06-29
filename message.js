@@ -123,15 +123,126 @@ const idleMessages = [
     "……悪くない集中だ。",
     "今日は静かだな。",
     "眠くなったら無理をするな。",
-    "一つずつ片付けろ。"
+    "一つずつ片付けろ。",
+    "静かだな。",
+    "少し肩を回してこい。",
+    "呼吸が浅いぞ。",
+    "時計を見る癖は悪くない。",
+    "コーヒーの香りがする。",
+    "今日は本を一冊読みたい気分だ。",
+    "机は綺麗な方が好きだ。",
+    "……悪くない。",
+    "その調子だ。",
+    "急がなくていい。",
+    "俺はここにいる。",
 ];
+
+const contextualIdleMessages = {
+
+    morning: [
+        "朝の集中力は貴重だ。",
+        "午前中に一番難しい仕事を終わらせろ。",
+        "今日は何から片付ける？"
+    ],
+
+    afternoon: [
+        "昼を越えると判断が鈍る。",
+        "少し歩いてくるのもいい。",
+        "午後はペースを守れ。"
+    ],
+
+    night: [
+        "もう夜だ。",
+        "終わりを決める勇気も必要だ。",
+        "今日はここまででも十分だ。"
+    ],
+
+    rain: [
+        "雨音も悪くない。",
+        "今日は静かな日だな。",
+        "雨の日は焦らない方がいい。"
+    ],
+
+    sunny: [
+        "こんな日は外の空気も悪くない。",
+        "窓を開けてみるか？"
+    ],
+
+    cloudy: [
+        "曇りの日は静かで好きだ。",
+        "考え事には向いている。"
+    ],
+
+    storm: [
+        "外は騒がしいな。",
+        "今日は屋内で十分だ。"
+    ],
+
+    lowPressure: [
+        "気圧が落ちている。",
+        "今日は頭痛が来ても不思議じゃない。",
+        "省エネで進めよう。"
+    ],
+
+    longFocus: [
+        "二時間近く座っているぞ。",
+        "立って身体を伸ばせ。",
+        "水分補給だ。"
+    ],
+
+    midnight: [
+        "まだ起きているのか。",
+        "……俺も人のことは言えないが。"
+    ]
+
+};
+
 
 let idleMessageTimer = null;
 
 function showIdleMessage() {
     if (timerId === null) return;
 
-    message.textContent = randomMessage(idleMessages);
+    const memoryMessage = getMemoryMessage();
+
+if (memoryMessage && Math.random() < 0.25) {
+    message.textContent = memoryMessage;
+    scheduleIdleMessage();
+    return;
+}
+    const hour = new Date().getHours();
+
+    if (currentPressure && currentPressure <= 1005) {
+        message.textContent =
+            randomMessage(contextualIdleMessages.lowPressure);
+
+    } else if (
+        currentWeatherCode &&
+        currentWeatherCode >= 80
+    ) {
+        message.textContent =
+            randomMessage(contextualIdleMessages.rain);
+
+    } else if (todayFocusSeconds >= 7200) {
+        message.textContent =
+            randomMessage(contextualIdleMessages.longFocus);
+
+    } else if (hour >= 5 && hour < 12) {
+        message.textContent =
+            randomMessage(contextualIdleMessages.morning);
+
+    } else if (hour >= 12 && hour < 18) {
+        message.textContent =
+            randomMessage(contextualIdleMessages.afternoon);
+
+    } else if (hour >= 18) {
+        message.textContent =
+            randomMessage(contextualIdleMessages.night);
+
+    } else {
+        message.textContent =
+            randomMessage(idleMessages);
+    }
 
     scheduleIdleMessage();
 }
@@ -188,3 +299,108 @@ function getDailySummaryMessage() {
     return `今日は${focusText}、ポモドーロは${count}回。よくやった、レイ。今日はここまででもいい。`;
 }
 
+const sleepComments = {
+
+    terrible: [
+        "……レイ、その睡眠時間は報告書に書けないレベルだ。",
+        "今日は命令だ。無理はするな。",
+        "敵より先に睡魔に負けそうだな。",
+        "集中する前に寝ろ。",
+        "机に突っ伏す未来が見えている。",
+        "俺は働けと言うが、倒れろとは言わん。",
+        "その睡眠時間で手術は許可しない。",
+        "今日は判断が鈍る。慎重に動け。"
+    ],
+
+    short: [
+        "少し寝不足だな。",
+        "コーヒーだけで解決する話じゃない。",
+        "昼休みに目を閉じろ。",
+        "今日は早めに切り上げてもいい。",
+        "休憩は仕事の一部だ。",
+        "無理をすると夜に響くぞ。",
+        "あと一時間眠れたら理想だった。",
+        "ペース配分を忘れるな。"
+    ],
+
+    good: [
+        "悪くない睡眠だ。",
+        "今日は頭が回りそうだな。",
+        "いい朝だ。",
+        "これなら集中できる。",
+        "準備は十分だ。",
+        "今日も一歩ずつ進めよう。",
+        "調子は良さそうだな。",
+        "安心して送り出せる。"
+    ],
+
+    perfect: [
+        "理想的な睡眠だ。",
+        "今日は期待している。",
+        "身体も脳も万全だな。",
+        "いいコンディションだ。",
+        "ようやく人間らしい睡眠時間だ。",
+        "今日はかなり進めそうだ。",
+        "……褒めてやる。",
+        "この調子を維持しろ。"
+    ]
+
+};
+
+const dailyFlowMessages = {
+    morning: [
+        "おはよう、レイ。まず水を飲め。",
+        "朝だ。最初の作業は軽く始めろ。",
+        "今日は何から片付ける？"
+    ],
+
+    noon: [
+        "昼だ。食事は済ませたか。",
+        "昼を抜くな。午後に響く。",
+        "少し席を立て。身体を固めるな。"
+    ],
+
+    evening: [
+        "夕方だな。今日の残りを決めろ。",
+        "ここからは欲張るな。必要な分だけでいい。",
+        "今日の作業を締める準備をしろ。"
+    ],
+
+    night: [
+        "夜だ。終わりの時間を決めておけ。",
+        "長引かせすぎるなよ。",
+        "眠くなったら寝ろ。命令だ。"
+    ],
+
+    midnight: [
+        "……まだ起きているのか。",
+        "深夜だ。判断力は落ちている。",
+        "今日はもう畳んでもいい。"
+    ]
+};
+
+function getDailyFlowMessage() {
+    const hour = new Date().getHours();
+
+    if (hour >= 5 && hour < 11) {
+        return randomMessage(dailyFlowMessages.morning);
+    }
+
+    if (hour >= 11 && hour < 14) {
+        return randomMessage(dailyFlowMessages.noon);
+    }
+
+    if (hour >= 17 && hour < 21) {
+        return randomMessage(dailyFlowMessages.evening);
+    }
+
+    if (hour >= 21 && hour < 24) {
+        return randomMessage(dailyFlowMessages.night);
+    }
+
+    if (hour >= 0 && hour < 5) {
+        return randomMessage(dailyFlowMessages.midnight);
+    }
+
+    return randomMessage(dailyFlowMessages.morning);
+}

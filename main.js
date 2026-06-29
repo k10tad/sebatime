@@ -15,6 +15,7 @@ loadWeather();
 preloadImages();
 scheduleNextBlink();
 
-message.textContent = getWelcomeMessage();
+message.textContent = getDailyFlowMessage();
 
 loadSleepRecord();
+
