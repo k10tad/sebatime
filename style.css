@@ -388,3 +388,34 @@ button:active {
         box-sizing: border-box;
     }
 }
+
+.focus-box {
+    margin-top: -20px;
+    margin-bottom: 20px;
+    text-align: center;
+
+    padding: 12px 20px;
+    border-radius: 16px;
+
+    background: rgba(0, 0, 0, 0.28);
+    backdrop-filter: blur(6px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.25);
+}
+
+.focus-title {
+    font-size: 14px;
+    letter-spacing: 2px;
+    opacity: 0.75;
+    margin-bottom: 6px;
+}
+
+#focusTime {
+    font-size: 24px;
+    letter-spacing: 2px;
+}
+
+#pomodoroDisplay {
+    margin-top: 4px;
+    font-size: 14px;
+    opacity: 0.8;
+}

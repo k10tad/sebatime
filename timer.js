@@ -6,6 +6,12 @@ let mode = "work";
 let timeLeft = 25 * 60;
 let timerId = null;
 
+let todayFocusSeconds =
+    Number(localStorage.getItem("todayFocusSeconds")) || 0;
+
+let pomodoroCount =
+    Number(localStorage.getItem("pomodoroCount")) || 0;
+
 const timer = document.getElementById("timer");
 const startButton = document.getElementById("start");
 const pauseButton = document.getElementById("pause");
@@ -41,6 +47,25 @@ function updateTimer() {
     }, 120);
 }
 
+function updateFocusDisplay() {
+    const focusTime = document.getElementById("focusTime");
+    const pomodoroDisplay = document.getElementById("pomodoroDisplay");
+
+    if (!focusTime || !pomodoroDisplay) return;
+
+    const hours = Math.floor(todayFocusSeconds / 3600);
+    const minutes = Math.floor((todayFocusSeconds % 3600) / 60);
+    const seconds = todayFocusSeconds % 60;
+
+    focusTime.textContent =
+        String(hours).padStart(2, "0") + ":" +
+        String(minutes).padStart(2, "0") + ":" +
+        String(seconds).padStart(2, "0");
+
+    pomodoroDisplay.textContent =
+        pomodoroCount + " Pomodoro" + (pomodoroCount === 1 ? "" : "s");
+}
+
 function switchMode() {
     safeStopRoomSounds();
 
@@ -72,17 +97,37 @@ startButton.addEventListener("click", function () {
     } else {
         message.textContent = randomMessage(breakMessages);
     }
+timerId = setInterval(function () {
+    timeLeft--;
+    updateTimer();
 
-    timerId = setInterval(function () {
-        timeLeft--;
-        updateTimer();
+if (mode === "work") {
+    todayFocusSeconds++;
+    localStorage.setItem(
+        "todayFocusSeconds",
+        todayFocusSeconds
+    );
+    updateFocusDisplay();
+}
 
-        if (timeLeft <= 0) {
-            clearInterval(timerId);
-            timerId = null;
-            switchMode();
+    if (timeLeft <= 0) {
+
+        // 作業時間が終わったら1ポモドーロ追加
+        if (mode === "work") {
+            pomodoroCount++;
+            localStorage.setItem("pomodoroCount", pomodoroCount);
+
+            updateFocusDisplay();
         }
-    }, 1000);
+
+        clearInterval(timerId);
+        timerId = null;
+
+        switchMode();
+    }
+
+}, 1000);
+   
 });
 
 pauseButton.addEventListener("click", function () {
@@ -108,3 +153,28 @@ resetButton.addEventListener("click", function () {
 });
 
 updateTimer();
+
+function checkNewDay() {
+    const today = new Date().toDateString();
+    const savedDate = localStorage.getItem("savedDate");
+
+    if (savedDate === null) {
+        localStorage.setItem("savedDate", today);
+        return;
+    }
+
+    if (savedDate !== today) {
+        localStorage.setItem(
+            "yesterdayFocusSeconds",
+            todayFocusSeconds
+        );
+
+        localStorage.setItem("todayFocusSeconds", 0);
+        localStorage.setItem("pomodoroCount", 0);
+
+        todayFocusSeconds = 0;
+        pomodoroCount = 0;
+
+        localStorage.setItem("savedDate", today);
+    }
+}
