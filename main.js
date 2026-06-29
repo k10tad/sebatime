@@ -20,5 +20,5 @@ console.log("preload OK");
 scheduleNextBlink();
 console.log("blink called");
 
-console.log("main.js end");
+console.log("main end");
 
