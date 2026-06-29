@@ -6,9 +6,9 @@ async function loadWeather() {
     const temperature = document.getElementById("temperature");
     const pressure = document.getElementById("pressure");
     const humidity = document.getElementById("humidity");
-    const WeathereatherIcon = document.getElementById("Weather-icon");
+    const weatherIcon = document.getElementById("weather-icon");
 
-    if (!temperature || !pressure || !humidity || !WeatherIcon) return;
+    if (!temperature || !pressure || !humidity || !weatherIcon) return;
 
     const url =
         "https://api.open-meteo.com/v1/forecast?latitude=34.6937&longitude=135.5023&current=temperature_2m,weather_code,surface_pressure,relative_humidity_2m";
@@ -22,7 +22,8 @@ async function loadWeather() {
         humidity.textContent = "湿度 " + data.current.relative_humidity_2m + "%";
 
         const code = data.current.weather_code;
-        currentWeatherCode = data.current.weather_code;
+
+        currentWeatherCode = code;
         currentPressure = data.current.surface_pressure;
 
         let icon = "☀";
@@ -40,5 +41,6 @@ async function loadWeather() {
         pressure.textContent = "---- hPa";
         humidity.textContent = "取得失敗";
         weatherIcon.textContent = "？";
+        console.error(error);
     }
 }

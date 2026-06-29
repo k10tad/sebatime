@@ -19,6 +19,7 @@ function playBlink() {
 
     function nextFrame() {
         sebas.src = blinkFrames[i].src;
+
         const wait = blinkFrames[i].time;
         i++;
 
