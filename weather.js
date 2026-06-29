@@ -8,7 +8,16 @@ async function loadWeather() {
     const humidity = document.getElementById("humidity");
     const weatherIcon = document.getElementById("weather-icon");
 
-    if (!temperature || !pressure || !humidity || !weatherIcon) return;
+  if (!temperature || !pressure || !humidity || !weatherIcon) {
+    console.log("天気HTMLが見つからない", {
+        temperature,
+        pressure,
+        humidity,
+        weatherIcon
+    });
+    return;
+}
+
 
     const url =
         "https://api.open-meteo.com/v1/forecast?latitude=34.6937&longitude=135.5023&current=temperature_2m,weather_code,surface_pressure,relative_humidity_2m";
