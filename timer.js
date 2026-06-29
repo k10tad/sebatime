@@ -17,6 +17,7 @@ const startButton = document.getElementById("start");
 const pauseButton = document.getElementById("pause");
 const resetButton = document.getElementById("reset");
 const message = document.getElementById("message");
+const summaryButton = document.getElementById("summaryButton");
 
 let currentWeatherCode = null;
 let currentPressure = null;
@@ -24,6 +25,7 @@ let currentPressure = null;
 function safeStartRoomSounds() {
     if (typeof startRoomSounds === "function") {
         startRoomSounds();
+        startIdleMessages();
     }
 }
 
@@ -68,6 +70,7 @@ function updateFocusDisplay() {
 
 function switchMode() {
     safeStopRoomSounds();
+    stopIdleMessages();
 
     if (mode === "work") {
         mode = "break";
@@ -136,6 +139,7 @@ pauseButton.addEventListener("click", function () {
     clearInterval(timerId);
     timerId = null;
     safeStopRoomSounds();
+    stopIdleMessages();
 
     message.textContent = "止めた。だが戻ってこい。";
 });
@@ -144,12 +148,17 @@ resetButton.addEventListener("click", function () {
     clearInterval(timerId);
     timerId = null;
     safeStopRoomSounds();
+    stopIdleMessages();
 
     mode = "work";
     timeLeft = 25 * 60;
     updateTimer();
 
     message.textContent = "仕切り直しだ、レイ。";
+});
+
+summaryButton.addEventListener("click", function () {
+    message.textContent = getDailySummaryMessage();
 });
 
 updateTimer();

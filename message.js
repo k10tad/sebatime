@@ -112,3 +112,79 @@ function getWelcomeMessage() {
 
     return randomMessage(welcomeMessages.afternoon);
 }
+
+const idleMessages = [
+    "……レイ。",
+    "姿勢が崩れている。少し直せ。",
+    "水は飲んだか。",
+    "焦るな。今やっている分だけでいい。",
+    "そのまま続けろ。俺は見ている。",
+    "肩の力を抜け。",
+    "……悪くない集中だ。",
+    "今日は静かだな。",
+    "眠くなったら無理をするな。",
+    "一つずつ片付けろ。"
+];
+
+let idleMessageTimer = null;
+
+function showIdleMessage() {
+    if (timerId === null) return;
+
+    message.textContent = randomMessage(idleMessages);
+
+    scheduleIdleMessage();
+}
+
+function scheduleIdleMessage() {
+    const next = 180000 + Math.random() * 240000;
+    idleMessageTimer = setTimeout(showIdleMessage, next);
+}
+
+function startIdleMessages() {
+    if (idleMessageTimer !== null) return;
+
+    const first = 90000 + Math.random() * 90000;
+    idleMessageTimer = setTimeout(showIdleMessage, first);
+}
+
+function stopIdleMessages() {
+    clearTimeout(idleMessageTimer);
+    idleMessageTimer = null;
+}
+
+function formatFocusTime(seconds) {
+    const hours = Math.floor(seconds / 3600);
+    const minutes = Math.floor((seconds % 3600) / 60);
+
+    if (hours > 0) {
+        return `${hours}時間${minutes}分`;
+    }
+
+    return `${minutes}分`;
+}
+
+function getDailySummaryMessage() {
+    const focusSeconds =
+        Number(localStorage.getItem("todayFocusSeconds")) || 0;
+
+    const count =
+        Number(localStorage.getItem("pomodoroCount")) || 0;
+
+    const focusText = formatFocusTime(focusSeconds);
+
+    if (focusSeconds === 0) {
+        return "今日はまだ記録がないな。……今から始めればいい。";
+    }
+
+    if (focusSeconds < 1800) {
+        return `今日は${focusText}。短くても机に向かったなら十分だ。次はもう少しだけ続けるぞ。`;
+    }
+
+    if (focusSeconds < 7200) {
+        return `今日は${focusText}、ポモドーロは${count}回だ。悪くない。積み上がっている。`;
+    }
+
+    return `今日は${focusText}、ポモドーロは${count}回。よくやった、レイ。今日はここまででもいい。`;
+}
+
