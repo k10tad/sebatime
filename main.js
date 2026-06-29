@@ -12,3 +12,4 @@ loadWeather();
 preloadImages();
 scheduleNextBlink();
 
+message.textContent = getWelcomeMessage();

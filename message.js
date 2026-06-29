@@ -61,3 +61,54 @@ function getMessageList(weatherCode, pressure){
 
     return workMessages;
 }
+
+const welcomeMessages = {
+    morning: [
+        "おはよう、レイ。今日は無理なく始めろ。",
+        "来たか。まず水を飲め、それから机だ。",
+        "朝だな。昨日より少しだけ進めればいい。"
+    ],
+    afternoon: [
+        "来たか、レイ。午後の分を片付けるぞ。",
+        "眠そうな顔をしているな。だが座ったなら始めろ。",
+        "今日はまだ時間がある。焦るな。"
+    ],
+    night: [
+        "夜か。長引かせすぎるなよ。",
+        "遅い時間だな。終わりを決めて始めろ。",
+        "眠くなったら寝ろ。命令だ。"
+    ],
+    lowFocusYesterday: [
+        "昨日はあまり進めていないな。今日は短くてもいい、始めろ。",
+        "昨日の分を責めるな。今日の25分で取り返せる。"
+    ],
+    goodFocusYesterday: [
+        "昨日はよく集中していたな。今日も同じ調子でいけ。",
+        "昨日の記録は悪くない。今日はそれを少しだけ超えてみるか。"
+    ]
+};
+
+function getWelcomeMessage() {
+    const hour = new Date().getHours();
+
+    const yesterdayFocus =
+        Number(localStorage.getItem("yesterdayFocusSeconds")) || 0;
+
+    if (yesterdayFocus >= 7200) {
+        return randomMessage(welcomeMessages.goodFocusYesterday);
+    }
+
+    if (yesterdayFocus > 0 && yesterdayFocus < 1800) {
+        return randomMessage(welcomeMessages.lowFocusYesterday);
+    }
+
+    if (hour >= 5 && hour < 11) {
+        return randomMessage(welcomeMessages.morning);
+    }
+
+    if (hour >= 18) {
+        return randomMessage(welcomeMessages.night);
+    }
+
+    return randomMessage(welcomeMessages.afternoon);
+}
