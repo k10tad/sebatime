@@ -110,21 +110,41 @@ function resetSleepRecord() {
 }
 
 function getSleepComment(recordText) {
-    const hours = Number(recordText.split(":")[0]);
+    const parts = recordText.split(":");
+    const hours = Number(parts[0]);
+    const minutes = Number(parts[1]);
 
-    if (hours < 4) {
-        return "睡眠が短すぎる。今日は無理をするな、レイ。";
+    const totalMinutes = hours * 60 + minutes;
+
+    if (totalMinutes < 240) {
+        return randomMessage([
+            "睡眠が短すぎる。今日は無理をするな、レイ。",
+            "……4時間未満か。仕事より先に身体を守れ。",
+            "足りない。今日は出力を落とせ。命令だ。"
+        ]);
     }
 
-    if (hours < 6) {
-        return "少し足りないな。今日は休憩を多めに取れ。";
+    if (totalMinutes < 360) {
+        return randomMessage([
+            "少し足りないな。今日は休憩を多めに取れ。",
+            "6時間に届いていない。集中は短く区切れ。",
+            "無理を通すな。今日は省エネで行け。"
+        ]);
     }
 
-    if (hours < 8) {
-        return "悪くない睡眠だ。今日は頭も動くだろう。";
+    if (totalMinutes < 480) {
+        return randomMessage([
+            "悪くない睡眠だ。今日は頭も動くだろう。",
+            "十分とは言える。あとは水を飲んで始めろ。",
+            "その睡眠なら戦える。だが過信はするな。"
+        ]);
     }
 
-    return "よく眠ったな。今日はかなり動けるはずだ。";
+    return randomMessage([
+        "よく眠ったな。今日はかなり動けるはずだ。",
+        "いい睡眠だ、レイ。今日は少し強気で行け。",
+        "合格だ。脳も機嫌を直しているだろう。"
+    ]);
 }
 
 function loadSleepRecord() {
