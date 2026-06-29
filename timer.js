@@ -15,6 +15,18 @@ const message = document.getElementById("message");
 let currentWeatherCode = null;
 let currentPressure = null;
 
+function safeStartRoomSounds() {
+    if (typeof startRoomSounds === "function") {
+        startRoomSounds();
+    }
+}
+
+function safeStopRoomSounds() {
+    if (typeof stopRoomSounds === "function") {
+        stopRoomSounds();
+    }
+}
+
 function updateTimer() {
     const minutes = Math.floor(timeLeft / 60);
     const seconds = timeLeft % 60;
@@ -30,7 +42,7 @@ function updateTimer() {
 }
 
 function switchMode() {
-   stopRoomSounds();
+    safeStopRoomSounds();
 
     if (mode === "work") {
         mode = "break";
@@ -48,10 +60,12 @@ function switchMode() {
 startButton.addEventListener("click", function () {
     if (timerId !== null) return;
 
-    startSound.currentTime = 0;
-    startSound.play();
+    if (typeof startSound !== "undefined") {
+        startSound.currentTime = 0;
+        startSound.play();
+    }
 
-    startRoomSounds();
+    safeStartRoomSounds();
 
     if (mode === "work") {
         message.textContent = randomMessage(getMessageList(currentWeatherCode, currentPressure));
@@ -76,7 +90,7 @@ pauseButton.addEventListener("click", function () {
 
     clearInterval(timerId);
     timerId = null;
-    stopRoomSounds();
+    safeStopRoomSounds();
 
     message.textContent = "止めた。だが戻ってこい。";
 });
@@ -84,7 +98,7 @@ pauseButton.addEventListener("click", function () {
 resetButton.addEventListener("click", function () {
     clearInterval(timerId);
     timerId = null;
-    stopRoomSounds();
+    safeStopRoomSounds();
 
     mode = "work";
     timeLeft = 25 * 60;
