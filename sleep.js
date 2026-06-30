@@ -40,6 +40,10 @@ function startSleepRecord() {
 
     localStorage.setItem("sleepStartTime", sleepStartTime);
 
+if (typeof startSleepBgm === "function") {
+    startSleepBgm();
+}
+
     if (sleepStatus) {
         sleepStatus.textContent = "睡眠中";
     }
@@ -69,6 +73,10 @@ function stopSleepRecord() {
     sleepTimerId = null;
     sleepStartTime = null;
 
+    if (typeof stopSleepBgm === "function") {
+    stopSleepBgm();
+}
+
     if (sleepTimer) {
         sleepTimer.textContent = recordText;
     }
@@ -94,6 +102,10 @@ function resetSleepRecord() {
     clearInterval(sleepTimerId);
     sleepTimerId = null;
     sleepStartTime = null;
+
+if (typeof stopSleepBgm === "function") {
+    stopSleepBgm();
+}
 
     if (sleepTimer) {
         sleepTimer.textContent = "00:00:00";

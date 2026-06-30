@@ -66,3 +66,23 @@ function stopRoomSounds(){
     roomEffectTimer = null;
 
 }
+
+const sleepBgm = new Audio("music/sleep.mp3");
+sleepBgm.loop = true;
+sleepBgm.volume = 0.18;
+
+function startSleepBgm() {
+    bgm.pause();
+    bgm.currentTime = 0;
+
+    roomSound.pause();
+    roomSound.currentTime = 0;
+
+    sleepBgm.currentTime = 0;
+    sleepBgm.play();
+}
+
+function stopSleepBgm() {
+    sleepBgm.pause();
+    sleepBgm.currentTime = 0;
+}
