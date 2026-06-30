@@ -7,12 +7,24 @@ let sleepStartTime =
 
 let sleepTimerId = null;
 
+let sleepImageTimer1 = null;
+let sleepImageTimer2 = null;
+
 const sleepTimer = document.getElementById("sleepTimer");
 const sleepStatus = document.getElementById("sleepStatus");
 const sleepStartButton = document.getElementById("sleepStart");
 const sleepStopButton = document.getElementById("sleepStop");
 const sleepResetButton = document.getElementById("sleepReset");
 const sleepLastRecord = document.getElementById("sleepLastRecord");
+
+const wakeMessages = [
+    "……おはよう、レイ。",
+    "起きたか。",
+    "朝だ。",
+    "よく眠れたか？",
+    "おはよう。体調はどうだ。",
+    "……まだ眠そうだな。"
+];
 
 function formatSleepTime(ms) {
     const totalSeconds = Math.floor(ms / 1000);
@@ -40,8 +52,27 @@ function startSleepRecord() {
 
     localStorage.setItem("sleepStartTime", sleepStartTime);
 
-if (typeof startSleepBgm === "function") {
-    startSleepBgm();
+    if (typeof startSleepBgm === "function") {
+        startSleepBgm();
+    }
+
+    document.body.classList.add("sleep-mode");
+
+   clearTimeout(sleepImageTimer1);
+   clearTimeout(sleepImageTimer2);
+
+if (sebas) {
+    sebas.src = "assets/sleep.jpg";
+
+
+    sleepImageTimer1 = setTimeout(() => {
+        sebas.src = "assets/sleep2.jpg";
+    }, 15000);
+
+    sleepImageTimer2 = setTimeout(() => {
+        sebas.src = "assets/sleep3.jpg";
+    }, 30000);
+
 }
 
     if (sleepStatus) {
@@ -52,7 +83,8 @@ if (typeof startSleepBgm === "function") {
     sleepTimerId = setInterval(updateSleepTimer, 1000);
 
     if (message) {
-        message.textContent = "寝ろ、レイ。明日の脳を守れ。";
+        message.textContent =
+            "……おやすみ、レイ。今日はもう何も考えなくていい。";
     }
 }
 
@@ -61,7 +93,6 @@ function stopSleepRecord() {
 
     const endTime = Date.now();
     const sleepDuration = endTime - sleepStartTime;
-
     const recordText = formatSleepTime(sleepDuration);
 
     localStorage.setItem("lastSleepDuration", recordText);
@@ -74,7 +105,16 @@ function stopSleepRecord() {
     sleepStartTime = null;
 
     if (typeof stopSleepBgm === "function") {
-    stopSleepBgm();
+        stopSleepBgm();
+    }
+
+    document.body.classList.remove("sleep-mode");
+
+    clearTimeout(sleepImageTimer1);
+    clearTimeout(sleepImageTimer2);
+
+    if (sebas) {
+    sebas.src = "assets/blink05.jpg";
 }
 
     if (sleepTimer) {
@@ -90,7 +130,11 @@ function stopSleepRecord() {
     }
 
     if (message) {
-        message.textContent = getSleepComment(recordText);
+        message.textContent = randomMessage(wakeMessages);
+
+        setTimeout(function () {
+            message.textContent = getSleepComment(recordText);
+        }, 3000);
     }
 }
 
@@ -103,8 +147,16 @@ function resetSleepRecord() {
     sleepTimerId = null;
     sleepStartTime = null;
 
-if (typeof stopSleepBgm === "function") {
-    stopSleepBgm();
+    if (typeof stopSleepBgm === "function") {
+        stopSleepBgm();
+    }
+
+    document.body.classList.remove("sleep-mode");
+    clearTimeout(sleepImageTimer1);
+    clearTimeout(sleepImageTimer2);
+
+    if (sebas) {
+    sebas.src = "assets/blink05.jpg";
 }
 
     if (sleepTimer) {
@@ -153,6 +205,12 @@ function loadSleepRecord() {
         if (sleepStatus) {
             sleepStatus.textContent = "睡眠中";
         }
+
+    document.body.classList.add("sleep-mode");
+
+    if (sebas) {
+    sebas.src = "assets/sleep3.jpg";
+    }
 
         updateSleepTimer();
         sleepTimerId = setInterval(updateSleepTimer, 1000);

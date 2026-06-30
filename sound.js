@@ -86,3 +86,52 @@ function stopSleepBgm() {
     sleepBgm.pause();
     sleepBgm.currentTime = 0;
 }
+
+function fadeOut(audio, duration = 3000) {
+
+    const startVolume = audio.volume;
+
+    const interval = 50;
+    const step = startVolume / (duration / interval);
+
+    const fade = setInterval(() => {
+
+        audio.volume -= step;
+
+        if (audio.volume <= 0) {
+
+            audio.volume = 0;
+            audio.pause();
+            audio.currentTime = 0;
+
+            clearInterval(fade);
+
+        }
+
+    }, interval);
+
+}
+
+function fadeIn(audio, target = 0.18, duration = 3000) {
+
+    audio.volume = 0;
+
+    audio.play();
+
+    const interval = 50;
+    const step = target / (duration / interval);
+
+    const fade = setInterval(() => {
+
+        audio.volume += step;
+
+        if (audio.volume >= target) {
+
+            audio.volume = target;
+            clearInterval(fade);
+
+        }
+
+    }, interval);
+
+}

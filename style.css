@@ -541,3 +541,11 @@ button:active {
         box-sizing: border-box;
     }
 }
+
+body.sleep-mode{
+
+    filter: brightness(.55);
+
+    transition:.8s;
+
+}
