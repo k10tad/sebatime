@@ -15,6 +15,10 @@ const blinkFrames = [
 ];
 
 function playBlink() {
+    if (document.body.classList.contains("sleep-mode")) {
+        return;
+    }
+
     let i = 0;
 
     function nextFrame() {
@@ -35,7 +39,14 @@ function playBlink() {
 
 function scheduleNextBlink() {
     const randomWait = 10000 + Math.random() * 15000;
-    setTimeout(playBlink, randomWait);
+
+    setTimeout(() => {
+        if (!document.body.classList.contains("sleep-mode")) {
+            playBlink();
+        } else {
+            scheduleNextBlink();
+        }
+    }, randomWait);
 }
 
 function preloadImages() {

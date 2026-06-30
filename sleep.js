@@ -117,6 +117,8 @@ function stopSleepRecord() {
     sebas.src = "assets/blink05.jpg";
 }
 
+scheduleNextBlink();
+
     if (sleepTimer) {
         sleepTimer.textContent = recordText;
     }
@@ -158,6 +160,8 @@ function resetSleepRecord() {
     if (sebas) {
     sebas.src = "assets/blink05.jpg";
 }
+
+scheduleNextBlink();
 
     if (sleepTimer) {
         sleepTimer.textContent = "00:00:00";
