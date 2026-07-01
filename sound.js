@@ -22,6 +22,11 @@ bgm.loop = true;
 bgm.volume = 0.18;
 bgm.preload = "auto";
 
+const breakBgm = new Audio("music/break.mp3");
+breakBgm.loop = true;
+breakBgm.volume = 0.18;
+breakBgm.preload = "auto";
+
 const sleepBgm = new Audio("music/sleep.mp3");
 sleepBgm.loop = true;
 sleepBgm.volume = 0.18;
@@ -58,6 +63,7 @@ function unlockAudio() {
     const audioList = [
         roomSound,
         bgm,
+        breakBgm,
         sleepBgm,
         startSound,
         penSound,
@@ -92,9 +98,7 @@ document.addEventListener("click", unlockAudio, { once: true });
 function safePlay(audio) {
     if (!audio) return;
 
-    audio.play().catch(function () {
-        // Safariで拒否された場合はここで握りつぶす
-    });
+    audio.play().catch(function () {});
 }
 
 function replaySound(audio) {
@@ -183,10 +187,13 @@ function stopBreathIdle() {
 }
 
 //========================
-// 作業中の音
+// 作業中BGM
 //========================
 
 function startRoomSounds() {
+    stopBreakBgm();
+    stopSleepBgm();
+
     safePlay(roomSound);
     safePlay(bgm);
 
@@ -206,11 +213,29 @@ function stopRoomSounds() {
 }
 
 //========================
+// 休憩BGM
+//========================
+
+function startBreakBgm() {
+    stopRoomSounds();
+    stopSleepBgm();
+
+    breakBgm.currentTime = 0;
+    safePlay(breakBgm);
+}
+
+function stopBreakBgm() {
+    breakBgm.pause();
+    breakBgm.currentTime = 0;
+}
+
+//========================
 // 睡眠BGM
 //========================
 
 function startSleepBgm() {
     stopRoomSounds();
+    stopBreakBgm();
 
     sleepBgm.currentTime = 0;
     safePlay(sleepBgm);
@@ -219,6 +244,16 @@ function startSleepBgm() {
 function stopSleepBgm() {
     sleepBgm.pause();
     sleepBgm.currentTime = 0;
+}
+
+//========================
+// 全停止
+//========================
+
+function stopAllSounds() {
+    stopRoomSounds();
+    stopBreakBgm();
+    stopSleepBgm();
 }
 
 //========================

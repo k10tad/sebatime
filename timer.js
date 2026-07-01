@@ -22,16 +22,42 @@ const summaryButton = document.getElementById("summaryButton");
 let currentWeatherCode = null;
 let currentPressure = null;
 
-function safeStartRoomSounds() {
+function safeStartWorkSounds() {
     if (typeof startRoomSounds === "function") {
         startRoomSounds();
+    }
+
+    if (typeof startIdleMessages === "function") {
         startIdleMessages();
     }
 }
 
-function safeStopRoomSounds() {
+function safeStartBreakSounds() {
+    if (typeof startBreakBgm === "function") {
+        startBreakBgm();
+    }
+
+    if (typeof stopIdleMessages === "function") {
+        stopIdleMessages();
+    }
+}
+
+function safeStopAllSounds() {
+    if (typeof stopAllSounds === "function") {
+        stopAllSounds();
+        return;
+    }
+
     if (typeof stopRoomSounds === "function") {
         stopRoomSounds();
+    }
+
+    if (typeof stopBreakBgm === "function") {
+        stopBreakBgm();
+    }
+
+    if (typeof stopSleepBgm === "function") {
+        stopSleepBgm();
     }
 }
 
@@ -44,6 +70,7 @@ function updateTimer() {
         String(seconds).padStart(2, "0");
 
     timer.style.transform = "scale(1.05)";
+
     setTimeout(() => {
         timer.style.transform = "scale(1)";
     }, 120);
@@ -69,17 +96,26 @@ function updateFocusDisplay() {
 }
 
 function switchMode() {
-    safeStopRoomSounds();
-    stopIdleMessages();
+    safeStopAllSounds();
+
+    if (typeof stopIdleMessages === "function") {
+        stopIdleMessages();
+    }
 
     if (mode === "work") {
         mode = "break";
         timeLeft = 5 * 60;
         message.textContent = randomMessage(breakMessages);
+
+        if (typeof startBreakBgm === "function") {
+            startBreakBgm();
+        }
+
     } else {
         mode = "work";
         timeLeft = 25 * 60;
-        message.textContent = randomMessage(getMessageList(currentWeatherCode, currentPressure));
+        message.textContent =
+            randomMessage(getMessageList(currentWeatherCode, currentPressure));
     }
 
     updateTimer();
@@ -90,47 +126,47 @@ startButton.addEventListener("click", function () {
 
     if (typeof startSound !== "undefined") {
         startSound.currentTime = 0;
-        startSound.play();
+        startSound.play().catch(function () {});
     }
-
-    safeStartRoomSounds();
 
     if (mode === "work") {
-        message.textContent = randomMessage(getMessageList(currentWeatherCode, currentPressure));
+        safeStartWorkSounds();
+        message.textContent =
+            randomMessage(getMessageList(currentWeatherCode, currentPressure));
     } else {
+        safeStartBreakSounds();
         message.textContent = randomMessage(breakMessages);
     }
-timerId = setInterval(function () {
-    timeLeft--;
-    updateTimer();
 
-if (mode === "work") {
-    todayFocusSeconds++;
-    localStorage.setItem(
-        "todayFocusSeconds",
-        todayFocusSeconds
-    );
-    updateFocusDisplay();
-}
+    timerId = setInterval(function () {
+        timeLeft--;
+        updateTimer();
 
-    if (timeLeft <= 0) {
-
-        // 作業時間が終わったら1ポモドーロ追加
         if (mode === "work") {
-            pomodoroCount++;
-            localStorage.setItem("pomodoroCount", pomodoroCount);
+            todayFocusSeconds++;
+
+            localStorage.setItem(
+                "todayFocusSeconds",
+                todayFocusSeconds
+            );
 
             updateFocusDisplay();
         }
 
-        clearInterval(timerId);
-        timerId = null;
+        if (timeLeft <= 0) {
+            if (mode === "work") {
+                pomodoroCount++;
+                localStorage.setItem("pomodoroCount", pomodoroCount);
+                updateFocusDisplay();
+            }
 
-        switchMode();
-    }
+            clearInterval(timerId);
+            timerId = null;
 
-}, 1000);
-   
+            switchMode();
+        }
+
+    }, 1000);
 });
 
 pauseButton.addEventListener("click", function () {
@@ -138,8 +174,12 @@ pauseButton.addEventListener("click", function () {
 
     clearInterval(timerId);
     timerId = null;
-    safeStopRoomSounds();
-    stopIdleMessages();
+
+    safeStopAllSounds();
+
+    if (typeof stopIdleMessages === "function") {
+        stopIdleMessages();
+    }
 
     message.textContent = "止めた。だが戻ってこい。";
 });
@@ -147,11 +187,16 @@ pauseButton.addEventListener("click", function () {
 resetButton.addEventListener("click", function () {
     clearInterval(timerId);
     timerId = null;
-    safeStopRoomSounds();
-    stopIdleMessages();
+
+    safeStopAllSounds();
+
+    if (typeof stopIdleMessages === "function") {
+        stopIdleMessages();
+    }
 
     mode = "work";
     timeLeft = 25 * 60;
+
     updateTimer();
 
     message.textContent = "仕切り直しだ、レイ。";
