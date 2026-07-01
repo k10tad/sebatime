@@ -29,7 +29,7 @@ breakBgm.preload = "auto";
 
 const sleepBgm = new Audio("music/sleep.mp3");
 sleepBgm.loop = true;
-sleepBgm.volume = 0.03;
+sleepBgm.volume = 0.01;
 sleepBgm.preload = "auto";
 
 const sleepBreath = new Audio("sound/sleep_breath.mp3");
