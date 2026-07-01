@@ -34,7 +34,7 @@ sleepBgm.preload = "auto";
 
 const sleepBreath = new Audio("sound/sleep_breath.mp3");
 sleepBreath.loop = true;
-sleepBreath.volume = 0.6; // 確認用。鳴ったら 0.22 くらいに下げてOK
+sleepBreath.volume = 0.22;
 sleepBreath.preload = "auto";
 
 const startSound = new Audio("sound/page.mp3");
