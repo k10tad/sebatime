@@ -48,32 +48,34 @@ function updateSleepTimer() {
 }
 
 function startSleepRecord() {
+    if (typeof unlockAudio === "function") {
+        unlockAudio();
+    }
+
     sleepStartTime = Date.now();
 
     localStorage.setItem("sleepStartTime", sleepStartTime);
+
+    document.body.classList.add("sleep-mode");
 
     if (typeof startSleepBgm === "function") {
         startSleepBgm();
     }
 
-    document.body.classList.add("sleep-mode");
+    clearTimeout(sleepImageTimer1);
+    clearTimeout(sleepImageTimer2);
 
-   clearTimeout(sleepImageTimer1);
-   clearTimeout(sleepImageTimer2);
+    if (sebas) {
+        sebas.src = "assets/sleep.jpg";
 
-if (sebas) {
-    sebas.src = "assets/sleep.jpg";
+        sleepImageTimer1 = setTimeout(function () {
+            sebas.src = "assets/sleep2.jpg";
+        }, 15000);
 
-
-    sleepImageTimer1 = setTimeout(() => {
-        sebas.src = "assets/sleep2.jpg";
-    }, 15000);
-
-    sleepImageTimer2 = setTimeout(() => {
-        sebas.src = "assets/sleep3.jpg";
-    }, 30000);
-
-}
+        sleepImageTimer2 = setTimeout(function () {
+            sebas.src = "assets/sleep3.jpg";
+        }, 30000);
+    }
 
     if (sleepStatus) {
         sleepStatus.textContent = "睡眠中";
@@ -114,10 +116,12 @@ function stopSleepRecord() {
     clearTimeout(sleepImageTimer2);
 
     if (sebas) {
-    sebas.src = "assets/blink05.jpg";
-}
+        sebas.src = "assets/blink05.jpg";
+    }
 
-scheduleNextBlink();
+    if (typeof scheduleNextBlink === "function") {
+        scheduleNextBlink();
+    }
 
     if (sleepTimer) {
         sleepTimer.textContent = recordText;
@@ -154,14 +158,17 @@ function resetSleepRecord() {
     }
 
     document.body.classList.remove("sleep-mode");
+
     clearTimeout(sleepImageTimer1);
     clearTimeout(sleepImageTimer2);
 
     if (sebas) {
-    sebas.src = "assets/blink05.jpg";
-}
+        sebas.src = "assets/blink05.jpg";
+    }
 
-scheduleNextBlink();
+    if (typeof scheduleNextBlink === "function") {
+        scheduleNextBlink();
+    }
 
     if (sleepTimer) {
         sleepTimer.textContent = "00:00:00";
@@ -210,11 +217,15 @@ function loadSleepRecord() {
             sleepStatus.textContent = "睡眠中";
         }
 
-    document.body.classList.add("sleep-mode");
+        document.body.classList.add("sleep-mode");
 
-    if (sebas) {
-    sebas.src = "assets/sleep3.jpg";
-    }
+        if (typeof startSleepBgm === "function") {
+            startSleepBgm();
+        }
+
+        if (sebas) {
+            sebas.src = "assets/sleep3.jpg";
+        }
 
         updateSleepTimer();
         sleepTimerId = setInterval(updateSleepTimer, 1000);

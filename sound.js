@@ -7,6 +7,7 @@ let audioUnlocked = false;
 
 let roomEffectTimer = null;
 let breathTimer = null;
+let sleepBreathDelayTimer = null;
 
 //========================
 // 音声ファイル
@@ -29,8 +30,13 @@ breakBgm.preload = "auto";
 
 const sleepBgm = new Audio("music/sleep.mp3");
 sleepBgm.loop = true;
-sleepBgm.volume = 0.18;
+sleepBgm.volume = 0.16;
 sleepBgm.preload = "auto";
+
+const sleepBreath = new Audio("sound/sleep_breath.mp3");
+sleepBreath.loop = true;
+sleepBreath.volume = 0.22;
+sleepBreath.preload = "auto";
 
 const startSound = new Audio("sound/page.mp3");
 startSound.volume = 0.4;
@@ -65,6 +71,7 @@ function unlockAudio() {
         bgm,
         breakBgm,
         sleepBgm,
+        sleepBreath,
         startSound,
         penSound,
         pageSound,
@@ -235,6 +242,23 @@ function stopBreakBgm() {
 }
 
 //========================
+// 寝息
+//========================
+
+function startSleepBreath() {
+    sleepBreath.currentTime = 0;
+    safePlay(sleepBreath);
+}
+
+function stopSleepBreath() {
+    clearTimeout(sleepBreathDelayTimer);
+    sleepBreathDelayTimer = null;
+
+    sleepBreath.pause();
+    sleepBreath.currentTime = 0;
+}
+
+//========================
 // 睡眠BGM
 //========================
 
@@ -246,11 +270,19 @@ function startSleepBgm() {
 
     sleepBgm.currentTime = 0;
     safePlay(sleepBgm);
+
+    clearTimeout(sleepBreathDelayTimer);
+
+    sleepBreathDelayTimer = setTimeout(function () {
+        startSleepBreath();
+    }, 5000);
 }
 
 function stopSleepBgm() {
     sleepBgm.pause();
     sleepBgm.currentTime = 0;
+
+    stopSleepBreath();
 }
 
 //========================
