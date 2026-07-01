@@ -32,8 +32,6 @@ sleepBgm.loop = true;
 sleepBgm.volume = 0.16;
 sleepBgm.preload = "auto";
 
-// 寝息
-// sleep_breath.mp3 が sound フォルダ内にある想定
 const sleepBreath = new Audio("sound/sleep_breath.mp3");
 sleepBreath.loop = true;
 sleepBreath.volume = 0.6; // 確認用。鳴ったら 0.22 くらいに下げてOK
@@ -269,6 +267,7 @@ function startSleepBgm() {
     sleepBgm.currentTime = 0;
     safePlay(sleepBgm);
 
+    // 確認用：即寝息を鳴らす
     startSleepBreath();
 }
 
