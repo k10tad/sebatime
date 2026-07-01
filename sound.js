@@ -72,20 +72,21 @@ function unlockAudio() {
     ];
 
     audioList.forEach(function (audio) {
-        audio.muted = true;
-
-        audio.play()
-            .then(function () {
-                audio.pause();
-                audio.currentTime = 0;
-                audio.muted = false;
-            })
-            .catch(function () {
-                audio.muted = false;
-            });
+        audio.load();
     });
 
-    audioUnlocked = true;
+    startSound.muted = true;
+
+    startSound.play()
+        .then(function () {
+            startSound.pause();
+            startSound.currentTime = 0;
+            startSound.muted = false;
+            audioUnlocked = true;
+        })
+        .catch(function () {
+            startSound.muted = false;
+        });
 }
 
 document.addEventListener("touchstart", unlockAudio, { once: true });
@@ -191,6 +192,8 @@ function stopBreathIdle() {
 //========================
 
 function startRoomSounds() {
+    unlockAudio();
+
     stopBreakBgm();
     stopSleepBgm();
 
@@ -217,6 +220,8 @@ function stopRoomSounds() {
 //========================
 
 function startBreakBgm() {
+    unlockAudio();
+
     stopRoomSounds();
     stopSleepBgm();
 
@@ -234,6 +239,8 @@ function stopBreakBgm() {
 //========================
 
 function startSleepBgm() {
+    unlockAudio();
+
     stopRoomSounds();
     stopBreakBgm();
 
@@ -254,46 +261,4 @@ function stopAllSounds() {
     stopRoomSounds();
     stopBreakBgm();
     stopSleepBgm();
-}
-
-//========================
-// フェード
-//========================
-
-function fadeOut(audio, duration = 3000) {
-    if (!audio) return;
-
-    const startVolume = audio.volume;
-    const interval = 50;
-    const step = startVolume / (duration / interval);
-
-    const fade = setInterval(function () {
-        audio.volume -= step;
-
-        if (audio.volume <= 0) {
-            audio.volume = 0;
-            audio.pause();
-            audio.currentTime = 0;
-            clearInterval(fade);
-        }
-    }, interval);
-}
-
-function fadeIn(audio, target = 0.18, duration = 3000) {
-    if (!audio) return;
-
-    audio.volume = 0;
-    safePlay(audio);
-
-    const interval = 50;
-    const step = target / (duration / interval);
-
-    const fade = setInterval(function () {
-        audio.volume += step;
-
-        if (audio.volume >= target) {
-            audio.volume = target;
-            clearInterval(fade);
-        }
-    }, interval);
 }

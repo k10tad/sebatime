@@ -23,6 +23,10 @@ let currentWeatherCode = null;
 let currentPressure = null;
 
 function safeStartWorkSounds() {
+    if (typeof unlockAudio === "function") {
+        unlockAudio();
+    }
+
     if (typeof startRoomSounds === "function") {
         startRoomSounds();
     }
@@ -33,6 +37,10 @@ function safeStartWorkSounds() {
 }
 
 function safeStartBreakSounds() {
+    if (typeof unlockAudio === "function") {
+        unlockAudio();
+    }
+
     if (typeof startBreakBgm === "function") {
         startBreakBgm();
     }
@@ -71,7 +79,7 @@ function updateTimer() {
 
     timer.style.transform = "scale(1.05)";
 
-    setTimeout(() => {
+    setTimeout(function () {
         timer.style.transform = "scale(1)";
     }, 120);
 }
@@ -105,23 +113,28 @@ function switchMode() {
     if (mode === "work") {
         mode = "break";
         timeLeft = 5 * 60;
-        message.textContent = randomMessage(breakMessages);
 
-        if (typeof startBreakBgm === "function") {
-            startBreakBgm();
-        }
+        message.textContent = randomMessage(breakMessages);
+        safeStartBreakSounds();
 
     } else {
         mode = "work";
         timeLeft = 25 * 60;
+
         message.textContent =
             randomMessage(getMessageList(currentWeatherCode, currentPressure));
+
+        safeStartWorkSounds();
     }
 
     updateTimer();
 }
 
 startButton.addEventListener("click", function () {
+    if (typeof unlockAudio === "function") {
+        unlockAudio();
+    }
+
     if (timerId !== null) return;
 
     if (typeof startSound !== "undefined") {
@@ -131,8 +144,10 @@ startButton.addEventListener("click", function () {
 
     if (mode === "work") {
         safeStartWorkSounds();
+
         message.textContent =
             randomMessage(getMessageList(currentWeatherCode, currentPressure));
+
     } else {
         safeStartBreakSounds();
         message.textContent = randomMessage(breakMessages);
@@ -207,6 +222,7 @@ summaryButton.addEventListener("click", function () {
 });
 
 updateTimer();
+updateFocusDisplay();
 
 function checkNewDay() {
     const today = new Date().toDateString();
@@ -232,3 +248,5 @@ function checkNewDay() {
         localStorage.setItem("savedDate", today);
     }
 }
+
+checkNewDay();
