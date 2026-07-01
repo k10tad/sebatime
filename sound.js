@@ -14,7 +14,7 @@ let breathTimer = null;
 
 const roomSound = new Audio("sound/clockloop.mp3");
 roomSound.loop = true;
-roomSound.volume = 0.15;
+roomSound.volume = 0.12;
 roomSound.preload = "auto";
 
 const bgm = new Audio("music/bgm.mp3");
@@ -24,17 +24,17 @@ bgm.preload = "auto";
 
 const breakBgm = new Audio("music/break.mp3");
 breakBgm.loop = true;
-breakBgm.volume = 0.18;
+breakBgm.volume = 0.15;
 breakBgm.preload = "auto";
 
 const sleepBgm = new Audio("music/sleep.mp3");
 sleepBgm.loop = true;
-sleepBgm.volume = 0.16;
+sleepBgm.volume = 0.06;
 sleepBgm.preload = "auto";
 
 const sleepBreath = new Audio("sound/sleep_breath.mp3");
 sleepBreath.loop = true;
-sleepBreath.volume = 0.22;
+sleepBreath.volume = 0.20;
 sleepBreath.preload = "auto";
 
 const startSound = new Audio("sound/page.mp3");
@@ -50,7 +50,7 @@ pageSound.volume = 0.18;
 pageSound.preload = "auto";
 
 const breathIdle = new Audio("sound/breath_idle.mp3");
-breathIdle.volume = 0.28;
+breathIdle.volume = 0.24;
 breathIdle.preload = "auto";
 
 const roomEffects = [
@@ -244,10 +244,9 @@ function stopBreakBgm() {
 // 寝息
 //========================
 
-function startSleepBreath() {
-    sleepBreath.currentTime = 0;
-    safePlay(sleepBreath);
-}
+setTimeout(function () {
+    startSleepBreath();
+}, 1000);
 
 function stopSleepBreath() {
     sleepBreath.pause();
