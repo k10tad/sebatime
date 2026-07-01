@@ -29,12 +29,12 @@ breakBgm.preload = "auto";
 
 const sleepBgm = new Audio("music/sleep.mp3");
 sleepBgm.loop = true;
-sleepBgm.volume = 0.06;
+sleepBgm.volume = 0.03;
 sleepBgm.preload = "auto";
 
 const sleepBreath = new Audio("sound/sleep_breath.mp3");
 sleepBreath.loop = true;
-sleepBreath.volume = 0.20;
+sleepBreath.volume = 0.24;
 sleepBreath.preload = "auto";
 
 const startSound = new Audio("sound/page.mp3");
@@ -247,6 +247,7 @@ function stopBreakBgm() {
 setTimeout(function () {
     startSleepBreath();
 }, 1000);
+
 
 function stopSleepBreath() {
     sleepBreath.pause();
