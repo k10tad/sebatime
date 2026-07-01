@@ -7,7 +7,6 @@ let audioUnlocked = false;
 
 let roomEffectTimer = null;
 let breathTimer = null;
-let sleepBreathDelayTimer = null;
 
 //========================
 // 音声ファイル
@@ -33,9 +32,11 @@ sleepBgm.loop = true;
 sleepBgm.volume = 0.16;
 sleepBgm.preload = "auto";
 
+// 寝息
+// sleep_breath.mp3 が sound フォルダ内にある想定
 const sleepBreath = new Audio("sound/sleep_breath.mp3");
 sleepBreath.loop = true;
-sleepBreath.volume = 0.22;
+sleepBreath.volume = 0.6; // 確認用。鳴ったら 0.22 くらいに下げてOK
 sleepBreath.preload = "auto";
 
 const startSound = new Audio("sound/page.mp3");
@@ -251,9 +252,6 @@ function startSleepBreath() {
 }
 
 function stopSleepBreath() {
-    clearTimeout(sleepBreathDelayTimer);
-    sleepBreathDelayTimer = null;
-
     sleepBreath.pause();
     sleepBreath.currentTime = 0;
 }
@@ -271,11 +269,7 @@ function startSleepBgm() {
     sleepBgm.currentTime = 0;
     safePlay(sleepBgm);
 
-    clearTimeout(sleepBreathDelayTimer);
-
-    sleepBreathDelayTimer = setTimeout(function () {
-        startSleepBreath();
-    }, 5000);
+    startSleepBreath();
 }
 
 function stopSleepBgm() {
