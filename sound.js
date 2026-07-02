@@ -7,6 +7,7 @@ let audioUnlocked = false;
 
 let roomEffectTimer = null;
 let breathTimer = null;
+let sleepBreathEventTimer = null;
 
 //========================
 // 音声ファイル
@@ -27,14 +28,15 @@ breakBgm.loop = true;
 breakBgm.volume = 0.15;
 breakBgm.preload = "auto";
 
+// 睡眠BGMは使わないが、既存コード互換のため残す
 const sleepBgm = new Audio("music/sleep.mp3");
 sleepBgm.loop = true;
-sleepBgm.volume = 0.01;
+sleepBgm.volume = 0;
 sleepBgm.preload = "auto";
 
 const sleepBreath = new Audio("sound/sleep_breath.mp3");
 sleepBreath.loop = true;
-sleepBreath.volume = 0.24;
+sleepBreath.volume = 0.22;
 sleepBreath.preload = "auto";
 
 const startSound = new Audio("sound/page.mp3");
@@ -50,7 +52,7 @@ pageSound.volume = 0.18;
 pageSound.preload = "auto";
 
 const breathIdle = new Audio("sound/breath_idle.mp3");
-breathIdle.volume = 0.24;
+breathIdle.volume = 0.22;
 breathIdle.preload = "auto";
 
 const roomEffects = [
@@ -104,7 +106,6 @@ document.addEventListener("click", unlockAudio, { once: true });
 
 function safePlay(audio) {
     if (!audio) return;
-
     audio.play().catch(function () {});
 }
 
@@ -129,18 +130,14 @@ function playRandomRoomEffect() {
     replaySound(effect);
 
     const next = 12000 + Math.random() * 25000;
-
-    roomEffectTimer =
-        setTimeout(playRandomRoomEffect, next);
+    roomEffectTimer = setTimeout(playRandomRoomEffect, next);
 }
 
 function scheduleRoomEffect() {
     if (roomEffectTimer !== null) return;
 
     const first = 5000 + Math.random() * 8000;
-
-    roomEffectTimer =
-        setTimeout(playRandomRoomEffect, first);
+    roomEffectTimer = setTimeout(playRandomRoomEffect, first);
 }
 
 function stopRoomEffect() {
@@ -181,7 +178,6 @@ function scheduleBreathIdle() {
         }
 
         scheduleBreathIdle();
-
     }, next);
 }
 
@@ -241,21 +237,58 @@ function stopBreakBgm() {
 }
 
 //========================
-// 寝息
+// 睡眠中の呼吸イベント
 //========================
 
-setTimeout(function () {
-    startSleepBreath();
-}, 1000);
-
+function startSleepBreath() {
+    sleepBreath.currentTime = 0;
+    safePlay(sleepBreath);
+}
 
 function stopSleepBreath() {
     sleepBreath.pause();
     sleepBreath.currentTime = 0;
 }
 
+function scheduleSleepBreathEvent() {
+    clearTimeout(sleepBreathEventTimer);
+
+    const next = 180000 + Math.random() * 180000;
+    // 3〜6分に一度
+
+    sleepBreathEventTimer = setTimeout(function () {
+        if (!document.body.classList.contains("sleep-mode")) return;
+
+        // 35%の確率で深い呼吸を入れる
+        if (Math.random() < 0.35) {
+            sleepBreath.pause();
+
+            breathIdle.currentTime = 0;
+            safePlay(breathIdle);
+
+            setTimeout(function () {
+                if (!document.body.classList.contains("sleep-mode")) return;
+
+                sleepBreath.currentTime = 0;
+                safePlay(sleepBreath);
+
+                scheduleSleepBreathEvent();
+            }, 1200);
+
+        } else {
+            scheduleSleepBreathEvent();
+        }
+    }, next);
+}
+
+function stopSleepBreathEvent() {
+    clearTimeout(sleepBreathEventTimer);
+    sleepBreathEventTimer = null;
+}
+
 //========================
-// 睡眠BGM
+// 睡眠モード音声
+// 睡眠BGMなし：溜息 + 寝息
 //========================
 
 function startSleepBgm() {
@@ -264,18 +297,29 @@ function startSleepBgm() {
     stopRoomSounds();
     stopBreakBgm();
 
+    sleepBgm.pause();
     sleepBgm.currentTime = 0;
-    safePlay(sleepBgm);
 
-    // 確認用：即寝息を鳴らす
-    startSleepBreath();
+    breathIdle.currentTime = 0;
+    safePlay(breathIdle);
+
+    setTimeout(function () {
+        if (!document.body.classList.contains("sleep-mode")) return;
+
+        startSleepBreath();
+        scheduleSleepBreathEvent();
+    }, 1200);
 }
 
 function stopSleepBgm() {
     sleepBgm.pause();
     sleepBgm.currentTime = 0;
 
+    stopSleepBreathEvent();
     stopSleepBreath();
+
+    breathIdle.pause();
+    breathIdle.currentTime = 0;
 }
 
 //========================
