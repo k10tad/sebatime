@@ -54,7 +54,7 @@ pageSound.volume = 0.18;
 pageSound.preload = "auto";
 
 const breathIdle = new Audio("sound/breath_idle.mp3");
-breathIdle.volume = 0.18;
+breathIdle.volume = 0.16;
 breathIdle.preload = "auto";
 
 const roomEffects = [
