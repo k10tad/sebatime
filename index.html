@@ -22,98 +22,92 @@
 
     </div>
 
-   <div class="right">
+    <div class="right">
 
-    <h1>Sebas Desk</h1>
+        <h1>Sebas Desk</h1>
 
-    <div class="clock-card">
-
-        <div class="line"></div>
-
-        <div id="city">
-            Madrid
+        <div class="clock-card">
+            <div class="line"></div>
+            <div id="city">Madrid</div>
+            <div id="clock"></div>
+            <div id="date"></div>
+            <div class="line"></div>
         </div>
 
-        <div id="clock"></div>
+        <div id="weather-card">
+            <div id="weather-icon">☁</div>
+            <div id="temperature">--℃</div>
+            <div id="pressure">---- hPa</div>
+            <div id="humidity">--%</div>
+        </div>
 
-        <div id="date"></div>
+        <div id="timer">25:00</div>
 
-        <div class="line"></div>
+        <div class="focus-box">
+            <div class="focus-title">Today's Focus</div>
+            <div id="focusTime">00:00:00</div>
+            <div id="pomodoroDisplay">0 Pomodoro</div>
+        </div>
+
+        <div class="buttons">
+            <button id="start">作業開始</button>
+            <button id="pause">一時停止</button>
+            <button id="reset">リセット</button>
+        </div>
+
+        <button id="summaryButton">今日の総括</button>
+
+        <div class="task-box">
+            <h2>Today's Tasks</h2>
+
+            <div class="task-input">
+                <input type="text" id="taskInput" placeholder="タスクを入力">
+                <button id="addTask">追加</button>
+            </div>
+
+            <ul id="taskList"></ul>
+        </div>
+
+        <div class="sleep-box">
+            <h2>Sleep Record</h2>
+
+            <div class="sleep-time">
+                <div id="sleepTimer">00:00:00</div>
+                <div id="sleepStatus">まだ記録していません</div>
+            </div>
+
+            <div class="sleep-buttons">
+                <button id="sleepStart">寝る</button>
+                <button id="sleepStop">起きた</button>
+                <button id="sleepReset">睡眠リセット</button>
+            </div>
+
+            <div id="sleepLastRecord">前回の睡眠：--</div>
+        </div>
+
+        <div class="memory-box">
+            <h2>Sebas Memory</h2>
+
+            <div class="memory-input">
+                <input
+                    type="text"
+                    id="memoryInput"
+                    placeholder="セバスに覚えておいてほしいこと">
+                <button id="addMemory">記憶</button>
+            </div>
+
+            <ul id="memoryList"></ul>
+        </div>
 
     </div>
 
-<div id="weather-card">
-    <div id="weather-icon">☁</div>
-    <div id="temperature">--℃</div>
-    <div id="pressure">---- hPa</div>
-    <div id="humidity">--%</div>
 </div>
-
-    <div id="timer">
-        25:00
-    </div>
-
-    <div class="focus-box">
-    <div class="focus-title">Today's Focus</div>
-    <div id="focusTime">00:00:00</div>
-    <div id="pomodoroDisplay">0 Pomodoro</div>
-</div>
-
-   <div class="buttons">
-    <button id="start">作業開始</button>
-    <button id="pause">一時停止</button>
-    <button id="reset">リセット</button>
-</div>
-    <button id="summaryButton">今日の総括</button>
-
-<div class="task-box">
-    <h2>Today's Tasks</h2>
-
-    <div class="task-input">
-        <input type="text" id="taskInput" placeholder="タスクを入力">
-        <button id="addTask">追加</button>
-    </div>
-
-    <ul id="taskList"></ul>
-</div>
-
-<div class="sleep-box">
-    <h2>Sleep Record</h2>
-
-    <div class="sleep-time">
-        <div id="sleepTimer">00:00:00</div>
-        <div id="sleepStatus">まだ記録していません</div>
-    </div>
-
-    <div class="sleep-buttons">
-        <button id="sleepStart">寝る</button>
-        <button id="sleepStop">起きた</button>
-        <button id="sleepReset">睡眠リセット</button>
-    </div>
-
-    <div id="sleepLastRecord">前回の睡眠：--</div>
-</div>
-
-<div class="memory-box">
-    <h2>Sebas Memory</h2>
-
-    <div class="memory-input">
-        <input
-            type="text"
-            id="memoryInput"
-            placeholder="セバスに覚えておいてほしいこと">
-        <button id="addMemory">記憶</button>
-    </div>
-
-    <ul id="memoryList"></ul>
-</div>
-
 
 <script src="message.js"></script>
-<script src="sound.js?v=7"></script>
+<script src="sound.js?v=8"></script>
 <script src="timer.js?v=3"></script>
 <script src="tasks.js"></script>
-<script src="sleep.js?v=4"></script>
+<script src="sleep.js?v=5"></script>
 <script src="memory.js"></script>
 <script src="weather.js"></script>
 <script src="clock.js"></script>
@@ -122,4 +116,3 @@
 
 </body>
 </html>
-
