@@ -1,6 +1,7 @@
 //========================
 // 音声管理
 // スマホ・Safari対応版
+// 睡眠BGMなし：溜息 + 寝息
 //========================
 
 let audioUnlocked = false;
@@ -28,10 +29,11 @@ breakBgm.loop = true;
 breakBgm.volume = 0.15;
 breakBgm.preload = "auto";
 
-// 睡眠BGMは使わないが、既存コード互換のため残す
+// 互換用に残すが、睡眠BGMとしては使わない
 const sleepBgm = new Audio("music/sleep.mp3");
 sleepBgm.loop = true;
 sleepBgm.volume = 0;
+sleepBgm.muted = true;
 sleepBgm.preload = "auto";
 
 const sleepBreath = new Audio("sound/sleep_breath.mp3");
@@ -71,7 +73,6 @@ function unlockAudio() {
         roomSound,
         bgm,
         breakBgm,
-        sleepBgm,
         sleepBreath,
         startSound,
         penSound,
@@ -106,6 +107,7 @@ document.addEventListener("click", unlockAudio, { once: true });
 
 function safePlay(audio) {
     if (!audio) return;
+
     audio.play().catch(function () {});
 }
 
@@ -254,12 +256,10 @@ function scheduleSleepBreathEvent() {
     clearTimeout(sleepBreathEventTimer);
 
     const next = 180000 + Math.random() * 180000;
-    // 3〜6分に一度
 
     sleepBreathEventTimer = setTimeout(function () {
         if (!document.body.classList.contains("sleep-mode")) return;
 
-        // 35%の確率で深い呼吸を入れる
         if (Math.random() < 0.35) {
             sleepBreath.pause();
 
@@ -288,8 +288,14 @@ function stopSleepBreathEvent() {
 
 //========================
 // 睡眠モード音声
-// 睡眠BGMなし：溜息 + 寝息
 //========================
+
+function forceStopSleepMusic() {
+    sleepBgm.pause();
+    sleepBgm.currentTime = 0;
+    sleepBgm.volume = 0;
+    sleepBgm.muted = true;
+}
 
 function startSleepBgm() {
     unlockAudio();
@@ -297,8 +303,13 @@ function startSleepBgm() {
     stopRoomSounds();
     stopBreakBgm();
 
-    sleepBgm.pause();
-    sleepBgm.currentTime = 0;
+    bgm.pause();
+    bgm.currentTime = 0;
+
+    breakBgm.pause();
+    breakBgm.currentTime = 0;
+
+    forceStopSleepMusic();
 
     breathIdle.currentTime = 0;
     safePlay(breathIdle);
@@ -312,8 +323,7 @@ function startSleepBgm() {
 }
 
 function stopSleepBgm() {
-    sleepBgm.pause();
-    sleepBgm.currentTime = 0;
+    forceStopSleepMusic();
 
     stopSleepBreathEvent();
     stopSleepBreath();
