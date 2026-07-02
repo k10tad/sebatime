@@ -1,12 +1,12 @@
 //========================
 // 睡眠記録
+// スマホ安定版
 //========================
 
 let sleepStartTime =
     Number(localStorage.getItem("sleepStartTime")) || null;
 
 let sleepTimerId = null;
-
 let sleepImageTimer1 = null;
 let sleepImageTimer2 = null;
 
@@ -25,6 +25,30 @@ const wakeMessages = [
     "おはよう。体調はどうだ。",
     "……まだ眠そうだな。"
 ];
+
+function getSebasImg() {
+    return document.getElementById("sebas");
+}
+
+function getMessageBox() {
+    return document.getElementById("message");
+}
+
+function setSebasImage(src) {
+    const sebasImg = getSebasImg();
+
+    if (sebasImg) {
+        sebasImg.src = src;
+    }
+}
+
+function setMessageText(text) {
+    const messageBox = getMessageBox();
+
+    if (messageBox) {
+        messageBox.textContent = text;
+    }
+}
 
 function formatSleepTime(ms) {
     const totalSeconds = Math.floor(ms / 1000);
@@ -53,7 +77,6 @@ function startSleepRecord() {
     }
 
     sleepStartTime = Date.now();
-
     localStorage.setItem("sleepStartTime", sleepStartTime);
 
     document.body.classList.add("sleep-mode");
@@ -65,29 +88,25 @@ function startSleepRecord() {
     clearTimeout(sleepImageTimer1);
     clearTimeout(sleepImageTimer2);
 
-    if (sebas) {
-        sebas.src = "assets/sleep.jpg";
+    setSebasImage("assets/sleep.jpg");
 
-        sleepImageTimer1 = setTimeout(function () {
-            sebas.src = "assets/sleep2.jpg";
-        }, 15000);
+    sleepImageTimer1 = setTimeout(function () {
+        setSebasImage("assets/sleep2.jpg");
+    }, 15000);
 
-        sleepImageTimer2 = setTimeout(function () {
-            sebas.src = "assets/sleep3.jpg";
-        }, 30000);
-    }
+    sleepImageTimer2 = setTimeout(function () {
+        setSebasImage("assets/sleep3.jpg");
+    }, 30000);
 
     if (sleepStatus) {
         sleepStatus.textContent = "睡眠中";
     }
 
     updateSleepTimer();
+    clearInterval(sleepTimerId);
     sleepTimerId = setInterval(updateSleepTimer, 1000);
 
-    if (message) {
-        message.textContent =
-            "……おやすみ、レイ。今日はもう何も考えなくていい。";
-    }
+    setMessageText("……おやすみ、レイ。今日はもう何も考えなくていい。");
 }
 
 function stopSleepRecord() {
@@ -99,12 +118,14 @@ function stopSleepRecord() {
 
     localStorage.setItem("lastSleepDuration", recordText);
     localStorage.setItem("lastSleepDate", new Date().toLocaleDateString());
-
     localStorage.removeItem("sleepStartTime");
 
     clearInterval(sleepTimerId);
     sleepTimerId = null;
     sleepStartTime = null;
+
+    clearTimeout(sleepImageTimer1);
+    clearTimeout(sleepImageTimer2);
 
     if (typeof stopSleepBgm === "function") {
         stopSleepBgm();
@@ -112,12 +133,7 @@ function stopSleepRecord() {
 
     document.body.classList.remove("sleep-mode");
 
-    clearTimeout(sleepImageTimer1);
-    clearTimeout(sleepImageTimer2);
-
-    if (sebas) {
-        sebas.src = "assets/blink05.jpg";
-    }
+    setSebasImage("assets/blink05.jpg");
 
     if (typeof scheduleNextBlink === "function") {
         scheduleNextBlink();
@@ -135,13 +151,11 @@ function stopSleepRecord() {
         sleepLastRecord.textContent = "前回の睡眠：" + recordText;
     }
 
-    if (message) {
-        message.textContent = randomMessage(wakeMessages);
+    setMessageText(randomMessage(wakeMessages));
 
-        setTimeout(function () {
-            message.textContent = getSleepComment(recordText);
-        }, 3000);
-    }
+    setTimeout(function () {
+        setMessageText(getSleepComment(recordText));
+    }, 3000);
 }
 
 function resetSleepRecord() {
@@ -153,18 +167,16 @@ function resetSleepRecord() {
     sleepTimerId = null;
     sleepStartTime = null;
 
+    clearTimeout(sleepImageTimer1);
+    clearTimeout(sleepImageTimer2);
+
     if (typeof stopSleepBgm === "function") {
         stopSleepBgm();
     }
 
     document.body.classList.remove("sleep-mode");
 
-    clearTimeout(sleepImageTimer1);
-    clearTimeout(sleepImageTimer2);
-
-    if (sebas) {
-        sebas.src = "assets/blink05.jpg";
-    }
+    setSebasImage("assets/blink05.jpg");
 
     if (typeof scheduleNextBlink === "function") {
         scheduleNextBlink();
@@ -181,6 +193,8 @@ function resetSleepRecord() {
     if (sleepLastRecord) {
         sleepLastRecord.textContent = "前回の睡眠：--";
     }
+
+    setMessageText("睡眠記録をリセットした。");
 }
 
 function getSleepComment(recordText) {
@@ -223,11 +237,11 @@ function loadSleepRecord() {
             startSleepBgm();
         }
 
-        if (sebas) {
-            sebas.src = "assets/sleep3.jpg";
-        }
+        setSebasImage("assets/sleep3.jpg");
+        setMessageText("……睡眠中だ。");
 
         updateSleepTimer();
+        clearInterval(sleepTimerId);
         sleepTimerId = setInterval(updateSleepTimer, 1000);
     }
 }
@@ -243,3 +257,5 @@ if (sleepStopButton) {
 if (sleepResetButton) {
     sleepResetButton.addEventListener("click", resetSleepRecord);
 }
+
+loadSleepRecord();
