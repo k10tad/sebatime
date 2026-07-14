@@ -2,49 +2,54 @@
 // Haven ページ切替
 //========================
 
-const havenPages = document.querySelectorAll(".app-page");
-const havenNavButtons = document.querySelectorAll("[data-page-target]");
-const havenPageLinks = document.querySelectorAll("[data-go-page]");
+const havenPages = Array.from(document.querySelectorAll(".app-page"));
+const havenNavButtons = Array.from(document.querySelectorAll("[data-page-target]"));
+const havenBackButtons = Array.from(document.querySelectorAll("[data-go-page]"));
 
-function showHavenPage(pageName) {
+function showHavenPage(pageName, options = {}) {
     const targetPage = document.querySelector(
         `.app-page[data-page="${pageName}"]`
     );
 
     if (!targetPage) return;
 
-    havenPages.forEach(page => {
-        const isActive = page === targetPage;
-        page.classList.toggle("active", isActive);
-        page.setAttribute("aria-hidden", String(!isActive));
+    const currentPage = document.querySelector(".app-page.active");
+    const currentName = currentPage ? currentPage.dataset.page : null;
+    const isActualChange = currentName !== pageName;
+
+    havenPages.forEach(function (page) {
+        const isTarget = page === targetPage;
+        page.classList.toggle("active", isTarget);
+        page.setAttribute("aria-hidden", String(!isTarget));
     });
 
-    havenNavButtons.forEach(button => {
+    havenNavButtons.forEach(function (button) {
         button.classList.toggle(
             "active",
             button.dataset.pageTarget === pageName
         );
     });
 
-    localStorage.setItem("havenCurrentPage", pageName);
+    if (isActualChange && options.silent !== true) {
+        if (typeof playPageStepSound === "function") {
+            playPageStepSound();
+        }
+    }
+
     window.scrollTo({ top: 0, behavior: "smooth" });
 }
 
-havenNavButtons.forEach(button => {
+havenNavButtons.forEach(function (button) {
     button.addEventListener("click", function () {
         showHavenPage(button.dataset.pageTarget);
     });
 });
 
-havenPageLinks.forEach(button => {
+havenBackButtons.forEach(function (button) {
     button.addEventListener("click", function () {
         showHavenPage(button.dataset.goPage);
     });
 });
 
-const savedHavenPage = localStorage.getItem("havenCurrentPage");
-
-if (savedHavenPage && savedHavenPage !== "home") {
-    showHavenPage(savedHavenPage);
-}
-
+// 起動時は足音を鳴らさずHomeを表示する。
+showHavenPage("home", { silent: true });

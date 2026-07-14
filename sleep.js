@@ -13,6 +13,8 @@ const sleepStartButton = document.getElementById("sleepStart");
 const sleepStopButton = document.getElementById("sleepStop");
 const sleepResetButton = document.getElementById("sleepReset");
 const sleepLastRecord = document.getElementById("sleepLastRecord");
+const sleepSebas = document.getElementById("sleepSebas");
+const sleepMessage = document.getElementById("sleepMessage");
 
 const wakeMessages = [
     "……おはよう、レイ。",
@@ -28,22 +30,24 @@ function pickMessage(list) {
     return list[Math.floor(Math.random() * list.length)];
 }
 
-function getSebasImg() {
+function getHomeSebasImg() {
     return document.getElementById("sebas");
 }
 
-function getMessageBox() {
+function getHomeMessageBox() {
     return document.getElementById("message");
 }
 
-function setSebasImage(src) {
-    const img = getSebasImg();
-    if (img) img.src = src;
+function setSleepImages(src) {
+    const homeImg = getHomeSebasImg();
+    if (homeImg) homeImg.src = src;
+    if (sleepSebas) sleepSebas.src = src;
 }
 
-function setMessageText(text) {
-    const box = getMessageBox();
-    if (box) box.textContent = text;
+function setSleepMessages(text) {
+    const homeBox = getHomeMessageBox();
+    if (homeBox) homeBox.textContent = text;
+    if (sleepMessage) sleepMessage.textContent = text;
 }
 
 function formatSleepTime(ms) {
@@ -65,9 +69,8 @@ function updateSleepTimer() {
 }
 
 function startSleepRecord() {
-    if (typeof unlockAudio === "function") {
-        unlockAudio();
-    }
+    if (typeof unlockAudio === "function") unlockAudio();
+    if (typeof armAlarmAudio === "function") armAlarmAudio();
 
     sleepStartTime = Date.now();
     localStorage.setItem("sleepStartTime", sleepStartTime);
@@ -78,77 +81,55 @@ function startSleepRecord() {
 
     document.body.classList.add("sleep-mode");
 
-    setSebasImage("assets/sleep.jpg");
-    setMessageText("……おやすみ、レイ。今日はもう何も考えなくていい。");
+    setSleepImages("assets/sleep.jpg");
+    setSleepMessages("……おやすみ、レイ。今日はもう何も考えなくていい。");
 
     sleepImageTimer1 = setTimeout(function () {
-        setSebasImage("assets/sleep2.jpg");
+        setSleepImages("assets/sleep2.jpg");
     }, 15000);
 
     sleepImageTimer2 = setTimeout(function () {
-        setSebasImage("assets/sleep3.jpg");
+        setSleepImages("assets/sleep3.jpg");
     }, 30000);
 
-    if (sleepStatus) {
-        sleepStatus.textContent = "睡眠中";
-    }
+    if (sleepStatus) sleepStatus.textContent = "睡眠中";
 
     updateSleepTimer();
     sleepTimerId = setInterval(updateSleepTimer, 1000);
 
-    if (typeof startSleepBgm === "function") {
-        startSleepBgm();
-    }
+    if (typeof startSleepBgm === "function") startSleepBgm();
 }
 
 function stopSleepRecord() {
     if (!sleepStartTime) return;
 
-    const sleepDuration = Date.now() - sleepStartTime;
-    const recordText = formatSleepTime(sleepDuration);
+    const recordText = formatSleepTime(Date.now() - sleepStartTime);
 
     localStorage.setItem("lastSleepDuration", recordText);
     localStorage.setItem("lastSleepDate", new Date().toLocaleDateString());
     localStorage.removeItem("sleepStartTime");
 
     sleepStartTime = null;
-
     clearInterval(sleepTimerId);
     clearTimeout(sleepImageTimer1);
     clearTimeout(sleepImageTimer2);
-
     sleepTimerId = null;
     sleepImageTimer1 = null;
     sleepImageTimer2 = null;
 
-    if (typeof stopSleepBgm === "function") {
-        stopSleepBgm();
-    }
-
+    if (typeof stopSleepBgm === "function") stopSleepBgm();
     document.body.classList.remove("sleep-mode");
 
-    setSebasImage("assets/blink05.jpg");
+    setSleepImages("assets/blink05.jpg");
+    if (typeof scheduleNextBlink === "function") scheduleNextBlink();
 
-    if (typeof scheduleNextBlink === "function") {
-        scheduleNextBlink();
-    }
+    if (sleepTimer) sleepTimer.textContent = recordText;
+    if (sleepStatus) sleepStatus.textContent = "記録完了";
+    if (sleepLastRecord) sleepLastRecord.textContent = "前回の睡眠：" + recordText;
 
-    if (sleepTimer) {
-        sleepTimer.textContent = recordText;
-    }
-
-    if (sleepStatus) {
-        sleepStatus.textContent = "記録完了";
-    }
-
-    if (sleepLastRecord) {
-        sleepLastRecord.textContent = "前回の睡眠：" + recordText;
-    }
-
-    setMessageText(pickMessage(wakeMessages));
-
+    setSleepMessages(pickMessage(wakeMessages));
     setTimeout(function () {
-        setMessageText(getSimpleSleepComment(recordText));
+        setSleepMessages(getSimpleSleepComment(recordText));
     }, 3000);
 }
 
@@ -158,60 +139,33 @@ function resetSleepRecord() {
     localStorage.removeItem("lastSleepDate");
 
     sleepStartTime = null;
-
     clearInterval(sleepTimerId);
     clearTimeout(sleepImageTimer1);
     clearTimeout(sleepImageTimer2);
-
     sleepTimerId = null;
     sleepImageTimer1 = null;
     sleepImageTimer2 = null;
 
-    if (typeof stopSleepBgm === "function") {
-        stopSleepBgm();
-    }
-
+    if (typeof stopSleepBgm === "function") stopSleepBgm();
     document.body.classList.remove("sleep-mode");
 
-    setSebasImage("assets/blink05.jpg");
+    setSleepImages("assets/blink05.jpg");
+    if (typeof scheduleNextBlink === "function") scheduleNextBlink();
 
-    if (typeof scheduleNextBlink === "function") {
-        scheduleNextBlink();
-    }
+    if (sleepTimer) sleepTimer.textContent = "00:00:00";
+    if (sleepStatus) sleepStatus.textContent = "まだ記録していません";
+    if (sleepLastRecord) sleepLastRecord.textContent = "前回の睡眠：--";
 
-    if (sleepTimer) {
-        sleepTimer.textContent = "00:00:00";
-    }
-
-    if (sleepStatus) {
-        sleepStatus.textContent = "まだ記録していません";
-    }
-
-    if (sleepLastRecord) {
-        sleepLastRecord.textContent = "前回の睡眠：--";
-    }
-
-    setMessageText("睡眠記録をリセットした。");
+    setSleepMessages("睡眠記録をリセットした。");
 }
 
 function getSimpleSleepComment(recordText) {
     const parts = recordText.split(":");
-    const hours = Number(parts[0]);
-    const minutes = Number(parts[1]);
-    const totalMinutes = hours * 60 + minutes;
+    const totalMinutes = Number(parts[0]) * 60 + Number(parts[1]);
 
-    if (totalMinutes < 240) {
-        return "短いな。今日は無理をするな、レイ。";
-    }
-
-    if (totalMinutes < 360) {
-        return "少し短い。だが、起きたなら水を飲め。";
-    }
-
-    if (totalMinutes < 480) {
-        return "悪くない睡眠だ。よく戻ってきた。";
-    }
-
+    if (totalMinutes < 240) return "短いな。今日は無理をするな、レイ。";
+    if (totalMinutes < 360) return "少し短い。だが、起きたなら水を飲め。";
+    if (totalMinutes < 480) return "悪くない睡眠だ。よく戻ってきた。";
     return "よく眠れたな。今日は少し身体が軽いはずだ。";
 }
 
@@ -224,34 +178,23 @@ function loadSleepRecord() {
 
     if (sleepStartTime) {
         document.body.classList.add("sleep-mode");
+        if (sleepStatus) sleepStatus.textContent = "睡眠中";
 
-        if (sleepStatus) {
-            sleepStatus.textContent = "睡眠中";
-        }
-
-        setSebasImage("assets/sleep3.jpg");
-        setMessageText("……睡眠中だ。");
+        setSleepImages("assets/sleep3.jpg");
+        setSleepMessages("……睡眠中だ。");
 
         updateSleepTimer();
         clearInterval(sleepTimerId);
         sleepTimerId = setInterval(updateSleepTimer, 1000);
 
-        if (typeof startSleepBgm === "function") {
-            startSleepBgm();
-        }
+        if (typeof startSleepBgm === "function") startSleepBgm();
+    } else {
+        if (sleepSebas) sleepSebas.src = "assets/sleep.jpg";
     }
 }
 
-if (sleepStartButton) {
-    sleepStartButton.addEventListener("click", startSleepRecord);
-}
-
-if (sleepStopButton) {
-    sleepStopButton.addEventListener("click", stopSleepRecord);
-}
-
-if (sleepResetButton) {
-    sleepResetButton.addEventListener("click", resetSleepRecord);
-}
+if (sleepStartButton) sleepStartButton.addEventListener("click", startSleepRecord);
+if (sleepStopButton) sleepStopButton.addEventListener("click", stopSleepRecord);
+if (sleepResetButton) sleepResetButton.addEventListener("click", resetSleepRecord);
 
 loadSleepRecord();

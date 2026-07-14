@@ -16,4 +16,3 @@ if (message && typeof getDailyFlowMessage === "function") {
     message.textContent = getDailyFlowMessage();
 }
 
-loadSleepRecord();

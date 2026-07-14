@@ -36,7 +36,13 @@ const nightMessages = [
 ];
 
 function randomMessage(list) {
-    return list[Math.floor(Math.random() * list.length)];
+    const text = list[Math.floor(Math.random() * list.length)];
+
+    if (typeof personalizeHavenText === "function") {
+        return personalizeHavenText(text);
+    }
+
+    return text;
 }
 
 function getMessageList(weatherCode, pressure){
@@ -201,7 +207,7 @@ const contextualIdleMessages = {
 let idleMessageTimer = null;
 
 function showIdleMessage() {
-    if (timerId === null) return;
+    if (typeof sessionState !== "undefined" && sessionState !== "work") return;
 
     const memoryMessage = getMemoryMessage();
 
@@ -248,14 +254,24 @@ if (memoryMessage && Math.random() < 0.25) {
 }
 
 function scheduleIdleMessage() {
-    const next = 180000 + Math.random() * 240000;
+    const fallback = { min: 180000, max: 420000 };
+    const range = typeof getHavenIdleDelay === "function"
+        ? getHavenIdleDelay("next")
+        : fallback;
+
+    const next = range.min + Math.random() * (range.max - range.min);
     idleMessageTimer = setTimeout(showIdleMessage, next);
 }
 
 function startIdleMessages() {
     if (idleMessageTimer !== null) return;
 
-    const first = 90000 + Math.random() * 90000;
+    const fallback = { min: 90000, max: 180000 };
+    const range = typeof getHavenIdleDelay === "function"
+        ? getHavenIdleDelay("first")
+        : fallback;
+
+    const first = range.min + Math.random() * (range.max - range.min);
     idleMessageTimer = setTimeout(showIdleMessage, first);
 }
 
