@@ -587,3 +587,118 @@ body.sleep-mode{
     margin-top: 10px;
     line-height: 1.6;
 }
+
+
+/* ========================
+   Haven ページ切替
+======================== */
+
+body {
+    padding-bottom: 86px;
+}
+
+#appPages {
+    min-height: 100vh;
+}
+
+.app-page {
+    display: none;
+    min-height: 100vh;
+}
+
+.app-page.active {
+    display: block;
+    animation: havenPageIn 0.32s ease both;
+}
+
+.page-shell-card {
+    width: min(520px, calc(100% - 40px));
+    margin: 8vh auto 120px;
+    padding: 34px;
+    box-sizing: border-box;
+    text-align: center;
+    color: white;
+    border: 1px solid rgba(255, 255, 255, 0.16);
+    border-radius: 24px;
+    background: rgba(7, 12, 24, 0.72);
+    backdrop-filter: blur(14px);
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.42);
+}
+
+.page-shell-card h1 {
+    margin: 8px 0 14px;
+}
+
+.page-shell-card p {
+    line-height: 1.8;
+    opacity: 0.82;
+}
+
+.page-kicker {
+    font-size: 12px;
+    letter-spacing: 0.35em;
+    opacity: 0.65;
+}
+
+.page-back-button {
+    margin-top: 18px;
+}
+
+.bottom-nav {
+    position: fixed;
+    left: 50%;
+    bottom: max(14px, env(safe-area-inset-bottom));
+    z-index: 1000;
+
+    display: flex;
+    gap: 8px;
+    width: min(420px, calc(100% - 28px));
+    padding: 8px;
+    box-sizing: border-box;
+    transform: translateX(-50%);
+
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 20px;
+    background: rgba(8, 13, 25, 0.78);
+    backdrop-filter: blur(16px);
+    box-shadow: 0 16px 45px rgba(0, 0, 0, 0.42);
+}
+
+.bottom-nav .nav-button {
+    flex: 1;
+    padding: 11px 12px;
+    font-size: 13px;
+    border-radius: 14px;
+    background: transparent;
+    box-shadow: none;
+    opacity: 0.68;
+}
+
+.bottom-nav .nav-button.active {
+    background: rgba(255, 255, 255, 0.14);
+    opacity: 1;
+}
+
+@keyframes havenPageIn {
+    from {
+        opacity: 0;
+        transform: translateY(8px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@media screen and (max-width: 768px) {
+    body {
+        padding-bottom: 92px;
+    }
+
+    .page-shell-card {
+        margin-top: 28px;
+        padding: 26px 22px;
+    }
+}
+

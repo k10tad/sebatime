@@ -1,16 +1,19 @@
+
 <!DOCTYPE html>
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Haven</title>
-<meta name="apple-mobile-web-app-title" content="Haven">
-<meta name="application-name" content="Haven">
+    <meta name="apple-mobile-web-app-title" content="Haven">
+    <meta name="application-name" content="Haven">
     <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
 
+<main id="appPages">
+<section class="app-page active" id="homePage" data-page="home">
 <div class="container">
 
     <div class="left">
@@ -116,6 +119,32 @@
     </div>
 
 </div>
+</section>
+
+<section class="app-page" id="sleepPage" data-page="sleep" aria-hidden="true">
+    <div class="page-shell-card">
+        <div class="page-kicker">HAVEN</div>
+        <h1>Sleep</h1>
+        <p>睡眠計測とアラームは、次の段階でここへ移します。</p>
+        <button class="page-back-button" type="button" data-go-page="home">Homeへ戻る</button>
+    </div>
+</section>
+
+<section class="app-page" id="settingsPage" data-page="settings" aria-hidden="true">
+    <div class="page-shell-card">
+        <div class="page-kicker">HAVEN</div>
+        <h1>Settings</h1>
+        <p>呼び名、音量、独り言の頻度などを、後でここにまとめます。</p>
+        <button class="page-back-button" type="button" data-go-page="home">Homeへ戻る</button>
+    </div>
+</section>
+</main>
+
+<nav class="bottom-nav" aria-label="Haven navigation">
+    <button class="nav-button active" type="button" data-page-target="home">Home</button>
+    <button class="nav-button" type="button" data-page-target="sleep">Sleep</button>
+    <button class="nav-button" type="button" data-page-target="settings">Settings</button>
+</nav>
 
 <script src="message.js"></script>
 <script src="sound.js?v=12"></script>
@@ -127,7 +156,9 @@
 <script src="weather.js"></script>
 <script src="clock.js"></script>
 <script src="blink.js"></script>
+<script src="navigation.js"></script>
 <script src="main.js"></script>
 
 </body>
 </html>
+
