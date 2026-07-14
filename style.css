@@ -702,3 +702,120 @@ body {
     }
 }
 
+/* ========================
+   Haven 作業・休憩カウンター
+======================== */
+
+.session-card {
+    width: min(440px, calc(100% - 36px));
+    margin: 28px 0 10px;
+    padding: 20px;
+    box-sizing: border-box;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 22px;
+    background: rgba(6, 11, 22, 0.52);
+    backdrop-filter: blur(12px);
+    box-shadow: 0 16px 42px rgba(0, 0, 0, 0.3);
+}
+
+.session-heading {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 18px;
+}
+
+.session-heading h2 {
+    margin: 4px 0 0;
+    font-size: 19px;
+    font-weight: 500;
+    letter-spacing: 0.04em;
+}
+
+.session-kicker {
+    font-size: 10px;
+    letter-spacing: 0.28em;
+    opacity: 0.58;
+}
+
+.session-status {
+    flex: 0 0 auto;
+    padding: 7px 11px;
+    border: 1px solid rgba(255, 255, 255, 0.16);
+    border-radius: 999px;
+    font-size: 12px;
+    letter-spacing: 0.08em;
+    background: rgba(255, 255, 255, 0.07);
+}
+
+.session-status[data-state="work"] {
+    background: rgba(154, 184, 212, 0.18);
+}
+
+.session-status[data-state="break"] {
+    background: rgba(201, 182, 147, 0.18);
+}
+
+.session-times {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+}
+
+.session-time-block {
+    padding: 15px 14px;
+    border-radius: 16px;
+    background: rgba(255, 255, 255, 0.07);
+    text-align: center;
+}
+
+.session-time-block span {
+    display: block;
+    margin-bottom: 7px;
+    font-size: 12px;
+    letter-spacing: 0.12em;
+    opacity: 0.68;
+}
+
+.session-time-block strong {
+    display: block;
+    font-size: 27px;
+    font-weight: 500;
+    letter-spacing: 0.06em;
+    font-variant-numeric: tabular-nums;
+    text-shadow: 0 0 16px rgba(0, 0, 0, 0.65);
+}
+
+.session-buttons {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 9px;
+    margin-top: 14px;
+}
+
+.session-buttons button {
+    padding: 11px 8px;
+    font-size: 13px;
+}
+
+.session-buttons button:disabled {
+    cursor: default;
+    opacity: 0.38;
+}
+
+@media screen and (max-width: 768px) {
+    .session-card {
+        width: 100%;
+        margin-top: 20px;
+    }
+
+    .session-heading {
+        align-items: center;
+    }
+
+    .session-time-block strong {
+        font-size: clamp(20px, 7vw, 28px);
+    }
+}
+

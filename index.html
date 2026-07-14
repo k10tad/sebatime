@@ -61,21 +61,33 @@
             <div id="trainingSuggestion">運動メニュー：未設定</div>
         </div>
 
-        <div id="timer">25:00</div>
+        <section class="session-card" aria-labelledby="sessionTitle">
+            <div class="session-heading">
+                <div>
+                    <div class="session-kicker">WORK SESSION</div>
+                    <h2 id="sessionTitle">自分のペースで進める</h2>
+                </div>
+                <div id="sessionStatus" class="session-status" data-state="idle">待機中</div>
+            </div>
 
-        <div class="focus-box">
-            <div class="focus-title">Today's Focus</div>
-            <div id="focusTime">00:00:00</div>
-            <div id="pomodoroDisplay">0 Pomodoro</div>
-        </div>
+            <div class="session-times">
+                <div class="session-time-block">
+                    <span>作業時間</span>
+                    <strong id="workTime">00:00:00</strong>
+                </div>
 
-        <div class="buttons">
-            <button id="start">作業開始</button>
-            <button id="pause">一時停止</button>
-            <button id="reset">リセット</button>
-        </div>
+                <div class="session-time-block">
+                    <span>休憩時間</span>
+                    <strong id="breakTime">00:00:00</strong>
+                </div>
+            </div>
 
-        <button id="summaryButton">今日の総括</button>
+            <div class="session-buttons">
+                <button id="workStart" type="button">作業開始</button>
+                <button id="workBreak" type="button">休憩</button>
+                <button id="workEnd" type="button">終了</button>
+            </div>
+        </section>
 
         <div class="task-box">
             <h2>Today's Tasks</h2>
@@ -148,7 +160,7 @@
 
 <script src="message.js"></script>
 <script src="sound.js?v=12"></script>
-<script src="timer.js?v=3"></script>
+<script src="work-session.js?v=1"></script>
 <script src="tasks.js"></script>
 <script src="sleep.js?v=5"></script>
 <script src="mood.js?v=3"></script>
@@ -157,7 +169,7 @@
 <script src="clock.js"></script>
 <script src="blink.js"></script>
 <script src="navigation.js"></script>
-<script src="main.js"></script>
+<script src="main.js?v=1"></script>
 
 </body>
 </html>

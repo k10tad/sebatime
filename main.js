@@ -1,11 +1,8 @@
 //========================
-// 起動時
+// Haven 起動時
 //========================
 
-checkNewDay();
-
-updateTimer();
-updateFocusDisplay();
+restoreWorkSession();
 
 updateClock();
 setInterval(updateClock, 1000);
@@ -15,7 +12,8 @@ loadWeather();
 preloadImages();
 scheduleNextBlink();
 
-message.textContent = getDailyFlowMessage();
+if (message && typeof getDailyFlowMessage === "function") {
+    message.textContent = getDailyFlowMessage();
+}
 
 loadSleepRecord();
-
