@@ -65,8 +65,16 @@ function updateSleepTimer() {
 }
 
 function startSleepRecord() {
-    if (typeof unlockAudio === "function") {
-        unlockAudio();
+    // 以前のアラーム再生状態を完全に解除してから睡眠へ入る。
+    if (typeof stopRingingUi === "function") {
+        stopRingingUi();
+    } else if (typeof stopAlarmSound === "function") {
+        stopAlarmSound();
+    }
+
+    // 起床時刻と同じ「分」に寝始めた場合、その場で鳴らないよう抑制する。
+    if (typeof suppressAlarmForCurrentMinute === "function") {
+        suppressAlarmForCurrentMinute();
     }
 
     sleepStartTime = Date.now();
