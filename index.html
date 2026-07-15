@@ -1,4 +1,5 @@
 
+
 <!DOCTYPE html>
 <html lang="ja">
 <head>
@@ -7,150 +8,233 @@
     <title>Haven</title>
     <meta name="apple-mobile-web-app-title" content="Haven">
     <meta name="application-name" content="Haven">
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="style.css?v=15">
 </head>
 
 <body>
 
+<div class="moonlight-sky" aria-hidden="true">
+    <div class="moon-glow"></div>
+    <div id="starField" class="star-field"></div>
+    <div id="homeOrion" class="home-orion"></div>
+    <div class="weather-veil"></div>
+</div>
+
 <main id="appPages">
 <section class="app-page active" id="homePage" data-page="home">
-<div class="container">
-
-    <div class="left">
-        <img src="assets/blink05.jpg" id="sebas">
-
-        <div id="message">
-            ……来たか。おい、早々に顔を触るんじゃない。
-        </div>
-    </div>
-
-    <div class="right">
-
-        <h1>Haven</h1>
-
-        <div class="clock-card">
-            <div class="line"></div>
-            <div id="city">Madrid</div>
-            <div id="clock"></div>
-            <div id="date"></div>
-            <div class="line"></div>
-        </div>
-
-        <div id="weather-card">
-            <div id="weather-icon">☁</div>
-            <div id="temperature">--℃</div>
-            <div id="pressure">---- hPa</div>
-            <div id="humidity">--%</div>
-        </div>
-
-        <div class="mood-box">
-            <h2>Today's Condition</h2>
-
-            <div id="moodQuestion">今日はどうだ。</div>
-
-            <div class="mood-buttons">
-                <button class="mood-btn" data-mood="good">元気</button>
-                <button class="mood-btn" data-mood="normal">普通</button>
-                <button class="mood-btn" data-mood="tired">少し疲れてる</button>
-                <button class="mood-btn" data-mood="veryTired">かなり疲れてる</button>
-                <button class="mood-btn" data-mood="headache">頭痛がある</button>
-                <button class="mood-btn" data-mood="low">気分が沈んでる</button>
-            </div>
-
-            <div id="todayOrder">今日の司令：未設定</div>
-            <div id="trainingSuggestion">運動メニュー：未設定</div>
-        </div>
-
-        <section class="session-card" aria-labelledby="sessionTitle">
-            <div class="session-heading">
-                <div>
-                    <div class="session-kicker">WORK SESSION</div>
-                    <h2 id="sessionTitle">自分のペースで進める</h2>
-                </div>
-                <div id="sessionStatus" class="session-status" data-state="idle">待機中</div>
-            </div>
-
-            <div class="session-times">
-                <div class="session-time-block">
-                    <span>作業時間</span>
-                    <strong id="workTime">00:00:00</strong>
-                </div>
-
-                <div class="session-time-block">
-                    <span>休憩時間</span>
-                    <strong id="breakTime">00:00:00</strong>
-                </div>
-            </div>
-
-            <div class="session-buttons">
-                <button id="workStart" type="button">作業開始</button>
-                <button id="workBreak" type="button">休憩</button>
-                <button id="workEnd" type="button">終了</button>
-            </div>
+    <div class="haven-home">
+        <section class="haven-presence" aria-label="Sebas">
+            <img src="assets/blink05.jpg" id="sebas" alt="Sebas">
+            <div id="message">……来たか。</div>
         </section>
 
-        <div class="task-box">
-            <h2>Today's Tasks</h2>
-
-            <div class="task-input">
-                <input type="text" id="taskInput" placeholder="タスクを入力">
-                <button id="addTask">追加</button>
+        <section class="haven-dashboard">
+            <div class="orion-mark" aria-hidden="true">
+                <span></span><span></span><span></span>
             </div>
 
-            <ul id="taskList"></ul>
-        </div>
+            <h1>Haven</h1>
 
-        <div class="sleep-box">
-            <h2>Sleep Record</h2>
-
-            <div class="sleep-time">
-                <div id="sleepTimer">00:00:00</div>
-                <div id="sleepStatus">まだ記録していません</div>
+            <div class="clock-card">
+                <div class="line"></div>
+                <div id="city">Madrid</div>
+                <div id="clock"></div>
+                <div id="date"></div>
+                <div class="line"></div>
             </div>
 
-            <div class="sleep-buttons">
-                <button id="sleepStart">寝る</button>
-                <button id="sleepStop">起きた</button>
-                <button id="sleepReset">睡眠リセット</button>
+            <div id="weather-card" class="weather-card">
+                <div id="weather-icon">☁</div>
+                <div id="temperature">--℃</div>
+                <div id="pressure">---- hPa</div>
+                <div id="pressure-level">気圧：取得中</div>
+                <div id="weather-comment">夜空を見ながら、少し待て。</div>
+                <div id="humidity">湿度 --%</div>
             </div>
 
-            <div id="sleepLastRecord">前回の睡眠：--</div>
-        </div>
+            <section class="session-card" aria-labelledby="sessionTitle">
+                <div class="session-heading">
+                    <div>
+                        <div class="session-kicker">WORK SESSION</div>
+                        <h2 id="sessionTitle">自分のペースで進める</h2>
+                    </div>
+                    <div id="sessionStatus" class="session-status" data-state="idle">待機中</div>
+                </div>
 
-        <div class="memory-box">
-            <h2>Sebas Memory</h2>
+                <div class="session-times">
+                    <div class="session-time-block">
+                        <span>作業時間</span>
+                        <strong id="workTime">00:00:00</strong>
+                    </div>
 
-            <div class="memory-input">
-                <input type="text" id="memoryInput" placeholder="セバスに覚えておいてほしいこと">
-                <button id="addMemory">記憶</button>
-            </div>
+                    <div class="session-time-block">
+                        <span>休憩時間</span>
+                        <strong id="breakTime">00:00:00</strong>
+                    </div>
+                </div>
 
-            <ul id="memoryList"></ul>
-        </div>
-
+                <div class="session-buttons">
+                    <button id="workStart" type="button">作業開始</button>
+                    <button id="workBreak" type="button">休憩</button>
+                    <button id="workEnd" type="button">終了</button>
+                </div>
+            </section>
+        </section>
     </div>
-
-</div>
 </section>
 
 <section class="app-page" id="sleepPage" data-page="sleep" aria-hidden="true">
-    <div class="page-shell-card">
-        <div class="page-kicker">HAVEN</div>
-        <h1>Sleep</h1>
-        <p>睡眠計測とアラームは、次の段階でここへ移します。</p>
+    <div class="sleep-page-shell">
+        <header class="sleep-page-header">
+            <div class="orion-mark" aria-hidden="true"><span></span><span></span><span></span></div>
+            <div class="page-kicker">HAVEN</div>
+            <h1>Tonight</h1>
+            <p>眠る時間まで、ここにいる。</p>
+        </header>
+
+        <section class="sleep-visual" aria-label="眠るセバス">
+            <img id="sleepSebas" src="assets/sleep.jpg" alt="眠るセバス">
+            <div id="sleepMessage" class="sleep-message">眠る準備ができたら、「寝る」を押せ。</div>
+        </section>
+
+        <section class="sleep-panel" aria-labelledby="sleepRecordTitle">
+            <div class="sleep-panel-heading">
+                <div>
+                    <div class="sleep-label">SLEEP RECORD</div>
+                    <h2 id="sleepRecordTitle">睡眠時間</h2>
+                </div>
+                <div id="sleepStatus" class="sleep-state">まだ記録していません</div>
+            </div>
+
+            <div id="sleepTimer" class="sleep-counter">00:00:00</div>
+            <div id="sleepLastRecord" class="sleep-last-record">前回の睡眠：--</div>
+
+            <div class="sleep-buttons">
+                <button id="sleepStart" type="button">寝る</button>
+                <button id="sleepStop" type="button">起きた</button>
+                <button id="sleepReset" class="quiet-button" type="button">記録リセット</button>
+            </div>
+        </section>
+
+        <section class="alarm-panel" aria-labelledby="alarmTitle">
+            <div class="sleep-label">WAKE UP</div>
+            <h2 id="alarmTitle">起床アラーム</h2>
+
+            <label class="alarm-time-row" for="alarmTime">
+                <span>起床時刻</span>
+                <input id="alarmTime" type="time" value="07:30">
+            </label>
+
+            <label class="alarm-toggle-row">
+                <span>アラーム</span>
+                <input id="alarmEnabled" type="checkbox">
+                <span class="alarm-toggle-ui" aria-hidden="true"></span>
+            </label>
+
+            <button id="saveAlarm" type="button">アラームを保存</button>
+            <div id="alarmStatus" class="alarm-status">アラームは設定されていません</div>
+            <div id="alarmCountdown" class="alarm-countdown"></div>
+
+            <div id="alarmRingingPanel" class="alarm-ringing-panel" hidden>
+                <div class="alarm-ringing-label">WAKE UP</div>
+                <div id="alarmWakeMessage" class="alarm-wake-message">……レイ。</div>
+                <div class="alarm-action-buttons">
+                    <button id="alarmWakeButton" type="button">起きる</button>
+                    <button id="alarmSnoozeButton" class="quiet-button" type="button">あと5分</button>
+                </div>
+            </div>
+        </section>
+
         <button class="page-back-button" type="button" data-go-page="home">Homeへ戻る</button>
     </div>
 </section>
 
 <section class="app-page" id="settingsPage" data-page="settings" aria-hidden="true">
-    <div class="page-shell-card">
-        <div class="page-kicker">HAVEN</div>
-        <h1>Settings</h1>
-        <p>呼び名、音量、独り言の頻度などを、後でここにまとめます。</p>
+    <div class="settings-page-shell">
+        <header class="settings-page-header">
+            <div class="orion-mark" aria-hidden="true"><span></span><span></span><span></span></div>
+            <div class="page-kicker">HAVEN</div>
+            <h1>Settings</h1>
+            <p>この部屋の呼び方と音を、静かに整える。</p>
+        </header>
+
+        <section class="settings-panel" aria-labelledby="profileSettingsTitle">
+            <div class="settings-section-heading">
+                <div class="settings-label">PROFILE</div>
+                <h2 id="profileSettingsTitle">呼び名</h2>
+            </div>
+
+            <label class="settings-field" for="userNameInput">
+                <span>セバスに呼んでほしい名前</span>
+                <input id="userNameInput" type="text" maxlength="24" autocomplete="nickname" placeholder="レイ">
+            </label>
+        </section>
+
+        <section class="settings-panel" aria-labelledby="soundSettingsTitle">
+            <div class="settings-section-heading">
+                <div class="settings-label">SOUND</div>
+                <h2 id="soundSettingsTitle">音量</h2>
+            </div>
+
+            <label class="volume-setting" for="bgmVolume">
+                <span>通常BGM</span>
+                <output id="bgmVolumeValue">18%</output>
+                <input id="bgmVolume" type="range" min="0" max="100" step="1" value="18">
+            </label>
+
+            <label class="volume-setting" for="livingVolume">
+                <span>生活音</span>
+                <output id="livingVolumeValue">15%</output>
+                <input id="livingVolume" type="range" min="0" max="100" step="1" value="15">
+            </label>
+
+            <label class="volume-setting" for="sleepVolume">
+                <span>睡眠中の寝息</span>
+                <output id="sleepVolumeValue">20%</output>
+                <input id="sleepVolume" type="range" min="0" max="100" step="1" value="20">
+            </label>
+        </section>
+
+        <section class="settings-panel" aria-labelledby="voiceSettingsTitle">
+            <div class="settings-section-heading">
+                <div class="settings-label">PRESENCE</div>
+                <h2 id="voiceSettingsTitle">独り言の頻度</h2>
+            </div>
+
+            <div class="frequency-options" role="radiogroup" aria-label="独り言の頻度">
+                <label><input type="radio" name="idleFrequency" value="low"><span>少ない</span></label>
+                <label><input type="radio" name="idleFrequency" value="normal" checked><span>普通</span></label>
+                <label><input type="radio" name="idleFrequency" value="high"><span>多い</span></label>
+            </div>
+        </section>
+
+        <section class="settings-panel settings-about" aria-label="バージョン情報">
+            <div>
+                <div class="settings-label">VERSION</div>
+                <strong>Haven v1.4 Settings</strong>
+            </div>
+            <div class="orion-mini" aria-hidden="true">✦ ✦ ✦</div>
+        </section>
+
+        <div id="settingsSavedMessage" class="settings-saved-message" role="status" aria-live="polite"></div>
+
+        <div class="settings-actions">
+            <button id="saveSettings" type="button">設定を保存</button>
+            <button id="resetSettings" class="quiet-button" type="button">初期値に戻す</button>
+        </div>
+
         <button class="page-back-button" type="button" data-go-page="home">Homeへ戻る</button>
     </div>
 </section>
 </main>
+
+<!-- 旧機能のJavaScriptを壊さないための一時的な互換要素。画面には表示されません。 -->
+<div class="legacy-compat" aria-hidden="true">
+    <input id="taskInput" type="text"><button id="addTask" type="button"></button><ul id="taskList"></ul>
+    <div id="moodQuestion"></div><div id="todayOrder"></div><div id="trainingSuggestion"></div>
+    <button class="mood-btn" data-mood="normal" type="button"></button>
+    <input id="memoryInput" type="text"><button id="addMemory" type="button"></button><ul id="memoryList"></ul>
+</div>
 
 <nav class="bottom-nav" aria-label="Haven navigation">
     <button class="nav-button active" type="button" data-page-target="home">Home</button>
@@ -158,19 +242,21 @@
     <button class="nav-button" type="button" data-page-target="settings">Settings</button>
 </nav>
 
+<script src="background.js?v=1"></script>
 <script src="message.js"></script>
-<script src="sound.js?v=12"></script>
-<script src="work-session.js?v=1"></script>
+<script src="sound.js?v=15"></script>
+<script src="settings.js?v=1"></script>
+<script src="work-session.js?v=2"></script>
 <script src="tasks.js"></script>
-<script src="sleep.js?v=5"></script>
+<script src="alarm.js?v=2"></script>
+<script src="sleep.js?v=7"></script>
 <script src="mood.js?v=3"></script>
 <script src="memory.js"></script>
-<script src="weather.js"></script>
+<script src="weather.js?v=2"></script>
 <script src="clock.js"></script>
 <script src="blink.js"></script>
-<script src="navigation.js"></script>
-<script src="main.js?v=1"></script>
+<script src="navigation.js?v=2"></script>
+<script src="main.js?v=2"></script>
 
 </body>
 </html>
-
