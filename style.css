@@ -2340,3 +2340,113 @@ body.splash-active #appPages {
         animation-iteration-count: 1 !important;
     }
 }
+
+/* =========================================================
+   ORION SPLASH v2.1 — iPhone / mobile viewport position fix
+   ========================================================= */
+
+/* Safariが以前のスクロール位置を復元しても、Splashは必ず画面上端に固定する。 */
+body.splash-active {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    overscroll-behavior: none;
+    touch-action: none;
+}
+
+.haven-splash {
+    top: 0;
+    left: 0;
+    right: auto;
+    bottom: auto;
+    width: 100vw;
+    height: 100svh;
+    min-height: 100svh;
+    box-sizing: border-box;
+    contain: layout paint;
+}
+
+@supports (height: 100dvh) {
+    .haven-splash {
+        height: 100dvh;
+        min-height: 100dvh;
+    }
+}
+
+/* ページ全体ではなく、実際の端末画面を基準に配置する。 */
+.splash-content {
+    position: absolute;
+    top: 46%;
+    left: 50%;
+    width: min(86vw, 430px);
+    min-height: 0;
+    transform: translate(-50%, -50%);
+}
+
+.splash-orion {
+    width: min(64vw, 292px);
+    max-height: 42svh;
+}
+
+@supports (height: 100dvh) {
+    .splash-orion {
+        max-height: 42dvh;
+    }
+}
+
+/* iPhoneでは少し上寄せ。Dynamic Islandとホームバーの間に収める。 */
+@media (max-width: 768px) {
+    .haven-splash {
+        padding:
+            max(12px, env(safe-area-inset-top))
+            max(16px, env(safe-area-inset-right))
+            max(14px, env(safe-area-inset-bottom))
+            max(16px, env(safe-area-inset-left));
+    }
+
+    .splash-content {
+        top: 43%;
+        width: min(88vw, 390px);
+    }
+
+    .splash-orion {
+        width: min(67vw, 280px);
+        max-height: 39svh;
+    }
+
+    .splash-brand {
+        margin-top: clamp(-20px, -2.4vh, -9px);
+    }
+
+    .splash-title {
+        font-size: clamp(2.35rem, 12vw, 4rem);
+    }
+
+    .skip-splash {
+        position: fixed;
+        right: max(16px, env(safe-area-inset-right));
+        bottom: max(16px, env(safe-area-inset-bottom));
+    }
+}
+
+/* 縦が短い端末でも下へ押し出されない。 */
+@media (max-height: 720px) {
+    .splash-content {
+        top: 44%;
+    }
+
+    .splash-orion {
+        width: min(51vw, 230px);
+        max-height: 34svh;
+    }
+
+    .splash-brand {
+        margin-top: -22px;
+    }
+
+    .splash-subtitle {
+        margin-top: 9px;
+    }
+}

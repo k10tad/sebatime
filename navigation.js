@@ -32,12 +32,18 @@ function showHavenPage(pageName) {
 
 havenNavButtons.forEach(button => {
     button.addEventListener("click", function () {
+        if (typeof playPageStepSound === "function") {
+            playPageStepSound();
+        }
         showHavenPage(button.dataset.pageTarget);
     });
 });
 
 havenPageLinks.forEach(button => {
     button.addEventListener("click", function () {
+        if (typeof playPageStepSound === "function") {
+            playPageStepSound();
+        }
         showHavenPage(button.dataset.goPage);
     });
 });
