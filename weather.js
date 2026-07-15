@@ -43,6 +43,19 @@ function getWeatherIcon(code) {
     return "☁";
 }
 
+
+function applyWeatherAtmosphere(code) {
+    document.body.classList.remove("weather-rain", "weather-fog", "weather-snow");
+
+    if (code >= 45 && code <= 48) {
+        document.body.classList.add("weather-fog");
+    } else if ((code >= 51 && code <= 67) || (code >= 80 && code <= 99)) {
+        document.body.classList.add("weather-rain");
+    } else if (code >= 71 && code <= 77) {
+        document.body.classList.add("weather-snow");
+    }
+}
+
 async function loadWeather() {
     const temperature = document.getElementById("temperature");
     const pressure = document.getElementById("pressure");
@@ -83,6 +96,7 @@ async function loadWeather() {
         weatherIcon.textContent = getWeatherIcon(code);
         pressureLevel.textContent = presentation.level;
         weatherComment.textContent = presentation.comment;
+        applyWeatherAtmosphere(code);
 
         // message.jsから参照される既存変数へ反映。
         currentWeatherCode = code;
@@ -94,7 +108,7 @@ async function loadWeather() {
         weatherIcon.textContent = "✦";
         pressureLevel.textContent = "気圧：取得できません";
         weatherComment.textContent = "通信が戻るまで、ここで待っていろ。";
+        document.body.classList.remove("weather-rain", "weather-fog", "weather-snow");
         console.error("Haven weather error:", error);
     }
 }
-

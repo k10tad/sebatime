@@ -3,16 +3,30 @@
 //========================
 
 const HAVEN_SETTINGS_KEY = "havenSettings";
+const HAVEN_SETTINGS_VERSION_KEY = "havenSettingsVersion";
+const HAVEN_SETTINGS_VERSION = 2;
 
 const havenDefaultSettings = {
     userName: "レイ",
     bgmVolume: 18,
     livingVolume: 15,
-    sleepVolume: 20,
+    sleepVolume: 38,
     idleFrequency: "normal"
 };
 
 let havenSettings = loadHavenSettings();
+
+// 旧版の初期値20%を使っていた端末だけ、一度38%へ引き上げる。
+// ユーザーが既に別の値へ変更している場合は触れない。
+const savedSettingsVersion = Number(localStorage.getItem(HAVEN_SETTINGS_VERSION_KEY)) || 1;
+if (savedSettingsVersion < HAVEN_SETTINGS_VERSION) {
+    if (havenSettings.sleepVolume === 20) {
+        havenSettings.sleepVolume = 38;
+        localStorage.setItem(HAVEN_SETTINGS_KEY, JSON.stringify(havenSettings));
+    }
+    localStorage.setItem(HAVEN_SETTINGS_VERSION_KEY, String(HAVEN_SETTINGS_VERSION));
+}
+
 let lastSavedUserName = havenSettings.userName;
 
 const userNameInput = document.getElementById("userNameInput");
@@ -47,7 +61,7 @@ function loadHavenSettings() {
             userName: String(saved.userName || "レイ").trim() || "レイ",
             bgmVolume: clampSetting(saved.bgmVolume ?? 18, 0, 100),
             livingVolume: clampSetting(saved.livingVolume ?? 15, 0, 100),
-            sleepVolume: clampSetting(saved.sleepVolume ?? 20, 0, 100),
+            sleepVolume: clampSetting(saved.sleepVolume ?? 38, 0, 100),
             idleFrequency: ["low", "normal", "high"].includes(saved.idleFrequency)
                 ? saved.idleFrequency
                 : "normal"
@@ -154,7 +168,7 @@ function readSettingsForm() {
         userName: String(userNameInput?.value || "レイ").trim() || "レイ",
         bgmVolume: clampSetting(bgmVolumeInput?.value ?? 18, 0, 100),
         livingVolume: clampSetting(livingVolumeInput?.value ?? 15, 0, 100),
-        sleepVolume: clampSetting(sleepVolumeInput?.value ?? 20, 0, 100),
+        sleepVolume: clampSetting(sleepVolumeInput?.value ?? 38, 0, 100),
         idleFrequency: selectedFrequency?.value || "normal"
     };
 }
@@ -236,3 +250,4 @@ if (userNameInput) {
 
 fillSettingsForm();
 applyHavenAudioSettings();
+
