@@ -1,332 +1,191 @@
 //========================
-// Haven 音声管理
-// 作業・休憩・睡眠を完全分離した安定版
+// Haven audio controller — iPhone-safe verified version
 //========================
 
 let roomSoundsActive = false;
 let lastLivingSoundKey = null;
-
 let deskSoundTimer = null;
 let humanSoundTimer = null;
 let sleepBreathIdleTimer = null;
 let coughStopTimer = null;
-
-//========================
-// 音声ファイル
-//========================
+let audioGestureReady = false;
 
 const roomSound = new Audio("sound/clockloop2.mp3");
-roomSound.loop = true;
-roomSound.preload = "auto";
-
 const bgm = new Audio("music/bgm.mp3");
-bgm.loop = true;
-bgm.preload = "auto";
-
 const breakBgm = new Audio("music/break.mp3");
-breakBgm.loop = true;
-breakBgm.preload = "auto";
-
 const sleepBreath = new Audio("sound/sleep_breath.mp3");
-sleepBreath.loop = true;
-sleepBreath.preload = "auto";
-
 const penSound = new Audio("sound/pen.mp3");
-penSound.preload = "auto";
-
 const pageSound = new Audio("sound/page.mp3");
-pageSound.preload = "auto";
-
 const breathIdleSound = new Audio("sound/breath_idle.mp3");
-breathIdleSound.preload = "auto";
-
 const coughingSound = new Audio("sound/coughing.mp3");
-coughingSound.preload = "auto";
-
 const stepSound = new Audio("sound/step.mp3");
-stepSound.preload = "auto";
 
-// Settingsがまだ読み込まれていない瞬間の初期値
-roomSound.volume = 0.11;
-bgm.volume = 0.18;
-breakBgm.volume = 0.15;
-sleepBreath.volume = 0.38;
-penSound.volume = 0.15;
-pageSound.volume = 0.17;
-breathIdleSound.volume = 0.13;
-coughingSound.volume = 0.11;
-stepSound.volume = 0.14;
+roomSound.loop = true;
+bgm.loop = true;
+breakBgm.loop = true;
+sleepBreath.loop = true;
 
-const havenAudioList = [
-    roomSound,
-    bgm,
-    breakBgm,
-    sleepBreath,
-    penSound,
-    pageSound,
-    breathIdleSound,
-    coughingSound,
-    stepSound
-];
+[roomSound,bgm,breakBgm,sleepBreath,penSound,pageSound,breathIdleSound,coughingSound,stepSound].forEach(function(audio){
+    audio.preload = "auto";
+    audio.playsInline = true;
+});
 
-//========================
-// 共通処理
-//========================
-
-function isSleepMode() {
-    return document.body.classList.contains("sleep-mode");
+function applyWorkVolumes(){
+    roomSound.volume = 0.12;
+    bgm.volume = 0.20;
+    breakBgm.volume = 0.16;
+    penSound.volume = 0.16;
+    pageSound.volume = 0.18;
+    coughingSound.volume = 0.10;
+    stepSound.volume = 0.14;
 }
 
-function randomBetween(min, max) {
-    return min + Math.random() * (max - min);
+function applySleepVolumes(){
+    // Code-level fixed balance requested by user.
+    sleepBreath.volume = 0.72;
+    breathIdleSound.volume = 0.055;
 }
 
-function safePlay(audio) {
-    if (!audio) return;
+applyWorkVolumes();
+applySleepVolumes();
 
-    const promise = audio.play();
-    if (promise && typeof promise.catch === "function") {
-        promise.catch(function (error) {
-            console.warn("Audio playback was blocked:", audio.src, error);
-        });
+function isSleepMode(){return document.body.classList.contains("sleep-mode")}
+function randomBetween(min,max){return min+Math.random()*(max-min)}
+
+function safePlay(audio){
+    if(!audio) return Promise.resolve(false);
+    try{
+        const p=audio.play();
+        if(p&&typeof p.catch==="function"){
+            return p.then(function(){return true}).catch(function(error){
+                console.warn("Audio playback blocked:",audio.src,error);
+                return false;
+            });
+        }
+        return Promise.resolve(true);
+    }catch(error){
+        console.warn("Audio playback failed:",audio.src,error);
+        return Promise.resolve(false);
     }
 }
 
-function replaySound(audio) {
-    if (!audio) return;
+function replaySound(audio){
+    if(!audio) return;
     audio.pause();
-    audio.currentTime = 0;
+    try{audio.currentTime=0}catch(error){}
     safePlay(audio);
 }
 
-function stopAudio(audio, reset = true) {
-    if (!audio) return;
+function stopAudio(audio,reset=true){
+    if(!audio) return;
     audio.pause();
-    if (reset) audio.currentTime = 0;
+    if(reset){try{audio.currentTime=0}catch(error){}}
 }
 
-// iPhone Safariでは、実際の再生は必ずボタン操作の中で行う。
-// ここでは読み込み準備だけにして、別の音を誤再生させない。
-function unlockAudio() {
-    havenAudioList.forEach(function (audio) {
-        try {
-            audio.load();
-        } catch (error) {}
-    });
+// Compatibility function. Never call load() here: on iOS it cancels the user gesture.
+function unlockAudio(){
+    audioGestureReady=true;
 }
 
-function chooseDifferent(items) {
-    const candidates = items.filter(function (item) {
-        return item.key !== lastLivingSoundKey;
-    });
-
-    const pool = candidates.length ? candidates : items;
-    const total = pool.reduce(function (sum, item) {
-        return sum + item.weight;
-    }, 0);
-
-    let value = Math.random() * total;
-
-    for (const item of pool) {
-        value -= item.weight;
-        if (value <= 0) {
-            lastLivingSoundKey = item.key;
-            return item;
-        }
-    }
-
+function chooseDifferent(items){
+    const candidates=items.filter(function(item){return item.key!==lastLivingSoundKey});
+    const pool=candidates.length?candidates:items;
+    const total=pool.reduce(function(sum,item){return sum+item.weight},0);
+    let value=Math.random()*total;
+    for(const item of pool){value-=item.weight;if(value<=0){lastLivingSoundKey=item.key;return item}}
     return pool[0];
 }
 
-//========================
-// 作業中の生活音
-//========================
-
-function playCoughingExcerpt() {
-    if (!roomSoundsActive || isSleepMode()) return;
-
+function playCoughingExcerpt(){
+    if(!roomSoundsActive||isSleepMode()) return;
     clearTimeout(coughStopTimer);
-    coughingSound.pause();
-    coughingSound.currentTime = 0;
-    safePlay(coughingSound);
-
-    coughStopTimer = setTimeout(function () {
-        coughingSound.pause();
-        coughingSound.currentTime = 0;
-    }, 3000);
+    replaySound(coughingSound);
+    coughStopTimer=setTimeout(function(){stopAudio(coughingSound)},3000);
 }
 
-function scheduleDeskSound() {
+function scheduleDeskSound(){
     clearTimeout(deskSoundTimer);
-
-    if (!roomSoundsActive || isSleepMode()) {
-        deskSoundTimer = null;
-        return;
-    }
-
-    deskSoundTimer = setTimeout(function () {
-        if (!roomSoundsActive || isSleepMode()) return;
-
-        const choice = chooseDifferent([
-            { key: "pen", audio: penSound, weight: 46 },
-            { key: "page", audio: pageSound, weight: 54 }
-        ]);
-
+    if(!roomSoundsActive||isSleepMode()) return;
+    deskSoundTimer=setTimeout(function(){
+        if(!roomSoundsActive||isSleepMode()) return;
+        const choice=chooseDifferent([{key:"pen",audio:penSound,weight:46},{key:"page",audio:pageSound,weight:54}]);
         replaySound(choice.audio);
         scheduleDeskSound();
-    }, randomBetween(20000, 55000));
+    },randomBetween(20000,55000));
 }
 
-function scheduleHumanSound() {
+function scheduleHumanSound(){
     clearTimeout(humanSoundTimer);
-
-    if (!roomSoundsActive || isSleepMode()) {
-        humanSoundTimer = null;
-        return;
-    }
-
-    humanSoundTimer = setTimeout(function () {
-        if (!roomSoundsActive || isSleepMode()) return;
-
-        const choice = chooseDifferent([
-            { key: "breath", audio: breathIdleSound, weight: 86 },
-            { key: "cough", audio: coughingSound, weight: 14 }
-        ]);
-
-        if (choice.key === "cough") {
-            playCoughingExcerpt();
-        } else {
-            replaySound(choice.audio);
-        }
-
+    if(!roomSoundsActive||isSleepMode()) return;
+    humanSoundTimer=setTimeout(function(){
+        if(!roomSoundsActive||isSleepMode()) return;
+        const choice=chooseDifferent([{key:"breath",audio:breathIdleSound,weight:86},{key:"cough",audio:coughingSound,weight:14}]);
+        if(choice.key==="cough") playCoughingExcerpt(); else replaySound(choice.audio);
         scheduleHumanSound();
-    }, randomBetween(55000, 140000));
+    },randomBetween(55000,140000));
 }
 
-function startLivingSounds() {
-    roomSoundsActive = true;
-    scheduleDeskSound();
-    scheduleHumanSound();
+function startLivingSounds(){roomSoundsActive=true;scheduleDeskSound();scheduleHumanSound()}
+function stopLivingSounds(){
+    roomSoundsActive=false;
+    clearTimeout(deskSoundTimer);clearTimeout(humanSoundTimer);clearTimeout(coughStopTimer);
+    deskSoundTimer=humanSoundTimer=coughStopTimer=null;
+    stopAudio(penSound);stopAudio(pageSound);stopAudio(breathIdleSound);stopAudio(coughingSound);
 }
 
-function stopLivingSounds() {
-    roomSoundsActive = false;
-
-    clearTimeout(deskSoundTimer);
-    clearTimeout(humanSoundTimer);
-    clearTimeout(coughStopTimer);
-
-    deskSoundTimer = null;
-    humanSoundTimer = null;
-    coughStopTimer = null;
-
-    stopAudio(penSound);
-    stopAudio(pageSound);
-    stopAudio(breathIdleSound);
-    stopAudio(coughingSound);
+function startRoomSounds(){
+    unlockAudio();
+    stopBreakBgm();stopSleepBgm();applyWorkVolumes();
+    replaySound(roomSound);replaySound(bgm);startLivingSounds();
 }
+function stopRoomSounds(){stopAudio(roomSound);stopAudio(bgm);stopLivingSounds()}
 
-//========================
-// 作業モード
-//========================
+function startBreakBgm(){unlockAudio();stopRoomSounds();stopSleepBgm();applyWorkVolumes();replaySound(breakBgm)}
+function stopBreakBgm(){stopAudio(breakBgm)}
 
-function startRoomSounds() {
-    // 作業ボタンのクリック中に直接実行されるため、iPhoneでも再生可能。
-    stopBreakBgm();
-    stopSleepBgm();
-
-    roomSound.currentTime = 0;
-    bgm.currentTime = 0;
-
-    safePlay(roomSound);
-    safePlay(bgm);
-    startLivingSounds();
-}
-
-function stopRoomSounds() {
-    stopAudio(roomSound);
-    stopAudio(bgm);
-    stopLivingSounds();
-}
-
-//========================
-// 休憩モード
-//========================
-
-function startBreakBgm() {
-    stopRoomSounds();
-    stopSleepBgm();
-
-    breakBgm.currentTime = 0;
-    safePlay(breakBgm);
-}
-
-function stopBreakBgm() {
-    stopAudio(breakBgm);
-}
-
-//========================
-// 睡眠モード
-// 寝息ループ + 30〜90秒ごとの深い呼吸
-//========================
-
-function scheduleSleepBreathIdle() {
+function scheduleSleepBreathIdle(){
     clearTimeout(sleepBreathIdleTimer);
-
-    if (!isSleepMode()) {
-        sleepBreathIdleTimer = null;
-        return;
-    }
-
-    sleepBreathIdleTimer = setTimeout(function () {
-        if (!isSleepMode()) return;
-
+    if(!isSleepMode()) return;
+    sleepBreathIdleTimer=setTimeout(function(){
+        if(!isSleepMode()) return;
+        applySleepVolumes();
         replaySound(breathIdleSound);
         scheduleSleepBreathIdle();
-    }, randomBetween(30000, 90000));
+    },randomBetween(60000,150000));
 }
 
-function startSleepBgm() {
-    // 関数名はsleep.js / alarm.jsとの互換用。
-    // 実際には睡眠BGMを一切使わない。
-    stopRoomSounds();
-    stopBreakBgm();
-
-    // アラーム音が残っていた場合も、睡眠開始時には必ず止める。
-    if (typeof stopAlarmSound === "function") {
-        stopAlarmSound();
-    }
-
+function startSleepBgm(){
+    unlockAudio();
+    stopRoomSounds();stopBreakBgm();
+    if(typeof stopAlarmSound==="function") stopAlarmSound();
     clearTimeout(sleepBreathIdleTimer);
-
-    sleepBreath.currentTime = 0;
-    safePlay(sleepBreath);
+    applySleepVolumes();
+    replaySound(sleepBreath);
     scheduleSleepBreathIdle();
 }
 
-function stopSleepBgm() {
-    clearTimeout(sleepBreathIdleTimer);
-    sleepBreathIdleTimer = null;
-
-    stopAudio(sleepBreath);
-    stopAudio(breathIdleSound);
+function stopSleepBgm(){
+    clearTimeout(sleepBreathIdleTimer);sleepBreathIdleTimer=null;
+    stopAudio(sleepBreath);stopAudio(breathIdleSound);
 }
 
-//========================
-// ページ切替の足音
-//========================
+function playPageStepSound(){if(!isSleepMode()){applyWorkVolumes();replaySound(stepSound)}}
+function stopAllSounds(){stopRoomSounds();stopBreakBgm();stopSleepBgm()}
 
-function playPageStepSound() {
-    if (isSleepMode()) return;
-    replaySound(stepSound);
+// If a running session was restored after reload, iOS blocked its automatic sound.
+// The first real tap resumes the correct mode.
+function resumeAudioForCurrentMode(){
+    if(audioGestureReady) return;
+    audioGestureReady=true;
+    if(isSleepMode()){
+        startSleepBgm();
+        return;
+    }
+    if(typeof sessionState!=="undefined"){
+        if(sessionState==="work") startRoomSounds();
+        else if(sessionState==="break") startBreakBgm();
+    }
 }
 
-//========================
-// 全停止
-//========================
-
-function stopAllSounds() {
-    stopRoomSounds();
-    stopBreakBgm();
-    stopSleepBgm();
-}
+document.addEventListener("pointerdown",resumeAudioForCurrentMode,{once:true,capture:true});
+document.addEventListener("touchend",resumeAudioForCurrentMode,{once:true,capture:true,passive:true});

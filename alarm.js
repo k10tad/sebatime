@@ -29,6 +29,7 @@ let alarmWakeTimer1 = null;
 let alarmWakeTimer2 = null;
 let alarmWakeTimer3 = null;
 let alarmIsRinging = false;
+const HAVEN_MIN_SLEEP_BEFORE_ALARM_MS = 60000;
 
 function getSavedAlarmTime() {
     return localStorage.getItem(HAVEN_ALARM_KEYS.time) || "07:30";
@@ -255,6 +256,17 @@ function snoozeAlarm() {
     updateAlarmPreview();
 }
 
+function prepareAlarmForSleepStart() {
+    // 睡眠ボタンを押した瞬間に、前回のアラーム状態を完全解除する。
+    alarmIsRinging = false;
+    clearWakeSequence();
+    stopAlarmSound();
+    document.body.classList.remove("alarm-mode");
+    if (alarmRingingPanel) alarmRingingPanel.hidden = true;
+    localStorage.removeItem(HAVEN_ALARM_KEYS.snoozeUntil);
+    suppressAlarmForCurrentMinute();
+}
+
 function suppressAlarmForCurrentMinute() {
     const minuteKey = new Date().toISOString().slice(0, 16);
     localStorage.setItem(HAVEN_ALARM_KEYS.lastTriggered, minuteKey);
@@ -268,6 +280,9 @@ function shouldTriggerAlarm() {
     if (!activeSleepStart) return false;
 
     const now = Date.now();
+
+    // 寝るボタン直後に、同一分のアラームや残存状態が鳴るのを防ぐ。
+    if (now - activeSleepStart < HAVEN_MIN_SLEEP_BEFORE_ALARM_MS) return false;
     const snoozeUntil = getSnoozeUntil();
 
     if (snoozeUntil) return now >= snoozeUntil;

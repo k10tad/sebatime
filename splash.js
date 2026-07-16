@@ -1,5 +1,5 @@
 //========================
-// Haven Orion Splash
+// Haven Orion Splash — mobile-safe
 //========================
 
 (function () {
@@ -7,66 +7,52 @@
     const skipButton = document.getElementById("skipSplash");
 
     if (!splash) {
+        document.documentElement.classList.remove("splash-lock");
         document.body.classList.remove("splash-active");
         return;
     }
 
-    // Safariが前回の縦スクロール位置を復元しても、起動画面は必ず先頭に置く。
-    if ("scrollRestoration" in history) {
-        history.scrollRestoration = "manual";
-    }
+    document.documentElement.classList.add("splash-lock");
+    document.body.classList.add("splash-active");
 
-    window.scrollTo(0, 0);
-    requestAnimationFrame(() => window.scrollTo(0, 0));
+    if ("scrollRestoration" in history) history.scrollRestoration = "manual";
+    window.scrollTo({ top: 0, left: 0, behavior: "instant" });
 
     let finished = false;
-    let finishTimer = null;
-    let removeTimer = null;
+    let finishTimer = window.setTimeout(finishSplash, 5450);
 
     function finishSplash() {
         if (finished) return;
         finished = true;
-
         window.clearTimeout(finishTimer);
-        window.clearTimeout(removeTimer);
 
         splash.classList.add("is-leaving");
+        document.documentElement.classList.remove("splash-lock");
         document.body.classList.remove("splash-active");
-        window.scrollTo(0, 0);
 
-        removeTimer = window.setTimeout(() => {
+        window.setTimeout(function () {
             splash.remove();
             window.scrollTo(0, 0);
 
             const message = document.getElementById("message");
-            if (message && Math.random() < 0.34) {
-                message.textContent = "……来たか。";
-            }
-        }, 780);
+            if (message && Math.random() < 0.34) message.textContent = "……来たか。";
+        }, 740);
     }
 
-    // Orion演出全体は約6秒。ページ切替・睡眠モードでは再表示しない。
-    finishTimer = window.setTimeout(finishSplash, 5450);
-
     if (skipButton) {
-        skipButton.addEventListener("click", (event) => {
+        skipButton.addEventListener("click", function (event) {
+            event.preventDefault();
             event.stopPropagation();
             finishSplash();
         });
     }
 
-    splash.addEventListener("pointerdown", (event) => {
+    splash.addEventListener("pointerdown", function (event) {
         if (event.target === skipButton) return;
         finishSplash();
     });
 
-    // 端末の向きが変わった場合も、画面中央基準を維持する。
-    window.addEventListener("orientationchange", () => {
-        window.setTimeout(() => window.scrollTo(0, 0), 120);
-    }, { passive: true });
-
-    // アニメーション停止時の安全弁。
-    window.setTimeout(() => {
+    window.setTimeout(function () {
         if (!finished) finishSplash();
-    }, 8500);
+    }, 8000);
 })();
