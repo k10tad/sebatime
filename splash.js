@@ -1,55 +1,52 @@
 //========================
-// Haven Orion Splash
+// Haven Orion Splash Engine
+// 画面全体に固定し、約6秒でHomeへ移る
 //========================
 
 (function () {
     const splash = document.getElementById("havenSplash");
     const skipButton = document.getElementById("skipSplash");
 
+    function updateViewportHeight() {
+        const height = window.visualViewport?.height || window.innerHeight;
+        document.documentElement.style.setProperty("--haven-viewport-height", `${height}px`);
+    }
+
+    updateViewportHeight();
+    window.scrollTo(0, 0);
+    window.addEventListener("resize", updateViewportHeight, { passive: true });
+    window.visualViewport?.addEventListener("resize", updateViewportHeight, { passive: true });
+
     if (!splash) {
         document.body.classList.remove("splash-active");
         return;
     }
 
+    // 必ずbody直下に置き、親要素のtransform/filterの影響を受けないようにする。
+    if (splash.parentElement !== document.body) document.body.prepend(splash);
+
     let finished = false;
     let finishTimer = null;
-    let removeTimer = null;
 
     function finishSplash() {
         if (finished) return;
         finished = true;
-
-        window.clearTimeout(finishTimer);
-        window.clearTimeout(removeTimer);
-
+        clearTimeout(finishTimer);
         splash.classList.add("is-leaving");
         document.body.classList.remove("splash-active");
 
-        removeTimer = window.setTimeout(() => {
+        setTimeout(function () {
             splash.remove();
-
-            const message = document.getElementById("message");
-            if (message && Math.random() < 0.34) {
-                message.textContent = "……来たか。";
-            }
-        }, 780);
+            window.scrollTo(0, 0);
+        }, 760);
     }
 
-    // 通常は星座とロゴを見せたあと、Homeへ静かに移る。
-    finishTimer = window.setTimeout(finishSplash, 5450);
-
-    if (skipButton) {
-        skipButton.addEventListener("click", finishSplash);
-    }
-
-    // 長押しや連続タップを必要とせず、画面のどこを押してもスキップ可能。
-    splash.addEventListener("pointerdown", (event) => {
-        if (event.target === skipButton) return;
+    finishTimer = setTimeout(finishSplash, 6000);
+    skipButton?.addEventListener("click", function (event) {
+        event.stopPropagation();
         finishSplash();
     });
+    splash.addEventListener("pointerdown", finishSplash);
 
-    // 何らかの理由でアニメーションが止まっても画面を塞ぎ続けない安全弁。
-    window.setTimeout(() => {
-        if (!finished) finishSplash();
-    }, 8500);
+    setTimeout(finishSplash, 9000);
 })();

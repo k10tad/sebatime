@@ -1,5 +1,6 @@
 //========================
-// Haven 起床アラーム 完成版
+// Haven Alarm Engine
+// 時刻判定・アラーム・スヌーズだけを管理する
 //========================
 
 const HAVEN_ALARM_KEYS = {
@@ -18,11 +19,6 @@ const alarmRingingPanel = document.getElementById("alarmRingingPanel");
 const alarmWakeMessage = document.getElementById("alarmWakeMessage");
 const alarmWakeButton = document.getElementById("alarmWakeButton");
 const alarmSnoozeButton = document.getElementById("alarmSnoozeButton");
-
-const alarmSound = new Audio("sound/alarm.mp3");
-alarmSound.loop = true;
-alarmSound.volume = 0.45;
-alarmSound.preload = "auto";
 
 let alarmCheckTimer = null;
 let alarmWakeTimer1 = null;
@@ -44,36 +40,27 @@ function getSnoozeUntil() {
 }
 
 function getNextAlarmDate(timeText) {
-    const [hourText, minuteText] = timeText.split(":");
-    const hour = Number(hourText);
-    const minute = Number(minuteText);
-
+    const [hour, minute] = timeText.split(":").map(Number);
     if (!Number.isInteger(hour) || !Number.isInteger(minute)) return null;
 
     const now = new Date();
     const next = new Date();
     next.setHours(hour, minute, 0, 0);
-
     if (next <= now) next.setDate(next.getDate() + 1);
     return next;
 }
 
-function formatAlarmRemaining(milliseconds) {
-    const totalSeconds = Math.max(0, Math.ceil(milliseconds / 1000));
-    const hours = Math.floor(totalSeconds / 3600);
-    const minutes = Math.floor((totalSeconds % 3600) / 60);
-
-    if (hours <= 0) return `あと ${Math.max(1, minutes)}分`;
-    if (minutes === 0) return `あと ${hours}時間`;
+function formatRemaining(milliseconds) {
+    const totalMinutes = Math.max(1, Math.ceil(milliseconds / 60000));
+    const hours = Math.floor(totalMinutes / 60);
+    const minutes = totalMinutes % 60;
+    if (!hours) return `あと ${minutes}分`;
+    if (!minutes) return `あと ${hours}時間`;
     return `あと ${hours}時間 ${minutes}分`;
 }
 
-function getAlarmTargetTime() {
-    const snoozeUntil = getSnoozeUntil();
-    if (snoozeUntil) return snoozeUntil;
-
-    const next = getNextAlarmDate(getSavedAlarmTime());
-    return next ? next.getTime() : null;
+function getAlarmTarget() {
+    return getSnoozeUntil() || getNextAlarmDate(getSavedAlarmTime())?.getTime() || null;
 }
 
 function updateAlarmPreview() {
@@ -85,70 +72,32 @@ function updateAlarmPreview() {
         return;
     }
 
-    const snoozeUntil = getSnoozeUntil();
-    const target = getAlarmTargetTime();
-
-    if (snoozeUntil) {
-        alarmStatus.textContent = "5分後にもう一度起こす。";
-    } else {
-        alarmStatus.textContent = `${getSavedAlarmTime()} に起こす。`;
-    }
-
-    alarmCountdown.textContent = target
-        ? formatAlarmRemaining(target - Date.now())
-        : "";
-}
-
-function armAlarmAudio() {
-    // iPhone Safariで、後の自動再生を通しやすくするため
-    // 「寝る」などのユーザー操作時に一度だけ音声を解錠する。
-    const previousVolume = alarmSound.volume;
-    alarmSound.volume = 0;
-
-    const playPromise = alarmSound.play();
-    if (playPromise && typeof playPromise.then === "function") {
-        playPromise
-            .then(function () {
-                alarmSound.pause();
-                alarmSound.currentTime = 0;
-                alarmSound.volume = previousVolume;
-            })
-            .catch(function () {
-                alarmSound.volume = previousVolume;
-            });
-    } else {
-        alarmSound.pause();
-        alarmSound.currentTime = 0;
-        alarmSound.volume = previousVolume;
-    }
+    const snooze = getSnoozeUntil();
+    const target = getAlarmTarget();
+    alarmStatus.textContent = snooze
+        ? "5分後にもう一度起こす。"
+        : `${getSavedAlarmTime()} に起こす。`;
+    alarmCountdown.textContent = target ? formatRemaining(target - Date.now()) : "";
 }
 
 function saveAlarmSettings() {
-    if (!alarmTimeInput || !alarmEnabledInput) return;
-
-    const time = alarmTimeInput.value || "07:30";
-    const enabled = alarmEnabledInput.checked;
+    const time = alarmTimeInput?.value || "07:30";
+    const enabled = Boolean(alarmEnabledInput?.checked);
 
     localStorage.setItem(HAVEN_ALARM_KEYS.time, time);
     localStorage.setItem(HAVEN_ALARM_KEYS.enabled, String(enabled));
     localStorage.removeItem(HAVEN_ALARM_KEYS.snoozeUntil);
 
-    armAlarmAudio();
+    if (typeof armAlarmAudio === "function") armAlarmAudio();
     updateAlarmPreview();
 
     if (typeof setSleepMessages === "function") {
-        setSleepMessages(
-            enabled
-                ? `${time}だな。起こす。`
-                : "アラームを外した。"
-        );
+        setSleepMessages(enabled ? `${time}だな。起こす。` : "アラームを外した。");
     }
 }
 
 function setAlarmImage(src) {
-    if (typeof setSleepImages === "function") {
-        setSleepImages(src);
-    }
+    if (typeof setSleepImages === "function") setSleepImages(src);
 }
 
 function setAlarmMessage(text) {
@@ -160,97 +109,73 @@ function clearWakeSequence() {
     clearTimeout(alarmWakeTimer1);
     clearTimeout(alarmWakeTimer2);
     clearTimeout(alarmWakeTimer3);
-    alarmWakeTimer1 = null;
-    alarmWakeTimer2 = null;
-    alarmWakeTimer3 = null;
+    alarmWakeTimer1 = alarmWakeTimer2 = alarmWakeTimer3 = null;
 }
 
-function playAlarmSound() {
-    alarmSound.currentTime = 0;
-    alarmSound.volume = 0.45;
-
-    const playPromise = alarmSound.play();
-    if (playPromise && typeof playPromise.catch === "function") {
-        playPromise.catch(function (error) {
-            console.warn("アラーム音を再生できませんでした。", error);
-            setAlarmMessage("……レイ。画面を触れ。起きる時間だ。");
-        });
-    }
-}
-
-function stopAlarmSound() {
-    alarmSound.pause();
-    alarmSound.currentTime = 0;
-}
-
-function triggerAlarm() {
-    if (alarmIsRinging) return;
-
-    alarmIsRinging = true;
-    clearWakeSequence();
-
-    const nowKey = new Date().toISOString().slice(0, 16);
-    localStorage.setItem(HAVEN_ALARM_KEYS.lastTriggered, nowKey);
-    localStorage.removeItem(HAVEN_ALARM_KEYS.snoozeUntil);
-
-    if (typeof stopSleepBgm === "function") stopSleepBgm();
-
-    document.body.classList.remove("sleep-mode");
-    document.body.classList.add("alarm-mode");
-
-    if (alarmRingingPanel) alarmRingingPanel.hidden = false;
-
-    setAlarmImage("assets/sleep3.jpg");
-    setAlarmMessage("……レイ。");
-
-    alarmWakeTimer1 = setTimeout(function () {
-        setAlarmImage("assets/sleep2.jpg");
-        setAlarmMessage("起きる時間だ。");
-    }, 2000);
-
-    alarmWakeTimer2 = setTimeout(function () {
-        setAlarmImage("assets/sleep.jpg");
-    }, 4000);
-
-    alarmWakeTimer3 = setTimeout(function () {
-        setAlarmImage("assets/blink05.jpg");
-        playAlarmSound();
-    }, 6000);
-}
-
-function stopRingingUi() {
+function cancelActiveAlarm() {
     alarmIsRinging = false;
     clearWakeSequence();
-    stopAlarmSound();
+    if (typeof stopAlarmSound === "function") stopAlarmSound();
     document.body.classList.remove("alarm-mode");
     if (alarmRingingPanel) alarmRingingPanel.hidden = true;
 }
 
+function triggerAlarm() {
+    if (alarmIsRinging) return;
+    alarmIsRinging = true;
+    clearWakeSequence();
+
+    const now = new Date();
+    const minuteKey = `${now.getFullYear()}-${now.getMonth()}-${now.getDate()}-${now.getHours()}-${now.getMinutes()}`;
+    localStorage.setItem(HAVEN_ALARM_KEYS.lastTriggered, minuteKey);
+    localStorage.removeItem(HAVEN_ALARM_KEYS.snoozeUntil);
+
+    if (typeof stopSleepBgm === "function") stopSleepBgm();
+    document.body.classList.remove("sleep-mode");
+    document.body.classList.add("alarm-mode");
+    if (alarmRingingPanel) alarmRingingPanel.hidden = false;
+
+    setAlarmImage("assets/sleep3.jpg");
+    setAlarmMessage(`……${typeof getHavenUserName === "function" ? getHavenUserName() : "レイ"}。`);
+
+    alarmWakeTimer1 = setTimeout(function () {
+        setAlarmImage("assets/sleep2.jpg");
+        setAlarmMessage("起きる時間だ。");
+    }, 1600);
+
+    alarmWakeTimer2 = setTimeout(function () {
+        setAlarmImage("assets/sleep.jpg");
+    }, 3000);
+
+    alarmWakeTimer3 = setTimeout(function () {
+        setAlarmImage("assets/blink05.jpg");
+        if (typeof startAlarmSound === "function") startAlarmSound();
+    }, 4200);
+}
+
 function wakeFromAlarm() {
-    stopRingingUi();
+    cancelActiveAlarm();
     localStorage.removeItem(HAVEN_ALARM_KEYS.snoozeUntil);
 
     if (typeof stopSleepRecord === "function" && sleepStartTime) {
         stopSleepRecord();
     } else {
         setAlarmImage("assets/blink05.jpg");
-        setAlarmMessage("……おはよう、レイ。");
-        if (typeof scheduleNextBlink === "function") scheduleNextBlink();
+        setAlarmMessage("……おはよう。");
     }
-
     updateAlarmPreview();
 }
 
 function snoozeAlarm() {
-    stopRingingUi();
-
-    const snoozeUntil = Date.now() + 5 * 60 * 1000;
-    localStorage.setItem(HAVEN_ALARM_KEYS.snoozeUntil, String(snoozeUntil));
+    cancelActiveAlarm();
+    localStorage.setItem(
+        HAVEN_ALARM_KEYS.snoozeUntil,
+        String(Date.now() + 5 * 60 * 1000)
+    );
 
     document.body.classList.add("sleep-mode");
     setAlarmImage("assets/sleep3.jpg");
     setAlarmMessage("あと5分だ。……眠れ。");
-
     if (typeof startSleepBgm === "function") startSleepBgm();
     updateAlarmPreview();
 }
@@ -258,20 +183,18 @@ function snoozeAlarm() {
 function shouldTriggerAlarm() {
     if (!isSavedAlarmEnabled() || alarmIsRinging) return false;
 
-    const now = Date.now();
-    const snoozeUntil = getSnoozeUntil();
+    // 睡眠計測中だけ作動させる。寝るボタン直後の誤作動も防止。
+    const sleepStartedAt = Number(localStorage.getItem("havenSleepStartedAt"));
+    if (!sleepStartedAt || Date.now() - sleepStartedAt < 60000) return false;
 
-    if (snoozeUntil) return now >= snoozeUntil;
+    const snooze = getSnoozeUntil();
+    if (snooze) return Date.now() >= snooze;
 
-    const time = getSavedAlarmTime();
-    const current = new Date();
-    const currentTime =
-        String(current.getHours()).padStart(2, "0") + ":" +
-        String(current.getMinutes()).padStart(2, "0");
+    const now = new Date();
+    const currentTime = `${String(now.getHours()).padStart(2, "0")}:${String(now.getMinutes()).padStart(2, "0")}`;
+    if (currentTime !== getSavedAlarmTime()) return false;
 
-    if (currentTime !== time) return false;
-
-    const minuteKey = current.toISOString().slice(0, 16);
+    const minuteKey = `${now.getFullYear()}-${now.getMonth()}-${now.getDate()}-${now.getHours()}-${now.getMinutes()}`;
     return localStorage.getItem(HAVEN_ALARM_KEYS.lastTriggered) !== minuteKey;
 }
 
@@ -283,7 +206,6 @@ function checkAlarm() {
 function loadAlarmSettings() {
     if (alarmTimeInput) alarmTimeInput.value = getSavedAlarmTime();
     if (alarmEnabledInput) alarmEnabledInput.checked = isSavedAlarmEnabled();
-
     clearInterval(alarmCheckTimer);
     alarmCheckTimer = setInterval(checkAlarm, 1000);
     checkAlarm();
