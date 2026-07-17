@@ -204,10 +204,59 @@ const contextualIdleMessages = {
 };
 
 
+
+//========================
+// Companion Engine bridge
+//========================
+
+const HAVEN_COMPANION_ENGINE_ENABLED = true;
+const HAVEN_COMPANION_DEBUG_LABEL = true;
+
+function getCompanionEngineMessage() {
+    if (
+        HAVEN_COMPANION_ENGINE_ENABLED !== true ||
+        !window.CompanionEngine ||
+        typeof window.CompanionEngine.getMessage !== "function"
+    ) {
+        return "";
+    }
+
+    try {
+        const generatedMessage = window.CompanionEngine.getMessage({
+            weatherCode:
+                typeof currentWeatherCode !== "undefined"
+                    ? currentWeatherCode
+                    : null,
+            pressure:
+                typeof currentPressure !== "undefined"
+                    ? currentPressure
+                    : null
+        });
+
+        if (!generatedMessage) return "";
+
+        return HAVEN_COMPANION_DEBUG_LABEL
+            ? `[Companion]\n${generatedMessage}`
+            : generatedMessage;
+
+    } catch (error) {
+        console.warn("Companion Engine fallback:", error);
+        return "";
+    }
+}
+
 let idleMessageTimer = null;
 
 function showIdleMessage() {
     if (typeof sessionState !== "undefined" && sessionState !== "work") return;
+
+    const companionMessage = getCompanionEngineMessage();
+
+    if (companionMessage) {
+        message.textContent = companionMessage;
+        scheduleIdleMessage();
+        return;
+    }
 
     const memoryMessage = getMemoryMessage();
 
@@ -396,6 +445,12 @@ const dailyFlowMessages = {
 };
 
 function getDailyFlowMessage() {
+    const companionMessage = getCompanionEngineMessage();
+
+    if (companionMessage) {
+        return companionMessage;
+    }
+
     const hour = new Date().getHours();
 
     if (hour >= 5 && hour < 11) {
