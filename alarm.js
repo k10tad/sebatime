@@ -216,3 +216,4 @@ if (alarmWakeButton) alarmWakeButton.addEventListener("click", wakeFromAlarm);
 if (alarmSnoozeButton) alarmSnoozeButton.addEventListener("click", snoozeAlarm);
 
 loadAlarmSettings();
+
