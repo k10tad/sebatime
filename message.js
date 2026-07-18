@@ -210,7 +210,7 @@ const contextualIdleMessages = {
 //========================
 
 const HAVEN_COMPANION_ENGINE_ENABLED = true;
-const HAVEN_COMPANION_DEBUG_LABEL = true;
+const HAVEN_COMPANION_DEBUG_LABEL = false;
 
 function getCompanionEngineMessage() {
     if (
