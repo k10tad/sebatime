@@ -1,6 +1,6 @@
 //========================
 // Haven Sleep Engine
-// 睡眠計測と寝顔だけを管理する
+// 睡眠計測・就寝前の会話・静止画切替を管理する
 //========================
 
 const HAVEN_SLEEP_KEYS = {
@@ -10,20 +10,27 @@ const HAVEN_SLEEP_KEYS = {
     lastDate: "lastSleepDate"
 };
 
+window.HAVEN_IMAGES = {
+    normal: "assets/blink05.jpg",
+    bedtime: "assets/sleep.jpg",
+    sleeping: "assets/sleep3.jpg"
+};
+
 let sleepStartTime = Number(localStorage.getItem(HAVEN_SLEEP_KEYS.start)) || null;
 let sleepTimerId = null;
-let sleepImageTimer1 = null;
-let sleepImageTimer2 = null;
 let sleepCommentTimer = null;
 
 const sleepTimer = document.getElementById("sleepTimer");
 const sleepStatus = document.getElementById("sleepStatus");
+const sleepPreludeButton = document.getElementById("sleepPrelude");
 const sleepStartButton = document.getElementById("sleepStart");
 const sleepStopButton = document.getElementById("sleepStop");
 const sleepResetButton = document.getElementById("sleepReset");
 const sleepLastRecord = document.getElementById("sleepLastRecord");
 const sleepSebas = document.getElementById("sleepSebas");
 const sleepMessage = document.getElementById("sleepMessage");
+const bedtimeChoices = document.getElementById("bedtimeChoices");
+const bedtimeChoiceButtons = Array.from(document.querySelectorAll("[data-bedtime-choice]"));
 
 function getHavenName() {
     return typeof getHavenUserName === "function" ? getHavenUserName() : "レイ";
@@ -37,16 +44,30 @@ function getHomeMessageBox() {
     return document.getElementById("message");
 }
 
-function setSleepImages(src) {
+function pickSleepDialogue(key) {
+    const list = window.HavenDialogues?.[key];
+    if (!Array.isArray(list) || list.length === 0) return "";
+
+    return list[Math.floor(Math.random() * list.length)]
+        .replaceAll("{name}", getHavenName());
+}
+
+function setHomeImage(src) {
     const home = getHomeSebasImg();
     if (home) home.src = src;
+}
+
+function setSleepImage(src) {
     if (sleepSebas) sleepSebas.src = src;
 }
 
-function setSleepMessages(text) {
-    const home = getHomeMessageBox();
-    if (home) home.textContent = text;
+function setSleepMessages(text, mirrorToHome = false) {
     if (sleepMessage) sleepMessage.textContent = text;
+
+    if (mirrorToHome) {
+        const home = getHomeMessageBox();
+        if (home) home.textContent = text;
+    }
 }
 
 function formatSleepTime(milliseconds) {
@@ -66,31 +87,58 @@ function updateSleepTimer() {
 
 function clearSleepTimers() {
     clearInterval(sleepTimerId);
-    clearTimeout(sleepImageTimer1);
-    clearTimeout(sleepImageTimer2);
     clearTimeout(sleepCommentTimer);
     sleepTimerId = null;
-    sleepImageTimer1 = null;
-    sleepImageTimer2 = null;
     sleepCommentTimer = null;
 }
 
+function setBedtimeChoicesVisible(isVisible) {
+    if (bedtimeChoices) bedtimeChoices.hidden = !isVisible;
+}
+
+function updateSleepButtons(isSleeping) {
+    if (sleepPreludeButton) sleepPreludeButton.hidden = isSleeping;
+    if (sleepStartButton) sleepStartButton.hidden = isSleeping;
+    if (sleepStopButton) sleepStopButton.hidden = !isSleeping;
+    if (sleepResetButton) sleepResetButton.hidden = isSleeping;
+
+    if (isSleeping) setBedtimeChoicesVisible(false);
+}
+
+function openBedtimeConversation() {
+    if (sleepStartTime) return;
+
+    setSleepImage(window.HAVEN_IMAGES.bedtime);
+    setBedtimeChoicesVisible(true);
+
+    const line = pickSleepDialogue("bedtimeIntro") || "眠る前に、少し話すか。";
+    setSleepMessages(line);
+}
+
+function handleBedtimeChoice(choice) {
+    const dialogueKeys = {
+        talk: "bedtimeTalk",
+        quiet: "bedtimeQuiet",
+        stay: "bedtimeStay"
+    };
+
+    const key = dialogueKeys[choice];
+    if (!key) return;
+
+    setSleepImage(window.HAVEN_IMAGES.bedtime);
+    const line = pickSleepDialogue(key);
+    if (line) setSleepMessages(line);
+}
+
 function beginSleepVisuals() {
-    clearTimeout(sleepImageTimer1);
-    clearTimeout(sleepImageTimer2);
     document.body.classList.add("sleep-mode");
-    setSleepImages("assets/sleep.jpg");
-
-    sleepImageTimer1 = setTimeout(function () {
-        setSleepImages("assets/sleep2.jpg");
-    }, 15000);
-
-    sleepImageTimer2 = setTimeout(function () {
-        setSleepImages("assets/sleep3.jpg");
-    }, 30000);
+    setHomeImage(window.HAVEN_IMAGES.sleeping);
+    setSleepImage(window.HAVEN_IMAGES.sleeping);
 }
 
 function startSleepRecord() {
+    if (sleepStartTime) return;
+
     if (typeof cancelActiveAlarm === "function") cancelActiveAlarm();
     if (typeof armAlarmAudio === "function") armAlarmAudio();
 
@@ -100,9 +148,13 @@ function startSleepRecord() {
 
     clearSleepTimers();
     beginSleepVisuals();
+    updateSleepButtons(true);
 
     if (sleepStatus) sleepStatus.textContent = "睡眠中";
-    setSleepMessages(`……おやすみ、${getHavenName()}。今日はもう何も考えなくていい。`);
+    setSleepMessages(
+        pickSleepDialogue("sleepStart") || `……おやすみ、${getHavenName()}。`,
+        true
+    );
 
     updateSleepTimer();
     sleepTimerId = setInterval(updateSleepTimer, 1000);
@@ -136,16 +188,18 @@ function stopSleepRecord() {
     if (typeof stopSleepBgm === "function") stopSleepBgm();
     document.body.classList.remove("sleep-mode", "alarm-mode");
 
-    setSleepImages("assets/blink05.jpg");
-    if (typeof scheduleNextBlink === "function") scheduleNextBlink();
+    setHomeImage(window.HAVEN_IMAGES.normal);
+    setSleepImage(window.HAVEN_IMAGES.bedtime);
+    updateSleepButtons(false);
 
     if (sleepTimer) sleepTimer.textContent = recordText;
     if (sleepStatus) sleepStatus.textContent = "記録完了";
     if (sleepLastRecord) sleepLastRecord.textContent = "前回の睡眠：" + recordText;
 
-    setSleepMessages(`……おはよう、${getHavenName()}。`);
+    const wakeLine = pickSleepDialogue("wakeUp") || `……おはよう、${getHavenName()}。`;
+    setSleepMessages(wakeLine, true);
     sleepCommentTimer = setTimeout(function () {
-        setSleepMessages(getSleepComment(recordText));
+        setSleepMessages(getSleepComment(recordText), true);
     }, 3000);
 }
 
@@ -162,8 +216,10 @@ function resetSleepRecord() {
     if (typeof cancelActiveAlarm === "function") cancelActiveAlarm();
     document.body.classList.remove("sleep-mode", "alarm-mode");
 
-    setSleepImages("assets/blink05.jpg");
-    if (typeof scheduleNextBlink === "function") scheduleNextBlink();
+    setHomeImage(window.HAVEN_IMAGES.normal);
+    setSleepImage(window.HAVEN_IMAGES.bedtime);
+    setBedtimeChoicesVisible(false);
+    updateSleepButtons(false);
 
     if (sleepTimer) sleepTimer.textContent = "00:00:00";
     if (sleepStatus) sleepStatus.textContent = "まだ記録していません";
@@ -176,13 +232,18 @@ function loadSleepRecord() {
     if (last && sleepLastRecord) sleepLastRecord.textContent = "前回の睡眠：" + last;
 
     if (!sleepStartTime) {
-        if (sleepSebas) sleepSebas.src = "assets/sleep.jpg";
+        setHomeImage(window.HAVEN_IMAGES.normal);
+        setSleepImage(window.HAVEN_IMAGES.bedtime);
+        updateSleepButtons(false);
         return;
     }
 
     document.body.classList.add("sleep-mode");
-    setSleepImages("assets/sleep3.jpg");
-    setSleepMessages("……睡眠中だ。");
+    setHomeImage(window.HAVEN_IMAGES.sleeping);
+    setSleepImage(window.HAVEN_IMAGES.sleeping);
+    setSleepMessages("……睡眠中だ。", true);
+    updateSleepButtons(true);
+
     if (sleepStatus) sleepStatus.textContent = "睡眠中";
 
     updateSleepTimer();
@@ -193,8 +254,15 @@ function loadSleepRecord() {
     if (typeof startSleepBgm === "function") startSleepBgm();
 }
 
+if (sleepPreludeButton) sleepPreludeButton.addEventListener("click", openBedtimeConversation);
 if (sleepStartButton) sleepStartButton.addEventListener("click", startSleepRecord);
 if (sleepStopButton) sleepStopButton.addEventListener("click", stopSleepRecord);
 if (sleepResetButton) sleepResetButton.addEventListener("click", resetSleepRecord);
+
+bedtimeChoiceButtons.forEach(function (button) {
+    button.addEventListener("click", function () {
+        handleBedtimeChoice(button.dataset.bedtimeChoice);
+    });
+});
 
 loadSleepRecord();

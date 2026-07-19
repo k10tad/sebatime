@@ -21,9 +21,6 @@ const alarmWakeButton = document.getElementById("alarmWakeButton");
 const alarmSnoozeButton = document.getElementById("alarmSnoozeButton");
 
 let alarmCheckTimer = null;
-let alarmWakeTimer1 = null;
-let alarmWakeTimer2 = null;
-let alarmWakeTimer3 = null;
 let alarmIsRinging = false;
 
 function getSavedAlarmTime() {
@@ -97,24 +94,17 @@ function saveAlarmSettings() {
 }
 
 function setAlarmImage(src) {
-    if (typeof setSleepImages === "function") setSleepImages(src);
+    if (typeof setHomeImage === "function") setHomeImage(src);
+    if (typeof setSleepImage === "function") setSleepImage(src);
 }
 
 function setAlarmMessage(text) {
     if (alarmWakeMessage) alarmWakeMessage.textContent = text;
-    if (typeof setSleepMessages === "function") setSleepMessages(text);
-}
-
-function clearWakeSequence() {
-    clearTimeout(alarmWakeTimer1);
-    clearTimeout(alarmWakeTimer2);
-    clearTimeout(alarmWakeTimer3);
-    alarmWakeTimer1 = alarmWakeTimer2 = alarmWakeTimer3 = null;
+    if (typeof setSleepMessages === "function") setSleepMessages(text, true);
 }
 
 function cancelActiveAlarm() {
     alarmIsRinging = false;
-    clearWakeSequence();
     if (typeof stopAlarmSound === "function") stopAlarmSound();
     document.body.classList.remove("alarm-mode");
     if (alarmRingingPanel) alarmRingingPanel.hidden = true;
@@ -123,7 +113,6 @@ function cancelActiveAlarm() {
 function triggerAlarm() {
     if (alarmIsRinging) return;
     alarmIsRinging = true;
-    clearWakeSequence();
 
     const now = new Date();
     const minuteKey = `${now.getFullYear()}-${now.getMonth()}-${now.getDate()}-${now.getHours()}-${now.getMinutes()}`;
@@ -135,22 +124,11 @@ function triggerAlarm() {
     document.body.classList.add("alarm-mode");
     if (alarmRingingPanel) alarmRingingPanel.hidden = false;
 
-    setAlarmImage("assets/sleep3.jpg");
-    setAlarmMessage(`……${typeof getHavenUserName === "function" ? getHavenUserName() : "レイ"}。`);
+    const sleepingImage = window.HAVEN_IMAGES?.sleeping || "assets/sleep3.jpg";
+    setAlarmImage(sleepingImage);
+    setAlarmMessage(`……${typeof getHavenUserName === "function" ? getHavenUserName() : "レイ"}。起きる時間だ。`);
 
-    alarmWakeTimer1 = setTimeout(function () {
-        setAlarmImage("assets/sleep2.jpg");
-        setAlarmMessage("起きる時間だ。");
-    }, 1600);
-
-    alarmWakeTimer2 = setTimeout(function () {
-        setAlarmImage("assets/sleep.jpg");
-    }, 3000);
-
-    alarmWakeTimer3 = setTimeout(function () {
-        setAlarmImage("assets/blink05.jpg");
-        if (typeof startAlarmSound === "function") startAlarmSound();
-    }, 4200);
+    if (typeof startAlarmSound === "function") startAlarmSound();
 }
 
 function wakeFromAlarm() {
@@ -160,7 +138,8 @@ function wakeFromAlarm() {
     if (typeof stopSleepRecord === "function" && sleepStartTime) {
         stopSleepRecord();
     } else {
-        setAlarmImage("assets/blink05.jpg");
+        const normalImage = window.HAVEN_IMAGES?.normal || "assets/blink05.jpg";
+        setAlarmImage(normalImage);
         setAlarmMessage("……おはよう。");
     }
     updateAlarmPreview();
@@ -174,7 +153,8 @@ function snoozeAlarm() {
     );
 
     document.body.classList.add("sleep-mode");
-    setAlarmImage("assets/sleep3.jpg");
+    const sleepingImage = window.HAVEN_IMAGES?.sleeping || "assets/sleep3.jpg";
+    setAlarmImage(sleepingImage);
     setAlarmMessage("あと5分だ。……眠れ。");
     if (typeof startSleepBgm === "function") startSleepBgm();
     updateAlarmPreview();
@@ -183,7 +163,6 @@ function snoozeAlarm() {
 function shouldTriggerAlarm() {
     if (!isSavedAlarmEnabled() || alarmIsRinging) return false;
 
-    // 睡眠計測中だけ作動させる。寝るボタン直後の誤作動も防止。
     const sleepStartedAt = Number(localStorage.getItem("havenSleepStartedAt"));
     if (!sleepStartedAt || Date.now() - sleepStartedAt < 60000) return false;
 
@@ -216,4 +195,3 @@ if (alarmWakeButton) alarmWakeButton.addEventListener("click", wakeFromAlarm);
 if (alarmSnoozeButton) alarmSnoozeButton.addEventListener("click", snoozeAlarm);
 
 loadAlarmSettings();
-

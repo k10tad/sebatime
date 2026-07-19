@@ -2340,3 +2340,60 @@ body.splash-active #appPages {
         animation-iteration-count: 1 !important;
     }
 }
+
+/* ========================
+   Companion call / bedtime choices
+======================== */
+.companion-call-button {
+    min-width: 118px;
+    margin-top: 14px;
+    padding: 9px 22px;
+    border-radius: 999px;
+    color: rgba(246, 246, 248, 0.88);
+    font-family: "Georgia", "Times New Roman", "Yu Mincho", serif;
+    letter-spacing: 0.14em;
+}
+
+.bedtime-choices {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 10px;
+    margin: 18px 0 4px;
+    padding: 16px;
+    border: 1px solid rgba(218, 232, 255, 0.16);
+    border-radius: 18px;
+    background: rgba(7, 12, 23, 0.28);
+}
+
+.bedtime-choices[hidden] {
+    display: none;
+}
+
+.bedtime-choice-title {
+    grid-column: 1 / -1;
+    margin-bottom: 2px;
+    color: rgba(244, 246, 251, 0.66);
+    font-size: 14px;
+    letter-spacing: 0.14em;
+    text-align: center;
+}
+
+.bedtime-choices button {
+    min-height: 44px;
+    padding: 9px 10px;
+    border-radius: 14px;
+}
+
+.sleep-buttons button[hidden] {
+    display: none;
+}
+
+@media screen and (max-width: 620px) {
+    .bedtime-choices {
+        grid-template-columns: 1fr;
+    }
+
+    .bedtime-choice-title {
+        grid-column: 1;
+    }
+}

@@ -475,3 +475,40 @@ function getDailyFlowMessage() {
 
     return randomMessage(dailyFlowMessages.morning);
 }
+
+//========================
+// Sebas 呼びかけ
+//========================
+
+const callSebasButton = document.getElementById("callSebas");
+let sebasCallCount = 0;
+let sebasCallResetTimer = null;
+
+function pickHavenDialogue(key) {
+    const list = window.HavenDialogues?.[key];
+    if (!Array.isArray(list) || list.length === 0) return "";
+
+    const selected = list[Math.floor(Math.random() * list.length)];
+    const name = typeof getHavenUserName === "function" ? getHavenUserName() : "レイ";
+    return selected.replaceAll("{name}", name);
+}
+
+function callSebas() {
+    sebasCallCount += 1;
+    clearTimeout(sebasCallResetTimer);
+
+    const key = sebasCallCount === 1 ? "normalCall" : "normalCallRepeat";
+    const line = pickHavenDialogue(key);
+
+    if (line && message) {
+        message.textContent = line;
+    }
+
+    sebasCallResetTimer = setTimeout(function () {
+        sebasCallCount = 0;
+    }, 45000);
+}
+
+if (callSebasButton) {
+    callSebasButton.addEventListener("click", callSebas);
+}

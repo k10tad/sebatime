@@ -3,6 +3,7 @@
 
 
 
+
 <!DOCTYPE html>
 <html lang="ja">
 <head>
@@ -18,7 +19,7 @@
     <link rel="apple-touch-icon" href="./apple-touch-icon-v3.png?v=3">
     <link rel="apple-touch-icon-precomposed" href="./apple-touch-icon-v3.png?v=3">
     <link rel="icon" type="image/png" sizes="64x64" href="./assets/icons/favicon-64-v3.png?v=3">
-    <link rel="stylesheet" href="style.css?v=16">
+    <link rel="stylesheet" href="style.css?v=17">
     <link rel="stylesheet" href="haven-engine.css?v=2">
 </head>
 
@@ -73,6 +74,7 @@
         <section class="haven-presence" aria-label="Sebas">
             <img src="assets/blink05.jpg" id="sebas" alt="Sebas">
             <div id="message">……来たか。</div>
+            <button id="callSebas" class="companion-call-button" type="button">Sebas</button>
         </section>
 
         <section class="haven-dashboard">
@@ -156,9 +158,17 @@
             <div id="sleepTimer" class="sleep-counter">00:00:00</div>
             <div id="sleepLastRecord" class="sleep-last-record">前回の睡眠：--</div>
 
+            <div id="bedtimeChoices" class="bedtime-choices" hidden>
+                <div class="bedtime-choice-title">どうする？</div>
+                <button type="button" data-bedtime-choice="talk">少し話して</button>
+                <button type="button" data-bedtime-choice="quiet">静かにして</button>
+                <button type="button" data-bedtime-choice="stay">ただ、そばにいて</button>
+            </div>
+
             <div class="sleep-buttons">
+                <button id="sleepPrelude" type="button">眠る前に</button>
                 <button id="sleepStart" type="button">寝る</button>
-                <button id="sleepStop" type="button">起きた</button>
+                <button id="sleepStop" type="button" hidden>起きる</button>
                 <button id="sleepReset" class="quiet-button" type="button">記録リセット</button>
             </div>
         </section>
@@ -291,23 +301,22 @@
 
 <script src="splash.js?v=2"></script>
 <script src="background.js?v=1"></script>
-<script src="message.js?v=5"></script>
+<script src="message.js?v=6"></script>
 <script src="sound.js?v=15"></script>
 <script src="settings.js?v=1"></script>
 <script src="work-session.js?v=2"></script>
 <script src="tasks.js"></script>
-<script src="alarm.js?v=2"></script>
-<script src="sleep.js?v=7"></script>
+<script src="alarm.js?v=3"></script>
+<script src="sleep.js?v=8"></script>
 <script src="mood.js?v=3"></script>
 <script src="memory.js"></script>
 <script src="weather.js?v=2"></script>
 <script src="clock.js"></script>
-<script src="blink.js"></script>
 <script src="navigation.js?v=2"></script>
-<script src="companion-dialogues.js?v=5"></script>
+<script src="companion-dialogues.js?v=6"></script>
 <script src="companion-engine.js?v=5"></script>
 <script>window.USE_COMPANION_ENGINE=true;</script>
-<script src="main.js?v=2"></script>
+<script src="main.js?v=3"></script>
 
 </body>
 </html>
