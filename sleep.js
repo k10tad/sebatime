@@ -11,9 +11,9 @@ const HAVEN_SLEEP_KEYS = {
 };
 
 window.HAVEN_IMAGES = {
-    normal: "assets/blink05.jpg",
-    bedtime: "assets/sleep.jpg",
-    sleeping: "assets/sleep3.jpg"
+    normal: "assets/companion-normal.jpg",
+    bedtime: "assets/companion-bedtime.jpg",
+    sleeping: "assets/companion-sleep.jpg"
 };
 
 let sleepStartTime = Number(localStorage.getItem(HAVEN_SLEEP_KEYS.start)) || null;
@@ -108,7 +108,9 @@ function updateSleepButtons(isSleeping) {
 function openBedtimeConversation() {
     if (sleepStartTime) return;
 
+    setHomeImage(window.HAVEN_IMAGES.bedtime);
     setSleepImage(window.HAVEN_IMAGES.bedtime);
+
     setBedtimeChoicesVisible(true);
 
     const line = pickSleepDialogue("bedtimeIntro") || "眠る前に、少し話すか。";
@@ -116,18 +118,27 @@ function openBedtimeConversation() {
 }
 
 function handleBedtimeChoice(choice) {
+    if (sleepStartTime) return;
+
     const dialogueKeys = {
         talk: "bedtimeTalk",
         quiet: "bedtimeQuiet",
         stay: "bedtimeStay"
     };
 
+    // 「眠る前に」の画像を維持
+    setHomeImage(window.HAVEN_IMAGES.bedtime);
+    setSleepImage(window.HAVEN_IMAGES.bedtime);
+
     const key = dialogueKeys[choice];
     if (!key) return;
 
-    setSleepImage(window.HAVEN_IMAGES.bedtime);
     const line = pickSleepDialogue(key);
-    if (line) setSleepMessages(line);
+    if (line) {
+        setSleepMessages(line);
+    }
+
+    setBedtimeChoicesVisible(false);
 }
 
 function beginSleepVisuals() {
