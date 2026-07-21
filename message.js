@@ -477,12 +477,78 @@ function getDailyFlowMessage() {
 }
 
 //========================
-// Sebas 呼びかけ
+// Sebas 呼びかけ・間と余韻のある短い返事（Companion Reply Phase 9.3）
 //========================
 
 const callSebasButton = document.getElementById("callSebas");
+const companionReplyChoices = document.getElementById("companionReplyChoices");
+const companionReplyButtons = Array.from(
+    document.querySelectorAll("[data-companion-reply]")
+);
+
 let sebasCallCount = 0;
 let sebasCallResetTimer = null;
+let companionReplyTimer = null;
+let companionReplyClosingTimer = null;
+const lastCompanionReplyIndexes = {};
+
+//========================
+// Companion Conversation foundation（Phase 9.4 preparation）
+//========================
+
+const COMPANION_CONVERSATION_RESET_MS = 30 * 60 * 1000;
+
+const companionConversationState = {
+    lastReplyType: null,
+    lastReplyKey: null,
+    lastReplyId: null,
+    lastInteractionAt: 0,
+    consecutiveCount: 0
+};
+
+function resetCompanionConversationState() {
+    companionConversationState.lastReplyType = null;
+    companionConversationState.lastReplyKey = null;
+    companionConversationState.lastReplyId = null;
+    companionConversationState.lastInteractionAt = 0;
+    companionConversationState.consecutiveCount = 0;
+}
+
+function expireCompanionConversationState(now = Date.now()) {
+    if (
+        companionConversationState.lastInteractionAt > 0 &&
+        now - companionConversationState.lastInteractionAt >=
+            COMPANION_CONVERSATION_RESET_MS
+    ) {
+        resetCompanionConversationState();
+    }
+}
+
+function recordCompanionReply(replyType, replyKey, replyId) {
+    const now = Date.now();
+    expireCompanionConversationState(now);
+
+    companionConversationState.consecutiveCount =
+        companionConversationState.lastReplyType === replyType
+            ? companionConversationState.consecutiveCount + 1
+            : 1;
+
+    companionConversationState.lastReplyType = replyType;
+    companionConversationState.lastReplyKey = replyKey;
+    companionConversationState.lastReplyId = replyId;
+    companionConversationState.lastInteractionAt = now;
+}
+
+function getCompanionConversationState() {
+    expireCompanionConversationState();
+    return { ...companionConversationState };
+}
+
+window.HavenCompanionConversation = {
+    getState: getCompanionConversationState,
+    reset: resetCompanionConversationState,
+    resetAfterMs: COMPANION_CONVERSATION_RESET_MS
+};
 
 function pickHavenDialogue(key) {
     const list = window.HavenDialogues?.[key];
@@ -493,7 +559,128 @@ function pickHavenDialogue(key) {
     return selected.replaceAll("{name}", name);
 }
 
+function pickHavenReply(key) {
+    const list = window.HavenDialogues?.[key];
+    if (!Array.isArray(list) || list.length === 0) return null;
+
+    const previousIndex = lastCompanionReplyIndexes[key];
+    const availableIndexes = list
+        .map(function (_, index) { return index; })
+        .filter(function (index) {
+            return list.length === 1 || index !== previousIndex;
+        });
+    const selectedIndex = availableIndexes[Math.floor(Math.random() * availableIndexes.length)];
+    const selected = list[selectedIndex];
+    if (!selected || typeof selected.main !== "string") return null;
+
+    lastCompanionReplyIndexes[key] = selectedIndex;
+    const name = typeof getHavenUserName === "function" ? getHavenUserName() : "レイ";
+    return {
+        main: selected.main.replaceAll("{name}", name),
+        closing: typeof selected.closing === "string"
+            ? selected.closing.replaceAll("{name}", name)
+            : "",
+        id: typeof selected.id === "string"
+            ? selected.id
+            : `${key}:${selectedIndex}`
+    };
+}
+
+function setCompanionReplyChoicesVisible(isVisible) {
+    if (!companionReplyChoices) return;
+
+    companionReplyChoices.hidden = !isVisible;
+    companionReplyButtons.forEach(function (button) {
+        button.disabled = false;
+    });
+}
+
+function isRainyCompanionWeather(code) {
+    const value = Number(code);
+    if (!Number.isFinite(value)) return false;
+
+    return (
+        (value >= 51 && value <= 67) ||
+        (value >= 80 && value <= 82) ||
+        (value >= 95 && value <= 99)
+    );
+}
+
+function getCompanionReplyContext() {
+    const hour = new Date().getHours();
+    const pressure =
+        typeof currentPressure !== "undefined"
+            ? Number(currentPressure)
+            : NaN;
+    const weatherCode =
+        typeof currentWeatherCode !== "undefined"
+            ? Number(currentWeatherCode)
+            : NaN;
+
+    // 体調に響きやすい天候を最優先にする。
+    if (
+        (Number.isFinite(pressure) && pressure <= 1005) ||
+        isRainyCompanionWeather(weatherCode)
+    ) {
+        return "weather";
+    }
+
+    // 21時以降と早朝は、夜向けの返事に切り替える。
+    if (hour >= 21 || hour < 5) {
+        return "night";
+    }
+
+    // 作業中は作業向け、それ以外の日中も軽い日常向けにする。
+    if (typeof sessionState !== "undefined" && sessionState === "work") {
+        return "work";
+    }
+
+    return "day";
+}
+
+const companionReplySets = {
+    day: [
+        { value: "busy", label: "今日は忙しい" },
+        { value: "break", label: "少し休む" },
+        { value: "justCalled", label: "呼んだだけ" }
+    ],
+    work: [
+        { value: "busy", label: "まだ忙しい" },
+        { value: "break", label: "少し休憩する" },
+        { value: "justCalled", label: "呼んだだけ" }
+    ],
+    night: [
+        { value: "tired", label: "少し疲れた" },
+        { value: "cantSleep", label: "眠れない" },
+        { value: "justCalled", label: "呼んだだけ" }
+    ],
+    weather: [
+        { value: "headHeavy", label: "頭が重い" },
+        { value: "quiet", label: "今日は静かにしたい" },
+        { value: "justCalled", label: "呼んだだけ" }
+    ]
+};
+
+function updateCompanionReplyChoices() {
+    const context = getCompanionReplyContext();
+    const choices = companionReplySets[context] || companionReplySets.day;
+
+    companionReplyButtons.forEach(function (button, index) {
+        const choice = choices[index];
+        if (!choice) {
+            button.hidden = true;
+            return;
+        }
+
+        button.hidden = false;
+        button.dataset.companionReply = choice.value;
+        button.textContent = choice.label;
+    });
+}
+
 function callSebas() {
+    clearTimeout(companionReplyTimer);
+    clearTimeout(companionReplyClosingTimer);
     sebasCallCount += 1;
     clearTimeout(sebasCallResetTimer);
 
@@ -504,11 +691,64 @@ function callSebas() {
         message.textContent = line;
     }
 
+    updateCompanionReplyChoices();
+    setCompanionReplyChoicesVisible(true);
+
     sebasCallResetTimer = setTimeout(function () {
         sebasCallCount = 0;
     }, 45000);
 }
 
+function handleCompanionReply(reply) {
+    const dialogueKeys = {
+        busy: "normalReplyBusy",
+        break: "normalReplyBreak",
+        tired: "normalReplyTired",
+        cantSleep: "normalReplyCantSleep",
+        headHeavy: "normalReplyHeadHeavy",
+        quiet: "normalReplyQuiet",
+        justCalled: "normalReplyJustCalled"
+    };
+
+    const key = dialogueKeys[reply];
+    if (!key || !message) return;
+
+    clearTimeout(companionReplyTimer);
+    clearTimeout(companionReplyClosingTimer);
+
+    companionReplyButtons.forEach(function (button) {
+        button.disabled = true;
+    });
+    setCompanionReplyChoicesVisible(false);
+
+    // 一拍置いてから、短い返答を表示する。
+    message.textContent = "……";
+    companionReplyTimer = setTimeout(function () {
+        const selectedReply = pickHavenReply(key);
+        if (!selectedReply) return;
+        recordCompanionReply(reply, key, selectedReply.id);
+        const mainLine = selectedReply.main;
+        if (mainLine) message.textContent = mainLine;
+
+        // さらに一呼吸置き、締めの一言を添える。
+        companionReplyClosingTimer = setTimeout(function () {
+            const closingLine = selectedReply.closing;
+            if (!closingLine) return;
+
+            // Main はすでに表示済みなので、Closing では再掲しない。
+            // 再結合すると「分かった。」→「分かった。\n確認しなくても…」のように
+            // 同じ台詞を二度言ったように見えるため、締めの一言だけへ切り替える。
+            message.textContent = closingLine;
+        }, 850);
+    }, 750);
+}
+
 if (callSebasButton) {
     callSebasButton.addEventListener("click", callSebas);
 }
+
+companionReplyButtons.forEach(function (button) {
+    button.addEventListener("click", function () {
+        handleCompanionReply(button.dataset.companionReply);
+    });
+});

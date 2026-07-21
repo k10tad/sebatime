@@ -4,6 +4,9 @@
 
 
 
+
+
+
 <!DOCTYPE html>
 <html lang="ja">
 <head>
@@ -75,6 +78,12 @@
             <img src="assets/blink05.jpg" id="sebas" alt="Sebas">
             <div id="message">……来たか。</div>
             <button id="callSebas" class="companion-call-button" type="button">Sebas</button>
+
+            <div id="companionReplyChoices" class="companion-reply-choices" hidden aria-label="セバスへの返事">
+                <button type="button" data-companion-reply="tired">少し疲れた</button>
+                <button type="button" data-companion-reply="break">少し休む</button>
+                <button type="button" data-companion-reply="justCalled">呼んだだけ</button>
+            </div>
         </section>
 
         <section class="haven-dashboard">
@@ -301,7 +310,7 @@
 
 <script src="splash.js?v=2"></script>
 <script src="background.js?v=1"></script>
-<script src="message.js?v=6"></script>
+<script src="message.js?v=10"></script>
 <script src="sound.js?v=15"></script>
 <script src="settings.js?v=1"></script>
 <script src="work-session.js?v=2"></script>
@@ -313,7 +322,7 @@
 <script src="weather.js?v=2"></script>
 <script src="clock.js"></script>
 <script src="navigation.js?v=2"></script>
-<script src="companion-dialogues.js?v=6"></script>
+<script src="companion-dialogues.js?v=8"></script>
 <script src="companion-engine.js?v=5"></script>
 <script>window.USE_COMPANION_ENGINE=true;</script>
 <script src="main.js?v=3"></script>
