@@ -561,28 +561,57 @@ function pickHavenDialogue(key) {
 
 function pickHavenReply(key) {
     const list = window.HavenDialogues?.[key];
-    if (!Array.isArray(list) || list.length === 0) return null;
+    if (Array.isArray(list) && list.length > 0) {
+        const previousIndex = lastCompanionReplyIndexes[key];
+        const availableIndexes = list
+            .map(function (_, index) { return index; })
+            .filter(function (index) {
+                return list.length === 1 || index !== previousIndex;
+            });
+        const selectedIndex =
+            availableIndexes[Math.floor(Math.random() * availableIndexes.length)];
+        const selected = list[selectedIndex];
 
-    const previousIndex = lastCompanionReplyIndexes[key];
-    const availableIndexes = list
-        .map(function (_, index) { return index; })
-        .filter(function (index) {
-            return list.length === 1 || index !== previousIndex;
-        });
-    const selectedIndex = availableIndexes[Math.floor(Math.random() * availableIndexes.length)];
-    const selected = list[selectedIndex];
-    if (!selected || typeof selected.main !== "string") return null;
+        if (selected && typeof selected.main === "string") {
+            lastCompanionReplyIndexes[key] = selectedIndex;
+            const name =
+                typeof getHavenUserName === "function"
+                    ? getHavenUserName()
+                    : "レイ";
 
-    lastCompanionReplyIndexes[key] = selectedIndex;
+            return {
+                main: selected.main.replaceAll("{name}", name),
+                closing:
+                    typeof selected.closing === "string"
+                        ? selected.closing.replaceAll("{name}", name)
+                        : "",
+                id:
+                    typeof selected.id === "string"
+                        ? selected.id
+                        : `${key}:${selectedIndex}`
+            };
+        }
+    }
+
+    // 9.3以前の Main／Closing 分割形式がキャッシュに残っていても、
+    // 「……」で停止しないよう互換取得する。
+    const mainList = window.HavenDialogues?.[`${key}Main`];
+    const closingList = window.HavenDialogues?.[`${key}Closing`];
+    if (!Array.isArray(mainList) || mainList.length === 0) return null;
+
     const name = typeof getHavenUserName === "function" ? getHavenUserName() : "レイ";
+    const mainIndex = Math.floor(Math.random() * mainList.length);
+    const closingIndex =
+        Array.isArray(closingList) && closingList.length > 0
+            ? Math.floor(Math.random() * closingList.length)
+            : -1;
+
     return {
-        main: selected.main.replaceAll("{name}", name),
-        closing: typeof selected.closing === "string"
-            ? selected.closing.replaceAll("{name}", name)
+        main: String(mainList[mainIndex]).replaceAll("{name}", name),
+        closing: closingIndex >= 0
+            ? String(closingList[closingIndex]).replaceAll("{name}", name)
             : "",
-        id: typeof selected.id === "string"
-            ? selected.id
-            : `${key}:${selectedIndex}`
+        id: `${key}:legacy:${mainIndex}:${closingIndex}`
     };
 }
 
@@ -725,7 +754,14 @@ function handleCompanionReply(reply) {
     message.textContent = "……";
     companionReplyTimer = setTimeout(function () {
         const selectedReply = pickHavenReply(key);
-        if (!selectedReply) return;
+        if (!selectedReply) {
+            // 台詞データの読込失敗時も無言のまま固めない。
+            message.textContent = "聞いている。もう一度、話してくれ。";
+            companionReplyButtons.forEach(function (button) {
+                button.disabled = false;
+            });
+            return;
+        }
         recordCompanionReply(reply, key, selectedReply.id);
         const mainLine = selectedReply.main;
         if (mainLine) message.textContent = mainLine;
