@@ -742,6 +742,37 @@ function handleCompanionReply(reply) {
     const key = dialogueKeys[reply];
     if (!key || !message) return;
 
+    const recoveryReplies = {
+        busy: {
+            main: "そうか。なら、今やることを一つだけ決めろ。",
+            closing: "順番に片付ければいい。"
+        },
+        break: {
+            main: "それでいい。少し離れてこい。",
+            closing: "戻る時はまた呼べ。"
+        },
+        tired: {
+            main: "そうか。今日は少し力を抜け。",
+            closing: "無理を重ねるな。"
+        },
+        cantSleep: {
+            main: "眠れないなら、無理に眠ろうとするな。",
+            closing: "横になっているだけでも身体は休める。"
+        },
+        headHeavy: {
+            main: "そうか。明るさを落とせ。",
+            closing: "水を飲んで、少し休め。"
+        },
+        quiet: {
+            main: "分かった。今日は言葉を減らそう。",
+            closing: "だが、ここにはいる。"
+        },
+        justCalled: {
+            main: "呼びたかっただけか。",
+            closing: "それでも構わない。"
+        }
+    };
+
     clearTimeout(companionReplyTimer);
     clearTimeout(companionReplyClosingTimer);
 
@@ -753,15 +784,14 @@ function handleCompanionReply(reply) {
     // 一拍置いてから、短い返答を表示する。
     message.textContent = "……";
     companionReplyTimer = setTimeout(function () {
-        const selectedReply = pickHavenReply(key);
-        if (!selectedReply) {
-            // 台詞データの読込失敗時も無言のまま固めない。
-            message.textContent = "聞いている。もう一度、話してくれ。";
-            companionReplyButtons.forEach(function (button) {
-                button.disabled = false;
-            });
-            return;
-        }
+        // 台詞集がキャッシュ不整合などで取得できない場合も、
+        // 選択内容に対応した返答を使い、全選択肢を同じ台詞へ落とさない。
+        const selectedReply =
+            pickHavenReply(key) ||
+            {
+                ...recoveryReplies[reply],
+                id: `${key}:recovery`
+            };
         recordCompanionReply(reply, key, selectedReply.id);
         const mainLine = selectedReply.main;
         if (mainLine) message.textContent = mainLine;
