@@ -34,6 +34,12 @@
     document.querySelector('[aria-labelledby="profileSettingsTitle"]')?.remove();
 
     const voicePanel = document.querySelector('[aria-labelledby="voiceSettingsTitle"]');
+    const soundPanel = document.querySelector('[aria-labelledby="soundSettingsTitle"]');
+    soundPanel?.insertAdjacentHTML("beforeend", `
+      <label class="volume-setting" for="voiceVolume">
+       <span>セバスのボイス</span><output id="voiceVolumeValue">72%</output>
+       <input id="voiceVolume" type="range" min="0" max="100" step="1" value="72">
+      </label>`);
     if (voicePanel) voicePanel.insertAdjacentHTML("afterend", `
       <section class="settings-panel" aria-labelledby="companionSettingsTitle">
        <div class="settings-section-heading"><div class="settings-label">TOGETHER</div><h2 id="companionSettingsTitle">寄り添いの開始日</h2></div>

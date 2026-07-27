@@ -63,21 +63,21 @@ function applyHavenAudioSettings() {
     const bgm = clamp01(settings.bgmVolume / 100);
     const living = clamp01(settings.livingVolume / 100);
 
-    havenAudio.workBgm.volume = bgm;
-    havenAudio.breakBgm.volume = bgm * 0.84;
-    havenAudio.clock.volume = living * 0.74;
-    havenAudio.pen.volume = living;
-    havenAudio.page.volume = living * 1.12;
-    havenAudio.coffee.volume = living;
-    havenAudio.cough.volume = living * 0.74;
-    havenAudio.step.volume = living * 0.92;
+    havenAudio.workBgm.volume = clamp01(bgm);
+    havenAudio.breakBgm.volume = clamp01(bgm * 0.84);
+    havenAudio.clock.volume = clamp01(living * 0.74);
+    havenAudio.pen.volume = clamp01(living);
+    havenAudio.page.volume = clamp01(living * 1.12);
+    havenAudio.coffee.volume = clamp01(living);
+    havenAudio.cough.volume = clamp01(living * 0.74);
+    havenAudio.step.volume = clamp01(living * 0.92);
 
     // 睡眠音はSettingsに依存させず、コード側で固定する。
-    havenAudio.sleepBreath.volume = HAVEN_FIXED_SLEEP_VOLUME;
-    havenAudio.breath.volume = audioMode === "sleep"
+    havenAudio.sleepBreath.volume = clamp01(HAVEN_FIXED_SLEEP_VOLUME);
+    havenAudio.breath.volume = clamp01(audioMode === "sleep"
         ? HAVEN_FIXED_SLEEP_DEEP_BREATH_VOLUME
-        : living * 0.86;
-    havenAudio.alarm.volume = 0.48;
+        : living * 0.86);
+    havenAudio.alarm.volume = clamp01(0.48);
 }
 
 function safePlay(audio) {

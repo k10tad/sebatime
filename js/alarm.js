@@ -124,7 +124,7 @@ function triggerAlarm() {
     document.body.classList.add("alarm-mode");
     if (alarmRingingPanel) alarmRingingPanel.hidden = false;
 
-    const sleepingImage = window.HAVEN_IMAGES?.sleeping || "assets/sleep3.jpg";
+    const sleepingImage = window.HAVEN_IMAGES?.sleeping || "assets/companion-sleep.jpg";
     setAlarmImage(sleepingImage);
     setAlarmMessage(`……${typeof getHavenUserName === "function" ? getHavenUserName() : "レイ"}。起きる時間だ。`);
 
@@ -138,7 +138,7 @@ function wakeFromAlarm() {
     if (typeof stopSleepRecord === "function" && sleepStartTime) {
         stopSleepRecord();
     } else {
-        const normalImage = window.HAVEN_IMAGES?.normal || "assets/blink05.jpg";
+        const normalImage = window.HAVEN_IMAGES?.normal || "assets/companion-normal.jpg";
         setAlarmImage(normalImage);
         setAlarmMessage("……おはよう。");
     }
@@ -153,7 +153,7 @@ function snoozeAlarm() {
     );
 
     document.body.classList.add("sleep-mode");
-    const sleepingImage = window.HAVEN_IMAGES?.sleeping || "assets/sleep3.jpg";
+    const sleepingImage = window.HAVEN_IMAGES?.sleeping || "assets/companion-sleep.jpg";
     setAlarmImage(sleepingImage);
     setAlarmMessage("あと5分だ。……眠れ。");
     if (typeof startSleepBgm === "function") startSleepBgm();

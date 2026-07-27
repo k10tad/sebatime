@@ -33,6 +33,48 @@ window.HavenDialogues = {
         "寂しいなら、最初からそう言え。",
         "分かった。ここにいるから落ち着け。"
     ],
+    normalReplyBusy: [
+        { main: "そうか。なら、優先するものを一つだけ決めろ。", closing: "順番に片付ければいい。" },
+        { main: "全部を同時に抱えるな。", closing: "休む時間は残しておけ。" },
+        { main: "忙しい時ほど急ぐな。", closing: "終わったら、また呼べ。" },
+        { main: "分かった。今は手元の一つだけ見ろ。", closing: "" }
+    ],
+    normalReplyTired: [
+        { main: "そうか。今日は少し力を抜け。", closing: "無理を重ねるな。" },
+        { main: "顔を見れば分かる。", closing: "少しくらい休んでいい。" },
+        { main: "よくここまでやった。", closing: "今日はもう十分だ。" },
+        { main: "疲れたなら、ここでは取り繕わなくていい。", closing: "安心して休め。俺はここにいる。" }
+    ],
+    normalReplyCantSleep: [
+        { main: "まだ頭が働いているのか。", closing: "まず呼吸をゆっくりにしろ。" },
+        { main: "無理に眠ろうとするな。", closing: "横になっているだけでも身体は休める。" },
+        { main: "眠れないなら、焦らなくていい。", closing: "少しずつ静かにしていこう。" },
+        { main: "時計を見るのはやめろ。", closing: "俺はここにいる。" }
+    ],
+    normalReplyHeadHeavy: [
+        { main: "そうか。明るさを落とせ。", closing: "水を飲んで、少し休め。" },
+        { main: "今日は無理に押し切るな。", closing: "必要なら、早めに切り上げろ。" },
+        { main: "気圧のせいなら、お前の根性でどうにかする話じゃない。", closing: "頭痛になる前に止まれ。" },
+        { main: "分かった。今日は省エネでいけ。", closing: "" }
+    ],
+    normalReplyQuiet: [
+        { main: "分かった。", closing: "必要になるまで黙っている。" },
+        { main: "今日は言葉を減らそう。", closing: "だが、ここにはいる。" },
+        { main: "静かにしていたいなら、それでいい。", closing: "無理に話すな。" },
+        { main: "承知した。呼ばれた時だけ返事をする。", closing: "" }
+    ],
+    normalReplyBreak: [
+        { main: "それでいい。", closing: "水でも飲んでこい。" },
+        { main: "判断は正しい。", closing: "急がなくていい。" },
+        { main: "少し離れてこい。", closing: "戻る時はまた呼べ。" },
+        { main: "休むのも仕事のうちだ。", closing: "戻るまでここにいる。" }
+    ],
+    normalReplyJustCalled: [
+        { main: "そうか。", closing: "それでも構わない。" },
+        { main: "分かった。", closing: "呼ぶ理由は要らない。" },
+        { main: "……なるほど。", closing: "確認しなくても、俺はここにいる。" },
+        { main: "呼びたかっただけか。", closing: "名前を呼ばれるくらいなら歓迎だ。" }
+    ],
     bedtimeIntro: [
         "まだ少し起きていたいのか。",
         "眠る前に、何か話すか。",
