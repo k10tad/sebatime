@@ -30,7 +30,7 @@ const workBreakButton = document.getElementById("workBreak");
 const workEndButton = document.getElementById("workEnd");
 const HAVEN_SESSION_IMAGES = {
     idle: "assets/companion-normal.jpg",
-    work: "assets/companion-normal.jpg",
+    work: "assets/companion-work.jpg",
     break: "assets/companion-break.jpg"
 };
 
