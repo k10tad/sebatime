@@ -30,6 +30,16 @@ function showHavenPage(pageName, options = {}) {
         );
     });
 
+    document.body.dataset.havenPage = pageName;
+
+    if (typeof setBedroomAmbience === "function") {
+        setBedroomAmbience(pageName === "sleep");
+    }
+
+    if (pageName === "home" && typeof syncSessionCompanionImage === "function") {
+        syncSessionCompanionImage();
+    }
+
     if (isActualChange && options.silent !== true) {
         if (typeof playPageStepSound === "function") {
             playPageStepSound();

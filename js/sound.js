@@ -6,8 +6,11 @@
 let audioMode = "idle"; // idle / work / break / sleep / alarm
 
 const HAVEN_AUDIO_SETTINGS_KEY = "havenSettings";
-const HAVEN_FIXED_SLEEP_VOLUME = 0.78;
+const HAVEN_FIXED_SLEEP_VOLUME = 1;
+const HAVEN_FIXED_HEARTBEAT_VOLUME = 1;
 const HAVEN_FIXED_SLEEP_DEEP_BREATH_VOLUME = 0.045;
+const HAVEN_SLEEP_BREATH_GAIN = 5;
+const HAVEN_HEARTBEAT_GAIN = 1.45;
 
 const havenAudio = {
     workBgm: new Audio("music/bgm.mp3"),
@@ -20,6 +23,7 @@ const havenAudio = {
     cough: new Audio("sound/coughing.mp3"),
     step: new Audio("sound/step.mp3"),
     sleepBreath: new Audio("sound/sleep_breath.mp3"),
+    heartbeat: new Audio("sound/heartbeat.mp3"),
     alarm: new Audio("sound/alarm.mp3")
 };
 
@@ -27,6 +31,7 @@ havenAudio.workBgm.loop = true;
 havenAudio.breakBgm.loop = true;
 havenAudio.clock.loop = true;
 havenAudio.sleepBreath.loop = true;
+havenAudio.heartbeat.loop = true;
 havenAudio.alarm.loop = true;
 
 Object.values(havenAudio).forEach(function (audio) {
@@ -35,6 +40,11 @@ Object.values(havenAudio).forEach(function (audio) {
 
 let audioUnlocked = false;
 let desiredAudioMode = "idle";
+let bedroomAmbienceActive = false;
+let havenAudioContext = null;
+let sleepBreathGainNode = null;
+let heartbeatGainNode = null;
+let boostedBedroomAudioAttempted = false;
 let deskTimer = null;
 let humanTimer = null;
 let coffeeTimer = null;
@@ -74,10 +84,58 @@ function applyHavenAudioSettings() {
 
     // 睡眠音はSettingsに依存させず、コード側で固定する。
     havenAudio.sleepBreath.volume = clamp01(HAVEN_FIXED_SLEEP_VOLUME);
+    havenAudio.heartbeat.volume = clamp01(HAVEN_FIXED_HEARTBEAT_VOLUME);
     havenAudio.breath.volume = clamp01(audioMode === "sleep"
         ? HAVEN_FIXED_SLEEP_DEEP_BREATH_VOLUME
         : living * 0.86);
     havenAudio.alarm.volume = clamp01(0.48);
+}
+
+function ensureBoostedBedroomAudio() {
+    const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+    if (!AudioContextClass) return;
+
+    if (!boostedBedroomAudioAttempted) {
+        boostedBedroomAudioAttempted = true;
+        try {
+            havenAudioContext = new AudioContextClass();
+
+            const sleepSource = havenAudioContext.createMediaElementSource(havenAudio.sleepBreath);
+            sleepBreathGainNode = havenAudioContext.createGain();
+            sleepBreathGainNode.gain.value = HAVEN_SLEEP_BREATH_GAIN;
+            sleepSource.connect(sleepBreathGainNode).connect(havenAudioContext.destination);
+
+            const heartbeatSource = havenAudioContext.createMediaElementSource(havenAudio.heartbeat);
+            heartbeatGainNode = havenAudioContext.createGain();
+            heartbeatGainNode.gain.value = HAVEN_HEARTBEAT_GAIN;
+            heartbeatSource.connect(heartbeatGainNode).connect(havenAudioContext.destination);
+        } catch (error) {
+            console.warn("Haven bedroom audio boost is unavailable:", error);
+        }
+    }
+
+    if (havenAudioContext?.state === "suspended") {
+        const resumeResult = havenAudioContext.resume();
+        if (resumeResult && typeof resumeResult.catch === "function") {
+            resumeResult.catch(() => {});
+        }
+    }
+}
+
+function syncBedroomHeartbeat() {
+    if (!bedroomAmbienceActive) {
+        stopAudio(havenAudio.heartbeat);
+        return;
+    }
+
+    ensureBoostedBedroomAudio();
+    safePlay(havenAudio.heartbeat);
+}
+
+function setBedroomAmbience(isActive) {
+    bedroomAmbienceActive = Boolean(isActive);
+    if (bedroomAmbienceActive) unlockAudio();
+    syncBedroomHeartbeat();
 }
 
 function safePlay(audio) {
@@ -222,6 +280,8 @@ function setMode(nextMode) {
     } else if (nextMode === "alarm") {
         safePlay(havenAudio.alarm);
     }
+
+    syncBedroomHeartbeat();
 }
 
 function unlockAudio() {
@@ -233,6 +293,7 @@ function unlockAudio() {
     }
 
     audioUnlocked = true;
+    ensureBoostedBedroomAudio();
     applyHavenAudioSettings();
 
     // ユーザー操作の中でアラーム音を無音再生し、後の自動再生を許可しやすくする。
@@ -303,3 +364,4 @@ document.addEventListener("touchend", unlockAudio, { once: true, passive: true }
 document.addEventListener("keydown", unlockAudio, { once: true });
 
 applyHavenAudioSettings();
+window.setBedroomAmbience = setBedroomAmbience;

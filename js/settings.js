@@ -4,7 +4,7 @@
 //========================
 
 const HAVEN_SETTINGS_KEY = "havenSettings";
-const HAVEN_FIXED_SLEEP_PERCENT = 78;
+const HAVEN_FIXED_SLEEP_PERCENT = 100;
 const HAVEN_PREFECTURES = [
     ["hokkaido", "北海道", 43.0618, 141.3545],
     ["aomori", "青森県", 40.8244, 140.7400],
@@ -147,7 +147,7 @@ function getHavenIdleDelay(stage = "next") {
 function updateLabels() {
     if (bgmVolumeValue && bgmVolumeInput) bgmVolumeValue.textContent = bgmVolumeInput.value + "%";
     if (livingVolumeValue && livingVolumeInput) livingVolumeValue.textContent = livingVolumeInput.value + "%";
-    if (sleepVolumeValue) sleepVolumeValue.textContent = `固定 ${HAVEN_FIXED_SLEEP_PERCENT}%`;
+    if (sleepVolumeValue) sleepVolumeValue.textContent = "強め固定";
 }
 
 function fillSettingsForm() {
