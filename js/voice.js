@@ -131,7 +131,12 @@
 
     function applyVoiceVolume(percent = readVoiceVolume()) {
         const normalized = Math.min(1, Math.max(0, Number(percent) / 100 || 0));
-        if (currentAudio) currentAudio.volume = normalized;
+        if (!currentAudio) return;
+        if (typeof window.setHavenDynamicAudioVolume === "function") {
+            window.setHavenDynamicAudioVolume(currentAudio, normalized);
+        } else {
+            currentAudio.volume = normalized;
+        }
     }
 
     const call = document.getElementById("callSebas");

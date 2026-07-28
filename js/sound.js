@@ -40,9 +40,8 @@ let audioUnlocked = false;
 let desiredAudioMode = "idle";
 let bedroomAmbienceActive = false;
 let havenAudioContext = null;
-let sleepBreathGainNode = null;
-let heartbeatGainNode = null;
-let boostedBedroomAudioAttempted = false;
+let audioGraphAttempted = false;
+const havenGainNodes = new WeakMap();
 let deskTimer = null;
 let humanTimer = null;
 let coffeeTimer = null;
@@ -76,6 +75,36 @@ function clamp01(value) {
     return Math.min(1, Math.max(0, Number(value) || 0));
 }
 
+function connectHavenAudioElement(audio) {
+    if (!audio || !havenAudioContext) return null;
+    const existing = havenGainNodes.get(audio);
+    if (existing) return existing;
+
+    try {
+        const source = havenAudioContext.createMediaElementSource(audio);
+        const gainNode = havenAudioContext.createGain();
+        source.connect(gainNode).connect(havenAudioContext.destination);
+        havenGainNodes.set(audio, gainNode);
+        return gainNode;
+    } catch (error) {
+        console.warn("Haven audio routing is unavailable for one source:", error);
+        return null;
+    }
+}
+
+function setHavenAudioLevel(audio, level, boost = 1) {
+    const normalized = clamp01(level);
+    const gainNode = havenGainNodes.get(audio);
+
+    if (gainNode) {
+        try { audio.volume = 1; } catch (_) {}
+        gainNode.gain.value = normalized * boost;
+        return;
+    }
+
+    try { audio.volume = normalized; } catch (_) {}
+}
+
 function applyHavenAudioSettings(previewSettings) {
     const settings = previewSettings && typeof previewSettings === "object"
         ? previewSettings
@@ -93,43 +122,35 @@ function applyHavenAudioSettings(previewSettings) {
     const heartbeat = clamp01(activeAudioSettings.heartbeatVolume / 100);
     const alarm = clamp01(activeAudioSettings.alarmVolume / 100);
 
-    havenAudio.workBgm.volume = clamp01(bgm);
-    havenAudio.breakBgm.volume = clamp01(bgm * 0.84);
-    havenAudio.clock.volume = clamp01(living * 0.74);
-    havenAudio.pen.volume = clamp01(living);
-    havenAudio.page.volume = clamp01(living * 1.12);
-    havenAudio.coffee.volume = clamp01(living);
-    havenAudio.cough.volume = clamp01(living * 0.74);
-    havenAudio.step.volume = clamp01(living * 0.92);
-
-    havenAudio.sleepBreath.volume = sleep;
-    havenAudio.heartbeat.volume = heartbeat;
-    havenAudio.breath.volume = clamp01(audioMode === "sleep"
-        ? sleep * HAVEN_SLEEP_DEEP_BREATH_RATIO
-        : living * 0.86);
-    havenAudio.alarm.volume = alarm;
+    setHavenAudioLevel(havenAudio.workBgm, bgm);
+    setHavenAudioLevel(havenAudio.breakBgm, bgm * 0.84);
+    setHavenAudioLevel(havenAudio.clock, living * 0.74);
+    setHavenAudioLevel(havenAudio.pen, living);
+    setHavenAudioLevel(havenAudio.page, living * 1.12);
+    setHavenAudioLevel(havenAudio.coffee, living);
+    setHavenAudioLevel(havenAudio.cough, living * 0.74);
+    setHavenAudioLevel(havenAudio.step, living * 0.92);
+    setHavenAudioLevel(
+        havenAudio.breath,
+        audioMode === "sleep" ? sleep * HAVEN_SLEEP_DEEP_BREATH_RATIO : living * 0.86
+    );
+    setHavenAudioLevel(havenAudio.sleepBreath, sleep, HAVEN_SLEEP_BREATH_GAIN);
+    setHavenAudioLevel(havenAudio.heartbeat, heartbeat, HAVEN_HEARTBEAT_GAIN);
+    setHavenAudioLevel(havenAudio.alarm, alarm);
 }
 
 function ensureBoostedBedroomAudio() {
     const AudioContextClass = window.AudioContext || window.webkitAudioContext;
     if (!AudioContextClass) return;
 
-    if (!boostedBedroomAudioAttempted) {
-        boostedBedroomAudioAttempted = true;
+    if (!audioGraphAttempted) {
+        audioGraphAttempted = true;
         try {
             havenAudioContext = new AudioContextClass();
-
-            const sleepSource = havenAudioContext.createMediaElementSource(havenAudio.sleepBreath);
-            sleepBreathGainNode = havenAudioContext.createGain();
-            sleepBreathGainNode.gain.value = HAVEN_SLEEP_BREATH_GAIN;
-            sleepSource.connect(sleepBreathGainNode).connect(havenAudioContext.destination);
-
-            const heartbeatSource = havenAudioContext.createMediaElementSource(havenAudio.heartbeat);
-            heartbeatGainNode = havenAudioContext.createGain();
-            heartbeatGainNode.gain.value = HAVEN_HEARTBEAT_GAIN;
-            heartbeatSource.connect(heartbeatGainNode).connect(havenAudioContext.destination);
+            Object.values(havenAudio).forEach(connectHavenAudioElement);
+            applyHavenAudioSettings(activeAudioSettings || readAudioSettings());
         } catch (error) {
-            console.warn("Haven bedroom audio boost is unavailable:", error);
+            console.warn("Haven Web Audio routing is unavailable:", error);
         }
     }
 
@@ -139,6 +160,13 @@ function ensureBoostedBedroomAudio() {
             resumeResult.catch(() => {});
         }
     }
+}
+
+function setHavenDynamicAudioVolume(audio, level) {
+    if (!audio) return;
+    ensureBoostedBedroomAudio();
+    connectHavenAudioElement(audio);
+    setHavenAudioLevel(audio, level);
 }
 
 function syncBedroomHeartbeat() {
@@ -273,7 +301,8 @@ function scheduleSleepDeepBreath() {
     sleepDeepBreathTimer = setTimeout(function () {
         if (audioMode !== "sleep") return;
         const settings = activeAudioSettings || readAudioSettings();
-        havenAudio.breath.volume = clamp01(
+        setHavenAudioLevel(
+            havenAudio.breath,
             clamp01(settings.sleepVolume / 100) * HAVEN_SLEEP_DEEP_BREATH_RATIO
         );
         replay(havenAudio.breath);
@@ -388,3 +417,4 @@ document.addEventListener("keydown", unlockAudio, { once: true });
 applyHavenAudioSettings();
 window.setBedroomAmbience = setBedroomAmbience;
 window.applyHavenAudioSettings = applyHavenAudioSettings;
+window.setHavenDynamicAudioVolume = setHavenDynamicAudioVolume;
