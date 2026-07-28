@@ -6,7 +6,7 @@
     rail.className = "haven-side-rail";
     rail.setAttribute("aria-label", "Havenの記録");
     rail.innerHTML = `
-      <button id="openHuella" class="huella-book-button" type="button" aria-label="Vestigioを開く"><span class="huella-book-ribbon"></span><span class="huella-book-title">Vestigio</span><span class="huella-book-mark">✦</span></button>
+      <button id="openHuella" class="huella-book-button" type="button" aria-label="Vestigioを開く"><span class="huella-book-ribbon"></span><span class="huella-book-sigil" aria-hidden="true">✦</span></button>
       <button id="companionDayBadge" class="companion-day-badge" type="button"><span>寄り添い</span><strong id="companionDayNumber">1</strong><small>日目</small></button>
       <div id="companionDayDetail" class="companion-day-detail" hidden><button id="closeCompanionDayDetail" class="companion-day-detail-close" type="button">×</button><div class="companion-day-detail-kicker">TOGETHER</div><p id="companionDayDetailText"></p></div>`;
     document.body.prepend(rail);

@@ -2979,3 +2979,53 @@ body[data-haven-page="sleep"] .alarm-panel::after {
         letter-spacing: 0.025em;
     }
 }
+
+/* =========================================================
+   COMPACT CELESTIAL NAVIGATION
+   スマホ表示で高さを抑え、操作性は維持する
+========================================================= */
+
+.bottom-nav {
+    width: min(470px, calc(100% - 20px));
+    gap: 5px;
+    padding: 5px;
+    border-radius: 16px;
+}
+
+.bottom-nav .nav-button {
+    gap: 3px;
+    min-height: 53px;
+    padding: 5px 5px 6px;
+    border-radius: 10px;
+}
+
+.bottom-nav .nav-icon {
+    width: 24px;
+    height: 19px;
+}
+
+.bottom-nav .nav-label {
+    font-size: 12.5px;
+    letter-spacing: 0.035em;
+}
+
+@media screen and (max-width: 390px) {
+    .bottom-nav {
+        width: calc(100% - 14px);
+        padding: 4px;
+    }
+
+    .bottom-nav .nav-button {
+        min-height: 50px;
+        padding: 4px 2px 5px;
+    }
+
+    .bottom-nav .nav-icon {
+        width: 22px;
+        height: 18px;
+    }
+
+    .bottom-nav .nav-label {
+        font-size: 12px;
+    }
+}

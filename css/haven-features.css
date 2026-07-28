@@ -26,9 +26,9 @@
 .huella-book-button {
     position: relative;
     box-sizing: border-box;
-    width: 64px;
-    min-height: 142px;
-    padding: 16px 11px 13px 9px;
+    width: 76px;
+    min-height: 94px;
+    padding: 12px 11px 10px 9px;
     overflow: visible;
     isolation: isolate;
     border: 1px solid rgba(177, 199, 229, 0.34);
@@ -66,7 +66,7 @@
     content: "";
     position: absolute;
     z-index: -1;
-    inset: 10px 9px 11px 13px;
+    inset: 9px 9px 9px 13px;
     border: 1px solid rgba(193, 213, 240, 0.24);
     border-radius: 2px 7px 7px 2px;
     background:
@@ -84,9 +84,9 @@
     content: "";
     position: absolute;
     z-index: -2;
-    top: 7px;
+    top: 6px;
     right: -5px;
-    bottom: 7px;
+    bottom: 6px;
     width: 7px;
     border: 1px solid rgba(111, 129, 153, 0.36);
     border-left: 0;
@@ -103,36 +103,33 @@
 }
 
 .huella-book-title {
-    position: relative;
+    display: none;
+}
+
+.huella-book-sigil {
+    position: absolute;
     z-index: 2;
-    display: block;
-    margin: auto;
-    writing-mode: vertical-rl;
-    color: rgba(229, 237, 250, 0.96);
-    font: 16px/1.1 Georgia, "Times New Roman", serif;
-    letter-spacing: 0.055em;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    color: rgba(199, 214, 236, 0.42);
+    font: 15px/1 Georgia, "Times New Roman", serif;
     text-shadow:
-        0 1px 0 rgba(0, 0, 0, 0.78),
-        0 0 8px rgba(156, 190, 237, 0.18);
+        0 1px 0 rgba(0, 0, 0, 0.86),
+        0 0 9px rgba(156, 190, 237, 0.10);
 }
 
 .huella-book-mark {
-    position: relative;
-    z-index: 2;
-    display: block;
-    margin-top: 8px;
-    color: rgba(231, 202, 120, 0.88);
-    font-size: 12px;
-    text-shadow: 0 0 8px rgba(231, 202, 120, 0.22);
+    display: none;
 }
 
 .huella-book-ribbon {
     position: absolute;
     z-index: 4;
     top: -1px;
-    right: 12px;
+    right: 14px;
     width: 9px;
-    height: 39px;
+    height: 31px;
     background:
         linear-gradient(90deg, #5b1724, #8c2c3a 46%, #52141f);
     clip-path: polygon(0 0, 100% 0, 100% 100%, 50% 78%, 0 100%);
@@ -155,8 +152,8 @@
 
 @media (max-width: 390px) {
     .huella-book-button {
-        width: 60px;
-        min-height: 134px;
+        width: 72px;
+        min-height: 90px;
     }
 }
 
@@ -566,5 +563,303 @@
     .huella-margin-note.note-two,
     .huella-margin-note.note-three {
         display: none;
+    }
+}
+
+/* =========================================================
+   MOBILE STABILITY PASS
+   iOSでの罫線干渉とサイドレール描画を安定化
+========================================================= */
+
+.huella-journal {
+    background:
+        radial-gradient(circle at 16% 8%, rgba(255, 255, 255, 0.48), transparent 28%),
+        linear-gradient(102deg, #d4d3cb 0, #ecebe4 9%, #e6e5dd 72%, #d5d3c8 100%);
+}
+
+.huella-day-sheet {
+    background:
+        linear-gradient(105deg, rgba(255, 255, 255, 0.30), rgba(223, 222, 213, 0.48)),
+        #e8e7df;
+}
+
+.haven-side-rail {
+    position: fixed;
+    z-index: 10020;
+    top: max(116px, calc(env(safe-area-inset-top) + 78px));
+    right: max(4px, env(safe-area-inset-right));
+    bottom: auto;
+    display: flex;
+    opacity: 1;
+    visibility: visible;
+    transform: none;
+}
+
+body:not(.huella-open) .haven-side-rail {
+    display: flex !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+}
+
+body.huella-open .haven-side-rail {
+    opacity: 0 !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
+}
+
+.huella-book-button,
+.companion-day-badge {
+    position: relative;
+    z-index: 1;
+    flex: 0 0 auto;
+    opacity: 1;
+    visibility: visible;
+    transform: none;
+    -webkit-transform: none;
+}
+
+.huella-book-button::before,
+.huella-book-button::after {
+    z-index: 0;
+}
+
+.huella-book-title,
+.huella-book-mark,
+.huella-book-ribbon {
+    z-index: 2;
+}
+
+.huella-book-button:hover {
+    transform: translateX(-3px);
+    -webkit-transform: translateX(-3px);
+}
+
+.huella-book-button:active {
+    transform: translateX(-1px) scale(0.98);
+    -webkit-transform: translateX(-1px) scale(0.98);
+}
+
+@media (max-width: 640px) {
+    .haven-side-rail {
+        top: max(112px, calc(env(safe-area-inset-top) + 72px));
+        right: max(3px, env(safe-area-inset-right));
+        gap: 7px;
+    }
+
+    .huella-journal::after {
+        display: none;
+    }
+}
+
+/* =========================================================
+   VESTIGIO CALENDAR PAGE FIT
+   カレンダーと選択日の記録トレーを一枚の手帳面に収める
+========================================================= */
+
+.huella-journal {
+    background-color: #e7e6df !important;
+    background-image:
+        radial-gradient(circle at 16% 8%, rgba(255, 255, 255, 0.48), transparent 28%),
+        linear-gradient(102deg, #d4d3cb 0, #ecebe4 9%, #e6e5dd 72%, #d5d3c8 100%) !important;
+}
+
+#huellaCalendarPanel {
+    position: relative;
+    margin-left: 13px;
+    padding: 0 12px 18px 0;
+    background:
+        linear-gradient(102deg, rgba(236, 235, 228, 0.98), rgba(229, 228, 220, 0.98)) !important;
+}
+
+#huellaCalendarPanel .huella-calendar-header,
+#huellaCalendarPanel .huella-weekdays,
+#huellaCalendarPanel .huella-calendar-grid {
+    margin-left: 0;
+}
+
+#huellaCalendarPanel .huella-calendar-header {
+    padding: 14px 18px 10px;
+}
+
+#huellaCalendarPanel .huella-calendar-header h3 {
+    margin: 0;
+    font-size: clamp(20px, 4.8vw, 25px);
+    line-height: 1.2;
+}
+
+#huellaCalendarPanel .huella-calendar-header button {
+    width: 42px;
+    min-width: 42px;
+    min-height: 42px;
+    padding: 0;
+    border-radius: 12px;
+}
+
+#huellaCalendarPanel .huella-weekdays {
+    padding: 2px 13px 6px;
+}
+
+#huellaCalendarPanel .huella-calendar-grid {
+    gap: 4px;
+    padding: 0 13px;
+}
+
+#huellaCalendarPanel .huella-calendar-day {
+    min-height: 42px;
+    padding: 5px 3px;
+    border-radius: 5px;
+}
+
+#huellaCalendarPanel .huella-day-sheet {
+    margin: 14px 20px 0;
+    padding: 13px 14px 14px;
+    border-radius: 10px;
+    background:
+        linear-gradient(105deg, rgba(255, 255, 255, 0.46), rgba(223, 222, 213, 0.70)),
+        #e8e7df !important;
+    box-shadow:
+        0 8px 18px rgba(23, 40, 62, 0.08),
+        inset 0 0 0 1px rgba(32, 55, 83, 0.10);
+}
+
+#huellaCalendarPanel .huella-day-sheet header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+}
+
+#huellaCalendarPanel .huella-day-sheet header h3 {
+    margin: 0;
+    font-size: clamp(16px, 3.8vw, 19px);
+    line-height: 1.35;
+}
+
+#huellaCalendarPanel .huella-day-sheet header > div {
+    display: flex;
+    flex: 0 0 auto;
+    gap: 6px;
+}
+
+#huellaCalendarPanel .huella-day-sheet header button {
+    min-height: 34px;
+    padding: 7px 11px;
+    border-radius: 8px;
+    font-size: 12px;
+    line-height: 1.2;
+}
+
+#huellaDayEntries {
+    display: grid;
+    gap: 6px;
+    margin-top: 10px;
+}
+
+#huellaCalendarPanel .huella-day-entry {
+    margin: 0;
+    padding: 4px;
+    border-left-color: rgba(157, 128, 59, 0.72);
+    border-radius: 6px;
+    background: rgba(255, 255, 255, 0.22);
+}
+
+#huellaCalendarPanel .huella-day-entry button {
+    min-height: 0;
+    padding: 8px 10px;
+    border: 1px solid rgba(151, 129, 78, 0.32);
+    border-radius: 6px;
+    background: linear-gradient(145deg, #27466d, #142b49) !important;
+    color: #f3efe5 !important;
+    box-shadow: 0 4px 10px rgba(17, 33, 53, 0.16);
+    font-size: 13px;
+    line-height: 1.35;
+}
+
+#huellaCalendarPanel .huella-day-entry button .huella-entry-tag {
+    color: #d4bd80 !important;
+    font-weight: 600;
+}
+
+#huellaCalendarPanel .huella-day-entry p {
+    margin: 5px 2px 1px;
+    color: #263a54;
+    font-size: 12px;
+    line-height: 1.55;
+}
+
+#huellaDayEmpty {
+    min-height: 30px;
+    margin: 10px 0 0;
+    padding: 7px 3px 2px;
+    color: rgba(30, 52, 79, 0.70);
+    font-size: 13px;
+    line-height: 1.6;
+    background:
+        repeating-linear-gradient(
+            0deg,
+            transparent 0 23px,
+            rgba(47, 72, 104, 0.10) 23px 24px
+        );
+}
+
+@media (max-width: 640px) {
+    #huellaCalendarPanel {
+        margin-left: 9px;
+        padding: 0 7px 13px 0;
+    }
+
+    #huellaCalendarPanel .huella-calendar-header {
+        padding: 12px 10px 8px;
+    }
+
+    #huellaCalendarPanel .huella-calendar-header button {
+        width: 38px;
+        min-width: 38px;
+        min-height: 38px;
+        border-radius: 10px;
+    }
+
+    #huellaCalendarPanel .huella-weekdays {
+        padding: 0 6px 5px;
+        font-size: 11px;
+    }
+
+    #huellaCalendarPanel .huella-calendar-grid {
+        gap: 3px;
+        padding: 0 6px;
+    }
+
+    #huellaCalendarPanel .huella-calendar-day {
+        min-height: 38px;
+        padding: 4px 2px;
+        font-size: 13px;
+    }
+
+    #huellaCalendarPanel .huella-day-sheet {
+        margin: 11px 6px 0 10px;
+        padding: 11px 12px 12px;
+    }
+
+    #huellaCalendarPanel .huella-day-sheet header {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr);
+        gap: 8px;
+    }
+
+    #huellaCalendarPanel .huella-day-sheet header > div {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 6px;
+    }
+
+    #huellaCalendarPanel .huella-day-sheet header button {
+        width: auto;
+        min-height: 32px;
+        padding: 6px 8px;
+        font-size: 11px;
+    }
+
+    #huellaDayEntries {
+        margin-top: 8px;
     }
 }
