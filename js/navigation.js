@@ -40,6 +40,10 @@ function showHavenPage(pageName, options = {}) {
         syncSessionCompanionImage();
     }
 
+    if (isActualChange && typeof window.showHavenEventDialogue === "function") {
+        window.showHavenEventDialogue(pageName === "sleep" ? "bedroom" : "living");
+    }
+
     if (isActualChange && options.silent !== true) {
         if (typeof playPageStepSound === "function") {
             playPageStepSound();

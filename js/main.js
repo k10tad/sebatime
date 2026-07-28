@@ -10,5 +10,8 @@ setInterval(updateClock, 1000);
 loadWeather();
 
 if (message && typeof getDailyFlowMessage === "function") {
-    message.textContent = getDailyFlowMessage();
+    const eventLine = typeof window.getHavenEventDialogue === "function"
+        ? window.getHavenEventDialogue("living")
+        : "";
+    message.textContent = eventLine || getDailyFlowMessage();
 }
