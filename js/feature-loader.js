@@ -6,7 +6,22 @@
     rail.className = "haven-side-rail";
     rail.setAttribute("aria-label", "Havenの記録");
     rail.innerHTML = `
-      <button id="openHuella" class="huella-book-button" type="button" aria-label="Vestigioを開く"><span class="huella-book-ribbon"></span><span class="huella-book-sigil" aria-hidden="true">✦</span></button>
+      <button id="openHuella" class="huella-book-button" type="button" aria-label="Vestigioを開く">
+        <span class="huella-book-ribbon"></span>
+        <span class="huella-book-sigil" aria-hidden="true">
+          <svg class="huella-book-orion" viewBox="0 0 62 66" focusable="false">
+            <path class="orion-line" d="M17 11 24 29 18 55M17 11 45 14 38 29 47 56M24 29 31 31 38 29M31 31 31 43M18 55 47 56"/>
+            <circle class="orion-star orion-star--warm" cx="17" cy="11" r="2.15"/>
+            <circle class="orion-star" cx="45" cy="14" r="1.85"/>
+            <circle class="orion-star" cx="24" cy="29" r="1.45"/>
+            <circle class="orion-star" cx="31" cy="31" r="1.55"/>
+            <circle class="orion-star" cx="38" cy="29" r="1.4"/>
+            <circle class="orion-star" cx="31" cy="43" r="1.3"/>
+            <circle class="orion-star" cx="18" cy="55" r="1.75"/>
+            <circle class="orion-star orion-star--blue" cx="47" cy="56" r="2.25"/>
+          </svg>
+        </span>
+      </button>
       <button id="companionDayBadge" class="companion-day-badge" type="button"><span>寄り添い</span><strong id="companionDayNumber">1</strong><small>日目</small></button>
       <div id="companionDayDetail" class="companion-day-detail" hidden><button id="closeCompanionDayDetail" class="companion-day-detail-close" type="button">×</button><div class="companion-day-detail-kicker">TOGETHER</div><p id="companionDayDetailText"></p></div>`;
     document.body.prepend(rail);
