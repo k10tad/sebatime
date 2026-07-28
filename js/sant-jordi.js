@@ -117,10 +117,10 @@
 
     const style = makeElement("style");
     style.textContent = `
-      .sant-jordi-overlay{position:fixed;inset:0;z-index:1300;display:grid;place-items:center;padding:calc(env(safe-area-inset-top) + 22px) 18px calc(env(safe-area-inset-bottom) + 22px);background:rgba(2,7,18,.78);backdrop-filter:blur(14px)}
+      .sant-jordi-overlay{position:fixed;inset:0;z-index:1300;box-sizing:border-box;display:flex;align-items:flex-start;justify-content:center;overflow-x:hidden;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:calc(env(safe-area-inset-top) + 18px) 18px calc(env(safe-area-inset-bottom) + 18px);background:rgba(2,7,18,.78);backdrop-filter:blur(14px)}
       .sant-jordi-overlay[hidden]{display:none}
-      .sant-jordi-book{position:relative;width:min(620px,100%);max-height:min(820px,88dvh);overflow:auto;padding:34px 30px 30px;border:1px solid rgba(188,162,103,.55);border-radius:18px;background:linear-gradient(145deg,rgba(8,20,43,.98),rgba(3,10,24,.98));box-shadow:0 28px 80px rgba(0,0,0,.62),inset 0 0 0 5px rgba(82,112,158,.12);color:#edf1f7}
-      .sant-jordi-close{position:absolute;right:16px;top:14px;width:42px;height:42px;border-radius:50%;border:1px solid rgba(206,184,130,.45);background:#0c1e3b;color:#f0e3bc;font-size:25px}
+      .sant-jordi-book{position:relative;box-sizing:border-box;width:min(620px,100%);margin:auto 0;overflow:visible;padding:34px 30px 30px;border:1px solid rgba(188,162,103,.55);border-radius:18px;background:linear-gradient(145deg,rgba(8,20,43,.98),rgba(3,10,24,.98));box-shadow:0 28px 80px rgba(0,0,0,.62),inset 0 0 0 5px rgba(82,112,158,.12);color:#edf1f7}
+      .sant-jordi-close{position:absolute;right:16px;top:14px;z-index:2;display:grid;place-items:center;width:42px;height:42px;padding:0;border-radius:50%;border:1px solid rgba(206,184,130,.45);background:#0c1e3b;color:#f0e3bc;font-size:25px;line-height:1}
       .sant-jordi-kicker{color:#c7aa69;letter-spacing:.26em;font-size:.72rem}
       .sant-jordi-book h2{margin:9px 48px 24px 0;font-family:serif;font-size:clamp(2rem,9vw,3.4rem);font-weight:500}
       .sant-jordi-gift{padding:24px;border-left:3px solid #9a2336;background:rgba(255,255,255,.045)}
@@ -134,7 +134,7 @@
       .sant-jordi-history{display:grid;gap:10px}
       .sant-jordi-history button{width:100%;padding:14px 16px;text-align:left;border:1px solid rgba(116,145,190,.25);border-radius:10px;background:rgba(13,31,60,.6);color:#e8edf5;font:inherit}
       .sant-jordi-settings-button{width:100%;margin-top:16px}
-      @media(max-width:520px){.sant-jordi-book{padding:28px 20px 24px}.sant-jordi-gift{padding:20px 17px}}
+      @media(max-width:520px){.sant-jordi-overlay{padding-right:10px;padding-left:10px}.sant-jordi-book{padding:28px 20px 24px}.sant-jordi-close{right:12px;top:12px}.sant-jordi-gift{padding:20px 17px}}
     `;
     document.head.append(style);
 
@@ -210,7 +210,13 @@
         renderGift(record);
         renderHistory(record.year);
         overlay.hidden = false;
+        overlay.scrollTop = 0;
+        book.scrollTop = 0;
         document.body.style.overflow = "hidden";
+        requestAnimationFrame(() => {
+            overlay.scrollTop = 0;
+            book.scrollTop = 0;
+        });
     }
 
     function closeGift() {
