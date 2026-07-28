@@ -6,11 +6,9 @@
 let audioMode = "idle"; // idle / work / break / sleep / alarm
 
 const HAVEN_AUDIO_SETTINGS_KEY = "havenSettings";
-const HAVEN_FIXED_SLEEP_VOLUME = 1;
-const HAVEN_FIXED_HEARTBEAT_VOLUME = 1;
-const HAVEN_FIXED_SLEEP_DEEP_BREATH_VOLUME = 0.045;
 const HAVEN_SLEEP_BREATH_GAIN = 5;
 const HAVEN_HEARTBEAT_GAIN = 1.45;
+const HAVEN_SLEEP_DEEP_BREATH_RATIO = 0.045;
 
 const havenAudio = {
     workBgm: new Audio("music/bgm.mp3"),
@@ -51,16 +49,26 @@ let coffeeTimer = null;
 let sleepDeepBreathTimer = null;
 let coughStopTimer = null;
 let lastLivingSound = null;
+let activeAudioSettings = null;
 
 function readAudioSettings() {
     try {
         const saved = JSON.parse(localStorage.getItem(HAVEN_AUDIO_SETTINGS_KEY));
         return {
             bgmVolume: Number(saved?.bgmVolume ?? 18),
-            livingVolume: Number(saved?.livingVolume ?? 15)
+            livingVolume: Number(saved?.livingVolume ?? 15),
+            sleepVolume: Number(saved?.sleepVolume ?? 100),
+            heartbeatVolume: Number(saved?.heartbeatVolume ?? 100),
+            alarmVolume: Number(saved?.alarmVolume ?? 48)
         };
     } catch (_) {
-        return { bgmVolume: 18, livingVolume: 15 };
+        return {
+            bgmVolume: 18,
+            livingVolume: 15,
+            sleepVolume: 100,
+            heartbeatVolume: 100,
+            alarmVolume: 48
+        };
     }
 }
 
@@ -68,10 +76,22 @@ function clamp01(value) {
     return Math.min(1, Math.max(0, Number(value) || 0));
 }
 
-function applyHavenAudioSettings() {
-    const settings = readAudioSettings();
-    const bgm = clamp01(settings.bgmVolume / 100);
-    const living = clamp01(settings.livingVolume / 100);
+function applyHavenAudioSettings(previewSettings) {
+    const settings = previewSettings && typeof previewSettings === "object"
+        ? previewSettings
+        : activeAudioSettings || readAudioSettings();
+    activeAudioSettings = {
+        bgmVolume: Number(settings.bgmVolume ?? 18),
+        livingVolume: Number(settings.livingVolume ?? 15),
+        sleepVolume: Number(settings.sleepVolume ?? 100),
+        heartbeatVolume: Number(settings.heartbeatVolume ?? 100),
+        alarmVolume: Number(settings.alarmVolume ?? 48)
+    };
+    const bgm = clamp01(activeAudioSettings.bgmVolume / 100);
+    const living = clamp01(activeAudioSettings.livingVolume / 100);
+    const sleep = clamp01(activeAudioSettings.sleepVolume / 100);
+    const heartbeat = clamp01(activeAudioSettings.heartbeatVolume / 100);
+    const alarm = clamp01(activeAudioSettings.alarmVolume / 100);
 
     havenAudio.workBgm.volume = clamp01(bgm);
     havenAudio.breakBgm.volume = clamp01(bgm * 0.84);
@@ -82,13 +102,12 @@ function applyHavenAudioSettings() {
     havenAudio.cough.volume = clamp01(living * 0.74);
     havenAudio.step.volume = clamp01(living * 0.92);
 
-    // 睡眠音はSettingsに依存させず、コード側で固定する。
-    havenAudio.sleepBreath.volume = clamp01(HAVEN_FIXED_SLEEP_VOLUME);
-    havenAudio.heartbeat.volume = clamp01(HAVEN_FIXED_HEARTBEAT_VOLUME);
+    havenAudio.sleepBreath.volume = sleep;
+    havenAudio.heartbeat.volume = heartbeat;
     havenAudio.breath.volume = clamp01(audioMode === "sleep"
-        ? HAVEN_FIXED_SLEEP_DEEP_BREATH_VOLUME
+        ? sleep * HAVEN_SLEEP_DEEP_BREATH_RATIO
         : living * 0.86);
-    havenAudio.alarm.volume = clamp01(0.48);
+    havenAudio.alarm.volume = alarm;
 }
 
 function ensureBoostedBedroomAudio() {
@@ -253,7 +272,10 @@ function scheduleSleepDeepBreath() {
 
     sleepDeepBreathTimer = setTimeout(function () {
         if (audioMode !== "sleep") return;
-        havenAudio.breath.volume = HAVEN_FIXED_SLEEP_DEEP_BREATH_VOLUME;
+        const settings = activeAudioSettings || readAudioSettings();
+        havenAudio.breath.volume = clamp01(
+            clamp01(settings.sleepVolume / 100) * HAVEN_SLEEP_DEEP_BREATH_RATIO
+        );
         replay(havenAudio.breath);
         scheduleSleepDeepBreath();
     }, randomBetween(60000, 150000));
@@ -365,3 +387,4 @@ document.addEventListener("keydown", unlockAudio, { once: true });
 
 applyHavenAudioSettings();
 window.setBedroomAmbience = setBedroomAmbience;
+window.applyHavenAudioSettings = applyHavenAudioSettings;

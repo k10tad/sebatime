@@ -4,7 +4,6 @@
 //========================
 
 const HAVEN_SETTINGS_KEY = "havenSettings";
-const HAVEN_FIXED_SLEEP_PERCENT = 100;
 const HAVEN_PREFECTURES = [
     ["hokkaido", "北海道", 43.0618, 141.3545],
     ["aomori", "青森県", 40.8244, 140.7400],
@@ -60,7 +59,10 @@ const havenDefaultSettings = {
     weatherPrefecture: "osaka",
     bgmVolume: 18,
     livingVolume: 15,
-    sleepVolume: HAVEN_FIXED_SLEEP_PERCENT,
+    voiceVolume: 72,
+    sleepVolume: 100,
+    heartbeatVolume: 100,
+    alarmVolume: 48,
     idleFrequency: "normal"
 };
 
@@ -80,7 +82,14 @@ function loadHavenSettings() {
                 : "osaka",
             bgmVolume: clampSetting(saved?.bgmVolume ?? 18, 0, 100),
             livingVolume: clampSetting(saved?.livingVolume ?? 15, 0, 100),
-            sleepVolume: HAVEN_FIXED_SLEEP_PERCENT,
+            voiceVolume: clampSetting(
+                saved?.voiceVolume ?? localStorage.getItem("havenVoiceVolume") ?? 72,
+                0,
+                100
+            ),
+            sleepVolume: clampSetting(saved?.sleepVolume ?? 100, 0, 100),
+            heartbeatVolume: clampSetting(saved?.heartbeatVolume ?? 100, 0, 100),
+            alarmVolume: clampSetting(saved?.alarmVolume ?? 48, 0, 100),
             idleFrequency: ["low", "normal", "high"].includes(saved?.idleFrequency)
                 ? saved.idleFrequency
                 : "normal"
@@ -97,18 +106,24 @@ const userNameInput = document.getElementById("userNameInput");
 const weatherPrefectureInput = document.getElementById("weatherPrefecture");
 const bgmVolumeInput = document.getElementById("bgmVolume");
 const livingVolumeInput = document.getElementById("livingVolume");
+const voiceVolumeInput = document.getElementById("voiceVolume");
 const sleepVolumeInput = document.getElementById("sleepVolume");
+const heartbeatVolumeInput = document.getElementById("heartbeatVolume");
+const alarmVolumeInput = document.getElementById("alarmVolume");
 const bgmVolumeValue = document.getElementById("bgmVolumeValue");
 const livingVolumeValue = document.getElementById("livingVolumeValue");
+const voiceVolumeValue = document.getElementById("voiceVolumeValue");
 const sleepVolumeValue = document.getElementById("sleepVolumeValue");
+const heartbeatVolumeValue = document.getElementById("heartbeatVolumeValue");
+const alarmVolumeValue = document.getElementById("alarmVolumeValue");
 const saveSettingsButton = document.getElementById("saveSettings");
 const resetSettingsButton = document.getElementById("resetSettings");
 const settingsSavedMessage = document.getElementById("settingsSavedMessage");
 const frequencyInputs = Array.from(document.querySelectorAll('input[name="idleFrequency"]'));
 
 function saveHavenSettings() {
-    havenSettings.sleepVolume = HAVEN_FIXED_SLEEP_PERCENT;
     localStorage.setItem(HAVEN_SETTINGS_KEY, JSON.stringify(havenSettings));
+    localStorage.setItem("havenVoiceVolume", String(havenSettings.voiceVolume));
 }
 
 function getHavenUserName() {
@@ -147,7 +162,10 @@ function getHavenIdleDelay(stage = "next") {
 function updateLabels() {
     if (bgmVolumeValue && bgmVolumeInput) bgmVolumeValue.textContent = bgmVolumeInput.value + "%";
     if (livingVolumeValue && livingVolumeInput) livingVolumeValue.textContent = livingVolumeInput.value + "%";
-    if (sleepVolumeValue) sleepVolumeValue.textContent = "強め固定";
+    if (voiceVolumeValue && voiceVolumeInput) voiceVolumeValue.textContent = voiceVolumeInput.value + "%";
+    if (sleepVolumeValue && sleepVolumeInput) sleepVolumeValue.textContent = sleepVolumeInput.value + "%";
+    if (heartbeatVolumeValue && heartbeatVolumeInput) heartbeatVolumeValue.textContent = heartbeatVolumeInput.value + "%";
+    if (alarmVolumeValue && alarmVolumeInput) alarmVolumeValue.textContent = alarmVolumeInput.value + "%";
 }
 
 function fillSettingsForm() {
@@ -163,12 +181,10 @@ function fillSettingsForm() {
     }
     if (bgmVolumeInput) bgmVolumeInput.value = havenSettings.bgmVolume;
     if (livingVolumeInput) livingVolumeInput.value = havenSettings.livingVolume;
-    if (sleepVolumeInput) {
-        sleepVolumeInput.value = HAVEN_FIXED_SLEEP_PERCENT;
-        sleepVolumeInput.disabled = true;
-        sleepVolumeInput.setAttribute("aria-disabled", "true");
-        sleepVolumeInput.title = "寝息はコード側で固定されています";
-    }
+    if (voiceVolumeInput) voiceVolumeInput.value = havenSettings.voiceVolume;
+    if (sleepVolumeInput) sleepVolumeInput.value = havenSettings.sleepVolume;
+    if (heartbeatVolumeInput) heartbeatVolumeInput.value = havenSettings.heartbeatVolume;
+    if (alarmVolumeInput) alarmVolumeInput.value = havenSettings.alarmVolume;
     frequencyInputs.forEach(input => input.checked = input.value === havenSettings.idleFrequency);
     updateLabels();
 }
@@ -182,7 +198,10 @@ function readSettingsForm() {
             : "osaka",
         bgmVolume: clampSetting(bgmVolumeInput?.value ?? 18, 0, 100),
         livingVolume: clampSetting(livingVolumeInput?.value ?? 15, 0, 100),
-        sleepVolume: HAVEN_FIXED_SLEEP_PERCENT,
+        voiceVolume: clampSetting(voiceVolumeInput?.value ?? 72, 0, 100),
+        sleepVolume: clampSetting(sleepVolumeInput?.value ?? 100, 0, 100),
+        heartbeatVolume: clampSetting(heartbeatVolumeInput?.value ?? 100, 0, 100),
+        alarmVolume: clampSetting(alarmVolumeInput?.value ?? 48, 0, 100),
         idleFrequency: selected?.value || "normal"
     };
 }
@@ -202,7 +221,8 @@ function commitSettings() {
     lastSavedUserName = havenSettings.userName;
     saveHavenSettings();
     updateVisibleName(oldName, havenSettings.userName);
-    if (typeof applyHavenAudioSettings === "function") applyHavenAudioSettings();
+    if (typeof applyHavenAudioSettings === "function") applyHavenAudioSettings(havenSettings);
+    if (typeof window.applyHavenVoiceSettings === "function") window.applyHavenVoiceSettings(havenSettings.voiceVolume);
     if (oldPrefecture !== havenSettings.weatherPrefecture && typeof loadWeather === "function") {
         loadWeather();
     }
@@ -216,17 +236,21 @@ function resetHavenSettings() {
     saveHavenSettings();
     fillSettingsForm();
     updateVisibleName(oldName, havenSettings.userName);
-    if (typeof applyHavenAudioSettings === "function") applyHavenAudioSettings();
+    if (typeof applyHavenAudioSettings === "function") applyHavenAudioSettings(havenSettings);
+    if (typeof window.applyHavenVoiceSettings === "function") window.applyHavenVoiceSettings(havenSettings.voiceVolume);
     if (typeof loadWeather === "function") loadWeather();
     showSaved("初期設定へ戻した。");
 }
 
-[bgmVolumeInput, livingVolumeInput].forEach(function (input) {
+[bgmVolumeInput, livingVolumeInput, voiceVolumeInput, sleepVolumeInput, heartbeatVolumeInput, alarmVolumeInput].forEach(function (input) {
     if (!input) return;
     input.addEventListener("input", function () {
         updateLabels();
         havenSettings = { ...havenSettings, ...readSettingsForm() };
-        if (typeof applyHavenAudioSettings === "function") applyHavenAudioSettings();
+        if (typeof applyHavenAudioSettings === "function") applyHavenAudioSettings(havenSettings);
+        if (typeof window.applyHavenVoiceSettings === "function") {
+            window.applyHavenVoiceSettings(havenSettings.voiceVolume);
+        }
     });
 });
 
@@ -238,6 +262,7 @@ if (userNameInput) userNameInput.addEventListener("keydown", event => {
 
 fillSettingsForm();
 saveHavenSettings();
-if (typeof applyHavenAudioSettings === "function") applyHavenAudioSettings();
+if (typeof applyHavenAudioSettings === "function") applyHavenAudioSettings(havenSettings);
+if (typeof window.applyHavenVoiceSettings === "function") window.applyHavenVoiceSettings(havenSettings.voiceVolume);
 
 window.getHavenWeatherLocation = getHavenWeatherLocation;

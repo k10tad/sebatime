@@ -76,6 +76,11 @@
     }
 
     function typeSubtitle(target, text) {
+        if (typeof window.setHavenDialogue === "function") {
+            window.setHavenDialogue(target, text);
+            return;
+        }
+
         subtitleRun += 1;
         const run = subtitleRun;
         clearTimeout(subtitleTimer);
@@ -111,8 +116,22 @@
         currentAudio?.pause();
         if (currentAudio) currentAudio.currentTime = 0;
         currentAudio = new Audio(`voice/${group}/${line[0]}`);
-        currentAudio.volume = Math.min(1, Math.max(0, Number(localStorage.getItem(VOLUME_KEY) ?? 72) / 100));
+        applyVoiceVolume();
         currentAudio.play().catch(() => {});
+    }
+
+    function readVoiceVolume() {
+        try {
+            const settings = JSON.parse(localStorage.getItem("havenSettings"));
+            return Number(settings?.voiceVolume ?? localStorage.getItem(VOLUME_KEY) ?? 72);
+        } catch (_) {
+            return Number(localStorage.getItem(VOLUME_KEY) ?? 72);
+        }
+    }
+
+    function applyVoiceVolume(percent = readVoiceVolume()) {
+        const normalized = Math.min(1, Math.max(0, Number(percent) / 100 || 0));
+        if (currentAudio) currentAudio.volume = normalized;
     }
 
     const call = document.getElementById("callSebas");
@@ -127,11 +146,16 @@
     const input = document.getElementById("voiceVolume");
     const output = document.getElementById("voiceVolumeValue");
     if (input) {
-        input.value = localStorage.getItem(VOLUME_KEY) ?? "72";
+        input.value = String(readVoiceVolume());
         const render = () => { if (output) output.textContent = `${input.value}%`; };
-        input.addEventListener("input", () => { localStorage.setItem(VOLUME_KEY, input.value); render(); });
+        input.addEventListener("input", () => {
+            localStorage.setItem(VOLUME_KEY, input.value);
+            applyVoiceVolume(input.value);
+            render();
+        });
         render();
     }
 
     window.HavenVoice = { lines: LINES, play };
+    window.applyHavenVoiceSettings = applyVoiceVolume;
 })();

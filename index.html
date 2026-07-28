@@ -254,7 +254,7 @@
             </div>
 
             <label class="volume-setting" for="bgmVolume">
-                <span>通常BGM</span>
+                <span>作業・休憩BGM</span>
                 <output id="bgmVolumeValue">18%</output>
                 <input id="bgmVolume" type="range" min="0" max="100" step="1" value="18">
             </label>
@@ -266,9 +266,21 @@
             </label>
 
             <label class="volume-setting" for="sleepVolume">
-                <span>Bedroomの寝息・心拍音</span>
-                <output id="sleepVolumeValue">20%</output>
-                <input id="sleepVolume" type="range" min="0" max="100" step="1" value="20">
+                <span>Bedroomの寝息</span>
+                <output id="sleepVolumeValue">100%</output>
+                <input id="sleepVolume" type="range" min="0" max="100" step="1" value="100">
+            </label>
+
+            <label class="volume-setting" for="heartbeatVolume">
+                <span>Bedroomの心拍音</span>
+                <output id="heartbeatVolumeValue">100%</output>
+                <input id="heartbeatVolume" type="range" min="0" max="100" step="1" value="100">
+            </label>
+
+            <label class="volume-setting" for="alarmVolume">
+                <span>起床アラーム</span>
+                <output id="alarmVolumeValue">48%</output>
+                <input id="alarmVolume" type="range" min="0" max="100" step="1" value="48">
             </label>
         </section>
 
@@ -347,13 +359,14 @@
 </nav>
 
 <script src="js/feature-loader.js?v=7"></script>
+<script src="js/typewriter.js?v=1"></script>
 <script src="js/splash.js?v=2"></script>
 <script src="js/background.js?v=1"></script>
 <script src="js/companion-dialogues.js?v=9"></script>
 <script src="js/message.js?v=12"></script>
-<script src="js/sound.js?v=17"></script>
-<script src="js/voice.js?v=2"></script>
-<script src="js/settings.js?v=3"></script>
+<script src="js/sound.js?v=18"></script>
+<script src="js/voice.js?v=3"></script>
+<script src="js/settings.js?v=4"></script>
 <script src="js/companion-days.js?v=1"></script>
 <script src="js/huella.js?v=2"></script>
 <script src="js/backup.js?v=2"></script>
