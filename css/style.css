@@ -2601,3 +2601,381 @@ body[data-haven-page="sleep"] .alarm-panel::after {
         -webkit-backdrop-filter: blur(2px) saturate(103%);
     }
 }
+
+/* =========================================================
+   HAVEN COMPACT DASHBOARD
+   Sendaの情報密度を参考に、月光の静けさはそのまま保つ
+========================================================= */
+
+.haven-dashboard {
+    background: transparent !important;
+    border: 0 !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    box-shadow: none !important;
+    overflow: visible;
+}
+
+.haven-dashboard::after {
+    display: none !important;
+}
+
+.haven-dashboard h1 {
+    margin-bottom: 8px;
+}
+
+.weather-location {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    width: min(100%, 500px);
+    margin: 0 auto 12px;
+    color: rgba(220, 232, 250, 0.62);
+    font-size: 12px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+}
+
+.weather-location #city,
+.weather-location #date {
+    margin: 0;
+    font-size: inherit;
+    letter-spacing: 0.12em;
+}
+
+.weather-location #city {
+    color: rgba(231, 202, 120, 0.82);
+    letter-spacing: 0.20em;
+}
+
+.weather-location #city::after {
+    content: "·";
+    margin-left: 10px;
+    color: rgba(220, 232, 250, 0.42);
+}
+
+.weather-card {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    grid-template-areas:
+        "icon temperature pressure"
+        "icon level humidity"
+        "comment comment comment";
+    column-gap: 14px;
+    row-gap: 4px;
+    width: min(100%, 500px);
+    margin: 0 auto 18px;
+    padding: 17px 20px 16px;
+    text-align: left;
+    border-radius: 20px;
+}
+
+.weather-card #weather-icon {
+    grid-area: icon;
+    align-self: center;
+    font-size: 36px;
+}
+
+.weather-card #temperature {
+    grid-area: temperature;
+    align-self: end;
+    margin: 0;
+    font-size: 30px;
+}
+
+.weather-card #pressure {
+    grid-area: pressure;
+    align-self: end;
+    margin: 0;
+    font-size: 13px;
+    text-align: right;
+}
+
+.weather-card #pressure-level {
+    grid-area: level;
+    margin: 0;
+    font-size: 14px;
+}
+
+.weather-card #humidity {
+    grid-area: humidity;
+    align-self: center;
+    margin: 0;
+    font-size: 12px;
+    text-align: right;
+}
+
+.weather-card #weather-comment {
+    grid-area: comment;
+    margin: 8px 0 0;
+    padding-top: 9px;
+    border-top: 1px solid rgba(205, 222, 249, 0.10);
+    font-size: 14px;
+    line-height: 1.55;
+}
+
+.haven-dashboard .session-card {
+    width: min(100%, 500px);
+    padding: 17px 18px 16px;
+    border-radius: 20px;
+}
+
+.haven-dashboard .session-heading {
+    margin-bottom: 13px;
+}
+
+.haven-dashboard .session-heading h2 {
+    font-size: 17px;
+}
+
+.haven-dashboard .session-time-block {
+    padding: 11px 10px;
+    border-radius: 14px;
+}
+
+.haven-dashboard .session-time-block span {
+    margin-bottom: 5px;
+    font-size: 11px;
+}
+
+.haven-dashboard .session-time-block strong {
+    font-size: 24px;
+}
+
+.haven-dashboard .session-buttons {
+    margin-top: 11px;
+}
+
+.haven-dashboard .session-buttons button {
+    min-height: 42px;
+    padding: 9px 7px;
+}
+
+@media screen and (max-width: 520px) {
+    .haven-dashboard h1 {
+        margin-bottom: 7px;
+        font-size: 31px;
+    }
+
+    .weather-location {
+        margin-bottom: 10px;
+        font-size: 11px;
+    }
+
+    .weather-card {
+        grid-template-columns: auto minmax(0, 1fr);
+        grid-template-areas:
+            "icon temperature"
+            "icon level"
+            "pressure humidity"
+            "comment comment";
+        column-gap: 12px;
+        margin-bottom: 15px;
+        padding: 15px 16px 14px;
+        border-radius: 18px;
+    }
+
+    .weather-card #weather-icon {
+        font-size: 34px;
+    }
+
+    .weather-card #temperature {
+        font-size: 29px;
+    }
+
+    .weather-card #pressure {
+        margin-top: 3px;
+        text-align: left;
+    }
+
+    .haven-dashboard .session-card {
+        padding: 16px;
+        border-radius: 18px;
+    }
+
+    .haven-dashboard .session-heading {
+        gap: 10px;
+        margin-bottom: 11px;
+    }
+
+    .haven-dashboard .session-heading h2 {
+        font-size: 16px;
+    }
+
+    .haven-dashboard .session-status {
+        padding: 6px 9px;
+        font-size: 11px;
+    }
+
+    .haven-dashboard .session-times {
+        gap: 9px;
+    }
+
+    .haven-dashboard .session-time-block {
+        padding: 10px 6px;
+    }
+
+    .haven-dashboard .session-time-block strong {
+        font-size: clamp(20px, 6.4vw, 25px);
+        letter-spacing: 0.035em;
+    }
+
+    .haven-dashboard .session-buttons {
+        gap: 7px;
+    }
+
+    .haven-dashboard .session-buttons button {
+        font-size: 12px;
+    }
+}
+
+/* =========================================================
+   HAVEN CELESTIAL NAVIGATION
+   シリウス・月・コンパスで構成するセバス専用ナビゲーション
+========================================================= */
+
+.bottom-nav {
+    width: min(500px, calc(100% - 24px));
+    gap: 6px;
+    padding: 7px;
+    border: 1px solid rgba(175, 199, 231, 0.16) !important;
+    border-radius: 18px;
+    background:
+        linear-gradient(180deg, rgba(18, 29, 48, 0.56), rgba(3, 8, 17, 0.72)) !important;
+    box-shadow:
+        0 18px 48px rgba(0, 0, 0, 0.42),
+        inset 0 1px 0 rgba(231, 240, 255, 0.045);
+    backdrop-filter: blur(14px) saturate(110%);
+    -webkit-backdrop-filter: blur(14px) saturate(110%);
+}
+
+.bottom-nav .nav-button {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    min-width: 0;
+    min-height: 65px;
+    padding: 7px 6px 8px;
+    overflow: hidden;
+    border: 1px solid transparent;
+    border-radius: 12px;
+    color: rgba(202, 216, 237, 0.58);
+    background: transparent;
+    box-shadow: none;
+    opacity: 1;
+}
+
+.bottom-nav .nav-button::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 22%;
+    width: 56%;
+    height: 1px;
+    background: linear-gradient(
+        90deg,
+        transparent,
+        rgba(205, 222, 248, 0.30),
+        transparent
+    );
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.bottom-nav .nav-icon {
+    width: 29px;
+    height: 23px;
+    overflow: visible;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.15;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    transition:
+        color 0.3s ease,
+        filter 0.3s ease,
+        transform 0.3s ease;
+}
+
+.bottom-nav .nav-icon circle {
+    fill: currentColor;
+    stroke: none;
+}
+
+.bottom-nav .nav-icon .nav-sirius {
+    fill: rgba(230, 239, 255, 0.95);
+    filter: drop-shadow(0 0 4px rgba(166, 204, 255, 0.8));
+}
+
+.bottom-nav .nav-icon-compass circle:first-child {
+    fill: none;
+    stroke: currentColor;
+}
+
+.bottom-nav .nav-icon-compass circle:nth-of-type(2) {
+    fill: currentColor;
+    stroke: none;
+}
+
+.bottom-nav .nav-label {
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: 14px;
+    line-height: 1;
+    letter-spacing: 0.045em;
+}
+
+.bottom-nav .nav-button:hover {
+    color: rgba(224, 233, 248, 0.82);
+    background: rgba(135, 165, 209, 0.055);
+    border-color: rgba(190, 211, 242, 0.10);
+    box-shadow: none;
+}
+
+.bottom-nav .nav-button.active {
+    color: rgba(255, 244, 207, 0.96);
+    border-color: rgba(231, 202, 120, 0.34);
+    background:
+        linear-gradient(145deg, rgba(231, 202, 120, 0.10), rgba(74, 107, 158, 0.075)),
+        rgba(7, 14, 27, 0.52);
+    box-shadow:
+        inset 0 0 0 1px rgba(226, 235, 250, 0.025),
+        0 0 22px rgba(102, 144, 207, 0.09);
+}
+
+.bottom-nav .nav-button.active::after {
+    opacity: 1;
+}
+
+.bottom-nav .nav-button.active .nav-icon {
+    color: rgba(241, 218, 153, 0.98);
+    filter:
+        drop-shadow(0 0 5px rgba(231, 202, 120, 0.28))
+        drop-shadow(0 0 10px rgba(133, 177, 236, 0.16));
+    transform: translateY(-1px);
+}
+
+@media screen and (max-width: 390px) {
+    .bottom-nav {
+        width: calc(100% - 18px);
+        padding: 6px;
+    }
+
+    .bottom-nav .nav-button {
+        min-height: 61px;
+        padding-inline: 3px;
+    }
+
+    .bottom-nav .nav-icon {
+        width: 27px;
+        height: 21px;
+    }
+
+    .bottom-nav .nav-label {
+        font-size: 13px;
+        letter-spacing: 0.025em;
+    }
+}

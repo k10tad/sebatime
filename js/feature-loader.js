@@ -24,11 +24,15 @@
         const city = $("city"), date = $("date");
         if (city) location.append(city);
         if (date) location.append(date);
-        weatherCard.prepend(location);
+        weatherCard.before(location);
         clockCard.remove();
     }
-    document.querySelectorAll("[data-page-target=home]").forEach(button => button.textContent = "Living");
-    document.querySelectorAll("[data-page-target=sleep]").forEach(button => button.textContent = "Bedroom");
+    document.querySelectorAll("[data-page-target=home]").forEach(button => {
+        button.setAttribute("aria-label", "Living");
+    });
+    document.querySelectorAll("[data-page-target=sleep]").forEach(button => {
+        button.setAttribute("aria-label", "Bedroom");
+    });
     document.querySelectorAll("[data-go-page=home]").forEach(button => button.textContent = "Livingに戻る");
     document.querySelector(".settings-page-header p")?.replaceChildren("この部屋の天気と音を、静かに整える。");
     document.querySelector('[aria-labelledby="profileSettingsTitle"]')?.remove();
@@ -60,6 +64,7 @@
        <div class="huella-mode-tabs"><button id="huellaAlbumTab" class="active" type="button">写真</button><button id="huellaCalendarTab" type="button">カレンダー</button></div>
        <section id="huellaAlbumPanel"><div class="huella-toolbar"><span id="huellaCount">0枚</span><button id="huellaAddButton" type="button">写真を追加</button><input id="huellaFileInput" type="file" accept="image/*" multiple hidden></div><div id="huellaEmpty" class="huella-empty"><p>まだ何もない。</p><span>残しておきたい一枚から始めろ。</span></div><div id="huellaGrid" class="huella-grid"></div></section>
        <section id="huellaCalendarPanel" hidden><div class="huella-calendar-header"><button id="huellaPrevMonth">‹</button><h3 id="huellaCalendarTitle"></h3><button id="huellaNextMonth">›</button></div><div class="huella-weekdays"><span>日</span><span>月</span><span>火</span><span>水</span><span>木</span><span>金</span><span>土</span></div><div id="huellaCalendarGrid" class="huella-calendar-grid"></div><section class="huella-day-sheet"><header><h3 id="huellaSelectedDateTitle"></h3><div><button id="huellaAddDiary">日記を書く</button><button id="huellaAddPlan">予定を追加</button></div></header><div id="huellaDayEntries"></div><p id="huellaDayEmpty">この日は、まだ白紙だ。</p></section></section>
+       <div class="huella-margin-notes" aria-hidden="true"><span class="huella-margin-note note-one">R. — conservar.</span><span class="huella-margin-note note-two">Volver aquí.</span><span class="huella-margin-note note-three">No perder.</span></div>
       </section></div>
       <div id="huellaViewer" class="huella-viewer" hidden><div class="huella-viewer-card"><button id="huellaViewerClose" class="huella-viewer-close">×</button><div class="huella-viewer-image-wrap"><img id="huellaViewerImage" alt=""></div><p id="huellaSebasComment" class="huella-sebas-comment"></p><div class="huella-viewer-fields"><label><span>日付</span><input id="huellaViewerDate" type="date"></label><label><span>ひとこと</span><textarea id="huellaViewerNote"></textarea></label></div><div class="huella-viewer-actions"><button id="huellaViewerSave">保存</button><button id="huellaViewerDelete" class="danger-quiet-button">削除</button></div></div></div>
       <div id="huellaEntryEditor" class="huella-entry-editor" hidden><form id="huellaEntryForm" class="huella-entry-card"><button id="huellaEntryClose" class="huella-viewer-close" type="button">×</button><div id="huellaEntryKicker" class="huella-kicker">DIARY</div><h3 id="huellaEntryEditorTitle">日記を書く</h3><input id="huellaEntryId" type="hidden"><input id="huellaEntryType" type="hidden"><label><span>日付</span><input id="huellaEntryDate" type="date" required></label><label><span>タイトル</span><input id="huellaEntryTitle"></label><label id="huellaEntryTimeField" hidden><span>時刻</span><input id="huellaEntryTime" type="time"></label><label><span id="huellaEntryBodyLabel">本文</span><textarea id="huellaEntryBody" rows="8"></textarea></label><div class="huella-viewer-actions"><button type="submit">保存</button><button id="huellaEntryDelete" class="danger-quiet-button" type="button" hidden>削除</button></div></form></div>`);
