@@ -26,7 +26,6 @@
     ];
 
     let overlay = null;
-    let statusTimer = null;
     let promptTimer = null;
     let completing = false;
 
@@ -116,7 +115,6 @@
     }
 
     function closeOverlay() {
-        window.clearTimeout(statusTimer);
         if (overlay) overlay.hidden = true;
         document.body.classList.remove("haven-promise-open");
     }
@@ -225,10 +223,8 @@
         }
 
         if (status) status.textContent = declined
-            ? "今日は約束を決めずにおきます。"
-            : "今日の約束として記録しました。";
-
-        statusTimer = window.setTimeout(closeOverlay, 1450);
+            ? "今日は約束を決めずにおきます。×を押すと閉じます。"
+            : "今日の約束として記録しました。×を押すと閉じます。";
     }
 
     function showPromptIfNeeded() {

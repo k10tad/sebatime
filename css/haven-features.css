@@ -24,10 +24,17 @@
 ========================================================= */
 .haven-promise-overlay {
     position: fixed;
-    inset: 0;
+    top: 0;
+    right: 0;
+    bottom: auto;
+    left: 0;
     z-index: 10024;
-    display: grid;
-    place-items: center;
+    display: flex;
+    width: 100vw;
+    height: 100dvh;
+    min-height: 100dvh;
+    align-items: center;
+    justify-content: center;
     box-sizing: border-box;
     padding:
         max(18px, env(safe-area-inset-top))
@@ -56,6 +63,7 @@
     box-shadow:
         0 24px 60px rgba(0, 0, 0, 0.54),
         inset 0 1px 0 rgba(255, 255, 255, 0.05);
+    transform: translateY(-6dvh);
 }
 
 .haven-promise-notification::before {
@@ -185,6 +193,8 @@ body.haven-promise-open {
 @media (max-width: 520px) {
     .haven-promise-overlay {
         align-items: center;
+        height: 100dvh;
+        min-height: 100dvh;
         padding-right: 13px;
         padding-left: 13px;
     }
@@ -192,6 +202,7 @@ body.haven-promise-open {
     .haven-promise-notification {
         padding: 16px;
         border-radius: 21px;
+        transform: translateY(-7dvh);
     }
 
     .haven-promise-options {
