@@ -37,7 +37,19 @@ const HAVEN_SESSION_IMAGES = {
 function syncSessionCompanionImage() {
     const companion = document.getElementById("sebas");
     if (!companion) return;
-    companion.src = HAVEN_SESSION_IMAGES[sessionState] || HAVEN_SESSION_IMAGES.idle;
+
+    const activity = sessionState === "idle"
+        ? window.HavenActivity?.getCurrent?.()
+        : null;
+
+    companion.src = activity?.image ||
+        HAVEN_SESSION_IMAGES[sessionState] ||
+        HAVEN_SESSION_IMAGES.idle;
+    companion.alt = activity?.label || "Sebas";
+
+    if (typeof window.HavenActivity?.renderStatus === "function") {
+        window.HavenActivity.renderStatus(sessionState === "idle");
+    }
 }
 
 function getTodayKey() {
@@ -186,6 +198,7 @@ function stopSessionSoundsSafely() {
 }
 
 function beginWorkSession() {
+    window.AMiLado?.stop?.("work-started", { silent: true });
     applyElapsedTime();
     sessionState = "work";
     sessionLastTick = Date.now();
@@ -209,6 +222,7 @@ function beginWorkSession() {
 function beginBreakSession() {
     if (sessionState !== "work") return;
 
+    window.AMiLado?.stop?.("break-started", { silent: true });
     applyElapsedTime();
     sessionState = "break";
     sessionLastTick = Date.now();
@@ -262,6 +276,9 @@ function restoreWorkSession() {
 }
 
 window.syncSessionCompanionImage = syncSessionCompanionImage;
+window.getHavenSessionState = function () {
+    return sessionState;
+};
 
 if (workStartButton) {
     workStartButton.addEventListener("click", beginWorkSession);

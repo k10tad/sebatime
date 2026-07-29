@@ -695,6 +695,11 @@ function updateCompanionReplyChoices() {
     const choices = companionReplySets[context] || companionReplySets.day;
 
     companionReplyButtons.forEach(function (button, index) {
+        if (button.dataset.companionReply === "aMiLado") {
+            button.hidden = false;
+            return;
+        }
+
         const choice = choices[index];
         if (!choice) {
             button.hidden = true;
@@ -708,6 +713,11 @@ function updateCompanionReplyChoices() {
 }
 
 function callSebas() {
+    if (window.AMiLado?.isActive?.()) {
+        window.AMiLado.requestEnd();
+        return;
+    }
+
     clearTimeout(companionReplyTimer);
     clearTimeout(companionReplyClosingTimer);
     sebasCallCount += 1;
@@ -729,6 +739,14 @@ function callSebas() {
 }
 
 function handleCompanionReply(reply) {
+    if (reply === "aMiLado") {
+        clearTimeout(companionReplyTimer);
+        clearTimeout(companionReplyClosingTimer);
+        setCompanionReplyChoicesVisible(false);
+        window.AMiLado?.start?.();
+        return;
+    }
+
     const dialogueKeys = {
         busy: "normalReplyBusy",
         break: "normalReplyBreak",

@@ -32,6 +32,10 @@ function showHavenPage(pageName, options = {}) {
 
     document.body.dataset.havenPage = pageName;
 
+    if (typeof window.AMiLado?.handlePageChange === "function") {
+        window.AMiLado.handlePageChange(pageName);
+    }
+
     if (typeof setBedroomAmbience === "function") {
         setBedroomAmbience(pageName === "sleep");
     }

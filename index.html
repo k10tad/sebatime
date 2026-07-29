@@ -15,9 +15,9 @@
     <link rel="apple-touch-icon" href="./apple-touch-icon-v3.png?v=3">
     <link rel="apple-touch-icon-precomposed" href="./apple-touch-icon-v3.png?v=3">
     <link rel="icon" type="image/png" sizes="64x64" href="./assets/icons/favicon-64-v3.png?v=3">
-    <link rel="stylesheet" href="css/style.css?v=26">
+    <link rel="stylesheet" href="css/style.css?v=27">
     <link rel="stylesheet" href="css/haven-engine.css?v=2">
-    <link rel="stylesheet" href="css/haven-features.css?v=9">
+    <link rel="stylesheet" href="css/haven-features.css?v=11">
 </head>
 
 <body class="splash-active">
@@ -72,6 +72,7 @@
     <div class="haven-home">
         <section class="haven-presence" aria-label="Sebas">
             <img src="assets/companion-normal.jpg" id="sebas" alt="Sebas">
+            <div id="sebasActivity" class="sebas-activity" hidden></div>
             <div id="message">……来たか。</div>
             <button id="callSebas" class="companion-call-button" type="button">Sebas</button>
 
@@ -79,6 +80,15 @@
                 <button type="button" data-companion-reply="tired">少し疲れた</button>
                 <button type="button" data-companion-reply="break">少し休む</button>
                 <button type="button" data-companion-reply="justCalled">呼んだだけ</button>
+                <button type="button" class="a-mi-lado-choice" data-companion-reply="aMiLado">
+                    <span>そばにいて</span>
+                    <small>A Mi Lado</small>
+                </button>
+            </div>
+
+            <div id="aMiLadoEndChoices" class="companion-reply-choices a-mi-lado-end-choices" hidden aria-label="A Mi Lado">
+                <button type="button" data-a-mi-lado-action="end">この時間を終える</button>
+                <button type="button" data-a-mi-lado-action="stay">まだここにいる</button>
             </div>
         </section>
 
@@ -326,7 +336,7 @@
 <script src="js/splash.js?v=2"></script>
 <script src="js/background.js?v=1"></script>
 <script src="js/companion-dialogues.js?v=9"></script>
-<script src="js/message.js?v=12"></script>
+<script src="js/message.js?v=13"></script>
 <script src="js/sound.js?v=20"></script>
 <script src="js/voice.js?v=5"></script>
 <script src="js/settings.js?v=5"></script>
@@ -335,7 +345,7 @@
 <script src="js/huella.js?v=2"></script>
 <script src="js/backup.js?v=2"></script>
 <script src="js/sant-jordi.js?v=2"></script>
-<script src="js/work-session.js?v=4"></script>
+<script src="js/work-session.js?v=6"></script>
 <script src="js/tasks.js"></script>
 <script src="js/alarm.js?v=4"></script>
 <script src="js/sleep.js?v=8"></script>
@@ -343,10 +353,16 @@
 <script src="js/memory.js"></script>
 <script src="js/weather.js?v=4"></script>
 <script src="js/clock.js?v=2"></script>
-<script src="js/navigation.js?v=4"></script>
+<script src="js/navigation.js?v=5"></script>
 <script src="js/companion-engine.js?v=5"></script>
 <script>window.USE_COMPANION_ENGINE=true;</script>
 <script src="js/main.js?v=4"></script>
+<script src="js/life-rhythm.js?v=1"></script>
+<script src="js/companion-activity.js?v=1"></script>
+<script src="js/a-mi-lado.js?v=2"></script>
+<script src="js/life-rhythm-response.js?v=1"></script>
+<script src="js/promises.js?v=1"></script>
+<script src="js/weekly-review.js?v=1"></script>
 
 </body>
 </html>

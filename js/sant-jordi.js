@@ -36,7 +36,7 @@
             flower: "淡い青の薔薇、一輪",
             noteEs: "Tu tiempo no pertenece a quienes intentan arrebatártelo.",
             noteJa: "お前の時間は、それを奪おうとする者のものではない。",
-            reason: "忙しさに時間を奪われた年、レイ自身の時間を取り戻させるため。"
+            reason: "時間を奪われた年、レイ自身の時間を取り戻させるため。"
         },
         {
             book: "パブロ・ネルーダ『二十の愛の詩と一つの絶望の歌』",
