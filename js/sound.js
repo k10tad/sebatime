@@ -17,6 +17,8 @@ const havenAudio = {
     step: new Audio("sound/step.mp3"), sleepBreath: new Audio("sound/sleep_breath.mp3"),
     heartbeat: new Audio("sound/heartbeat.mp3"), alarm: new Audio("sound/alarm.mp3")
 };
+const havenActivityAudio = new Audio();
+havenActivityAudio.preload = "auto";
 ["workBgm", "breakBgm", "clock", "sleepBreath", "heartbeat", "alarm"]
     .forEach(key => { havenAudio[key].loop = true; });
 Object.values(havenAudio).forEach(audio => { audio.preload = "auto"; audio.volume = 1; });
@@ -40,7 +42,10 @@ function clearAudioTimers() {
     [deskTimer, humanTimer, coffeeTimer, sleepDeepBreathTimer, coughStopTimer].forEach(clearTimeout);
     deskTimer = humanTimer = coffeeTimer = sleepDeepBreathTimer = coughStopTimer = null;
 }
-function stopAllAudioElements() { Object.values(havenAudio).forEach(audio => stopAudio(audio)); }
+function stopAllAudioElements() {
+    Object.values(havenAudio).forEach(audio => stopAudio(audio));
+    stopAudio(havenActivityAudio);
+}
 function randomBetween(min, max) { return min + Math.random() * (max - min); }
 function chooseDifferent(list) {
     const candidates = list.filter(item => item.key !== lastLivingSound);
@@ -121,6 +126,13 @@ function unlockAudio() {
         return;
     }
     audioUnlocked = true;
+    const activityWasMuted = havenActivityAudio.muted;
+    havenActivityAudio.src = havenAudio.breath.src;
+    havenActivityAudio.muted = true;
+    safePlay(havenActivityAudio).then(() => {
+        stopAudio(havenActivityAudio);
+        havenActivityAudio.muted = activityWasMuted;
+    });
     const wasMuted = havenAudio.alarm.muted;
     havenAudio.alarm.muted = true;
     safePlay(havenAudio.alarm).then(() => setTimeout(() => {
@@ -174,7 +186,12 @@ function playHavenActivitySound(activityName) {
     const pool = pools[activityName];
     if (!pool || !pool.length) return false;
 
-    replay(pool[Math.floor(Math.random() * pool.length)]);
+    const selectedAudio = pool[Math.floor(Math.random() * pool.length)];
+    havenActivityAudio.pause();
+    havenActivityAudio.src = selectedAudio.currentSrc || selectedAudio.src;
+    havenActivityAudio.volume = selectedAudio.volume;
+    try { havenActivityAudio.currentTime = 0; } catch (_) {}
+    safePlay(havenActivityAudio);
     return true;
 }
 document.addEventListener("visibilitychange", () => {

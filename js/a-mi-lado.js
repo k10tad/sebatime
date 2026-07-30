@@ -20,7 +20,9 @@
     let state = loadState();
     let soundTimer = null;
     let breathingAudio = null;
-    const transientAudio = new Set();
+    const ambientAudio = new Audio();
+    ambientAudio.preload = "auto";
+    let ambientAudioUnlocked = false;
 
     const SOUND_SCENES = {
         working: [
@@ -137,20 +139,30 @@
         return items[items.length - 1];
     }
 
+    function unlockAmbientAudio() {
+        if (ambientAudioUnlocked) return;
+        ambientAudioUnlocked = true;
+        const wasMuted = ambientAudio.muted;
+        ambientAudio.src = "sound/breath_idle.mp3";
+        ambientAudio.muted = true;
+        ambientAudio.play().then(function () {
+            ambientAudio.pause();
+            try { ambientAudio.currentTime = 0; } catch (_) {}
+            ambientAudio.muted = wasMuted;
+        }).catch(function () {
+            ambientAudioUnlocked = false;
+            ambientAudio.muted = wasMuted;
+        });
+    }
+
     function playSound(sound) {
         if (!sound || !state.active || document.hidden) return;
 
-        const audio = new Audio(sound.src);
-        audio.preload = "auto";
-        audio.volume = Math.max(0, Math.min(1, Number(sound.volume) || 0));
-        transientAudio.add(audio);
-
-        const release = function () {
-            transientAudio.delete(audio);
-        };
-        audio.addEventListener("ended", release, { once: true });
-        audio.addEventListener("error", release, { once: true });
-        audio.play().catch(release);
+        ambientAudio.pause();
+        ambientAudio.src = sound.src;
+        ambientAudio.volume = Math.max(0, Math.min(1, Number(sound.volume) || 0));
+        try { ambientAudio.currentTime = 0; } catch (_) {}
+        ambientAudio.play().catch(function () {});
     }
 
     function sceneSounds() {
@@ -199,11 +211,8 @@
         window.clearTimeout(soundTimer);
         soundTimer = null;
 
-        transientAudio.forEach(function (audio) {
-            audio.pause();
-            audio.currentTime = 0;
-        });
-        transientAudio.clear();
+        ambientAudio.pause();
+        try { ambientAudio.currentTime = 0; } catch (_) {}
 
         if (breathingAudio) {
             breathingAudio.pause();
@@ -334,6 +343,15 @@
     });
 
     window.addEventListener("pagehide", saveState);
+    document.addEventListener("pointerdown", unlockAmbientAudio, {
+        once: true,
+        passive: true
+    });
+    document.addEventListener("touchend", unlockAmbientAudio, {
+        once: true,
+        passive: true
+    });
+    document.addEventListener("keydown", unlockAmbientAudio, { once: true });
 
     window.AMiLado = {
         start,
