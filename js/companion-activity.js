@@ -19,7 +19,7 @@
         afterShower: {
             id: "after-shower",
             image: "assets/activity-after-shower.jpg",
-            label: "シャワーを浴びたところ"
+            label: "シャワー中"
         },
         drinking: {
             id: "drinking",
@@ -35,6 +35,15 @@
 
     let current = null;
     let currentSlot = "";
+    let soundTimer = null;
+
+    const SOUND_DELAYS = {
+        working: [20, 46],
+        reading: [18, 42],
+        "after-shower": [24, 52],
+        drinking: [28, 58],
+        "sofa-nap": [34, 70]
+    };
 
     function localDateKey(date) {
         return [
@@ -144,6 +153,43 @@
         }
     }
 
+    function currentPageIsLiving() {
+        return (document.body.dataset.havenPage || "home") === "home";
+    }
+
+    function sessionIsIdle() {
+        return !window.getHavenSessionState ||
+            window.getHavenSessionState() === "idle";
+    }
+
+    function canPlayActivitySound() {
+        return Boolean(current) &&
+            currentPageIsLiving() &&
+            sessionIsIdle() &&
+            !document.hidden &&
+            !document.body.classList.contains("a-mi-lado-mode");
+    }
+
+    function scheduleActivitySound(initial = false) {
+        window.clearTimeout(soundTimer);
+        if (!current) return;
+
+        const range = SOUND_DELAYS[current.id] || [22, 52];
+        const delaySeconds = initial
+            ? 4 + Math.random() * 5
+            : range[0] + Math.random() * (range[1] - range[0]);
+
+        soundTimer = window.setTimeout(function () {
+            if (
+                canPlayActivitySound() &&
+                typeof window.playHavenActivitySound === "function"
+            ) {
+                window.playHavenActivitySound(current.id);
+            }
+            scheduleActivitySound(false);
+        }, delaySeconds * 1000);
+    }
+
     function recordActivity(activity, slot) {
         const rhythm = window.HavenLifeRhythm;
         if (!rhythm) return;
@@ -172,6 +218,7 @@
         currentSlot = resolved.slot;
 
         if (changed) recordActivity(current, currentSlot);
+        if (changed || !soundTimer) scheduleActivitySound(changed);
 
         if (typeof window.syncSessionCompanionImage === "function") {
             window.syncSessionCompanionImage();
@@ -202,6 +249,9 @@
     window.setInterval(refresh, 60 * 1000);
 
     document.addEventListener("visibilitychange", function () {
-        if (!document.hidden) refresh();
+        if (!document.hidden) {
+            refresh();
+            scheduleActivitySound(true);
+        }
     });
 })();

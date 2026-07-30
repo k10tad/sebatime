@@ -24,13 +24,15 @@
 
     const SOUND_SCENES = {
         working: [
-            { src: "sound/pen.mp3", volume: 0.34, weight: 0.58 },
-            { src: "sound/coffe cup.mp3", volume: 0.42, weight: 0.28 },
-            { src: "sound/page.mp3", volume: 0.28, weight: 0.14 }
+            { src: "sound/pen.mp3", volume: 0.34, weight: 0.48 },
+            { src: "sound/coffe cup.mp3", volume: 0.42, weight: 0.24 },
+            { src: "sound/page.mp3", volume: 0.28, weight: 0.12 },
+            { src: "sound/tie.mp3", volume: 0.38, weight: 0.16 }
         ],
         reading: [
-            { src: "sound/page.mp3", volume: 0.4, weight: 0.66 },
-            { src: "sound/coffe cup.mp3", volume: 0.38, weight: 0.34 }
+            { src: "sound/page.mp3", volume: 0.4, weight: 0.56 },
+            { src: "sound/coffe cup.mp3", volume: 0.38, weight: 0.28 },
+            { src: "sound/throat.mp3", volume: 0.36, weight: 0.16 }
         ],
         "after-shower": [
             { src: "sound/shower.mp3", volume: 0.46, weight: 0.32 },
@@ -44,7 +46,7 @@
         ],
         "sofa-nap": [
             { src: "sound/blanket.mp3", volume: 0.32, weight: 0.7 },
-            { src: "sound/breath_idle.mp3", volume: 0.42, weight: 0.3 }
+            { src: "sound/sleep_breath.mp3", volume: 0.42, weight: 0.3 }
         ]
     };
 

@@ -7,8 +7,13 @@ const havenAudio = {
     workBgm: new Audio("music/bgm.mp3"), breakBgm: new Audio("music/break.mp3"),
     clock: new Audio("sound/clockloop2.mp3"), pen: new Audio("sound/pen.mp3"),
     page: new Audio("sound/page.mp3"), breath: new Audio("sound/breath_idle.mp3"),
+    tie: new Audio("sound/tie.mp3"), throat: new Audio("sound/throat.mp3"),
     sleepDeepBreath: new Audio("sound/sleep_deep_breath.mp3"),
     coffee: new Audio("sound/coffe.mp3"), cough: new Audio("sound/coughing.mp3"),
+    coffeeCup: new Audio("sound/coffe cup.mp3"),
+    shower: new Audio("sound/shower.mp3"), bathtub: new Audio("sound/bathtub.mp3"),
+    blanket: new Audio("sound/blanket.mp3"),
+    glass: new Audio("sound/glass.mp3"), wine: new Audio("sound/Wine.mp3"),
     step: new Audio("sound/step.mp3"), sleepBreath: new Audio("sound/sleep_breath.mp3"),
     heartbeat: new Audio("sound/heartbeat.mp3"), alarm: new Audio("sound/alarm.mp3")
 };
@@ -134,6 +139,44 @@ function startAlarmSound() { setMode("alarm"); }
 function stopAlarmSound() { if (audioMode === "alarm") setMode("idle"); else stopAudio(havenAudio.alarm); }
 function stopAllSounds() { setMode("idle"); }
 function playPageStepSound() { if (audioMode !== "sleep" && audioMode !== "alarm") replay(havenAudio.step); }
+function playHavenActivitySound(activityName) {
+    if (!audioUnlocked || audioMode !== "idle" || document.hidden) return false;
+    if (document.body.dataset.havenPage !== "home") return false;
+    if (document.body.classList.contains("a-mi-lado-mode")) return false;
+
+    const pools = {
+        working: [
+            havenAudio.pen,
+            havenAudio.coffeeCup,
+            havenAudio.page,
+            havenAudio.tie
+        ],
+        reading: [
+            havenAudio.page,
+            havenAudio.coffeeCup,
+            havenAudio.throat
+        ],
+        "after-shower": [
+            havenAudio.shower,
+            havenAudio.bathtub,
+            havenAudio.blanket,
+            havenAudio.breath
+        ],
+        drinking: [
+            havenAudio.glass,
+            havenAudio.wine
+        ],
+        "sofa-nap": [
+            havenAudio.blanket,
+            havenAudio.breath
+        ]
+    };
+    const pool = pools[activityName];
+    if (!pool || !pool.length) return false;
+
+    replay(pool[Math.floor(Math.random() * pool.length)]);
+    return true;
+}
 document.addEventListener("visibilitychange", () => {
     if (document.hidden || !audioUnlocked) return;
     if (audioMode === "work") { safePlay(havenAudio.workBgm); safePlay(havenAudio.clock); }
@@ -146,3 +189,4 @@ document.addEventListener("pointerdown", unlockAudio, { once: true, passive: tru
 document.addEventListener("touchend", unlockAudio, { once: true, passive: true });
 document.addEventListener("keydown", unlockAudio, { once: true });
 window.setBedroomAmbience = setBedroomAmbience;
+window.playHavenActivitySound = playHavenActivitySound;
