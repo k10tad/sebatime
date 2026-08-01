@@ -8,6 +8,8 @@
         open:$("openHuella"), close:$("closeHuella"), overlay:$("huellaOverlay"),
         albumTab:$("huellaAlbumTab"), calendarTab:$("huellaCalendarTab"), album:$("huellaAlbumPanel"), calendar:$("huellaCalendarPanel"),
         input:$("huellaFileInput"), add:$("huellaAddButton"), grid:$("huellaGrid"), empty:$("huellaEmpty"), count:$("huellaCount"),
+        register:$("huellaPhotoRegister"), registerForm:$("huellaPhotoRegisterForm"), registerPreview:$("huellaPhotoRegisterPreview"),
+        registerCount:$("huellaPhotoRegisterCount"), registerDate:$("huellaPhotoRegisterDate"), registerNote:$("huellaPhotoRegisterNote"),
         viewer:$("huellaViewer"), image:$("huellaViewerImage"), note:$("huellaViewerNote"), photoDate:$("huellaViewerDate"), comment:$("huellaSebasComment"),
         prev:$("huellaPrevMonth"), next:$("huellaNextMonth"), monthTitle:$("huellaCalendarTitle"), calendarGrid:$("huellaCalendarGrid"),
         selectedTitle:$("huellaSelectedDateTitle"), dayEntries:$("huellaDayEntries"), dayEmpty:$("huellaDayEmpty"),
@@ -15,10 +17,12 @@
         entryDate:$("huellaEntryDate"), entryTitle:$("huellaEntryTitle"), entryTime:$("huellaEntryTime"), timeField:$("huellaEntryTimeField"),
         entryBody:$("huellaEntryBody"), bodyLabel:$("huellaEntryBodyLabel"), entryDelete:$("huellaEntryDelete"), editorTitle:$("huellaEntryEditorTitle"), editorKicker:$("huellaEntryKicker")
     };
-    [e.overlay,e.viewer,e.editor].forEach(layer => { if (layer && layer.parentElement !== document.body) document.body.appendChild(layer); });
+    [e.overlay,e.register,e.viewer,e.editor].forEach(layer => { if (layer && layer.parentElement !== document.body) document.body.appendChild(layer); });
 
     let dbPromise;
     let currentPhoto;
+    let pendingPhotos=[];
+    let pendingPreviewUrl="";
     let selected = new Date();
     let month = new Date(selected.getFullYear(), selected.getMonth(), 1);
     const urls = new Set();
@@ -73,12 +77,18 @@
 
     async function renderAlbum() {
         revoke();
-        const photos=(await getAllEntries()).filter(x=>x.entryType==="memory" && x.imageBlob instanceof Blob).sort((a,b)=>b.createdAt-a.createdAt);
+        const photos=(await getAllEntries()).filter(x=>x.entryType==="memory" && x.imageBlob instanceof Blob).sort((a,b)=>{
+            const aDate=/^\d{4}-\d{2}-\d{2}$/.test(a.dateKey||"")?a.dateKey:"";
+            const bDate=/^\d{4}-\d{2}-\d{2}$/.test(b.dateKey||"")?b.dateKey:"";
+            if(aDate&&bDate&&aDate!==bDate)return bDate.localeCompare(aDate);
+            if(aDate!==bDate)return aDate?-1:1;
+            return (b.createdAt||0)-(a.createdAt||0);
+        });
         e.grid.replaceChildren(); e.count.textContent=`${photos.length}枚`; e.empty.hidden=photos.length>0;
         photos.forEach(photo => {
             const button=document.createElement("button"); button.type="button"; button.className="huella-photo";
             const image=document.createElement("img"); image.src=objectUrl(photo.imageBlob); image.alt=photo.note || "Vestigioの写真";
-            const label=document.createElement("span"); label.textContent=new Date(photo.createdAt).toLocaleDateString("ja-JP",{month:"numeric",day:"numeric"});
+            const label=document.createElement("span"); label.textContent=photo.dateKey?fromKey(photo.dateKey).toLocaleDateString("ja-JP",{month:"numeric",day:"numeric"}):"日付なし";
             button.append(image,label); button.addEventListener("click",()=>openPhoto(photo)); e.grid.append(button);
         });
     }
@@ -113,12 +123,37 @@
         album?renderAlbum():renderCalendar();
     }
     function openOverlay(){e.overlay.hidden=false;document.body.classList.add("huella-open");switchMode("album");}
-    function closeOverlay(){e.overlay.hidden=true;e.viewer.hidden=true;e.editor.hidden=true;document.body.classList.remove("huella-open");}
+    function closeOverlay(){e.overlay.hidden=true;e.register.hidden=true;e.viewer.hidden=true;e.editor.hidden=true;closePhotoRegistration();document.body.classList.remove("huella-open");}
     function openPhoto(photo){currentPhoto=photo;e.image.src=objectUrl(photo.imageBlob);e.note.value=photo.note||"";e.photoDate.value=photo.dateKey;e.comment.textContent=comments[Math.floor(Math.random()*comments.length)];e.viewer.hidden=false;}
     function closePhoto(){e.viewer.hidden=true;e.image.removeAttribute("src");currentPhoto=null;}
-    async function addPhotos(files) {
-        for(const file of [...files].filter(x=>x.type.startsWith("image/"))){const now=Date.now();await put({id:id(),entryType:"memory",imageBlob:file,fileName:file.name,mimeType:file.type,createdAt:now,dateKey:key(new Date()),note:"",title:"",body:"",time:""});}
-        e.input.value="";renderAlbum();
+    function openPhotoRegistration(files) {
+        pendingPhotos=[...files].filter(file=>file.type.startsWith("image/"));
+        if(!pendingPhotos.length){e.input.value="";return;}
+        if(pendingPreviewUrl)URL.revokeObjectURL(pendingPreviewUrl);
+        pendingPreviewUrl=URL.createObjectURL(pendingPhotos[0]);
+        e.registerPreview.src=pendingPreviewUrl;
+        e.registerCount.textContent=pendingPhotos.length>1?`${pendingPhotos.length}枚を選択中`:pendingPhotos[0].name;
+        e.registerDate.value=key(new Date());
+        e.registerNote.value="";
+        e.register.hidden=false;
+    }
+    function closePhotoRegistration(){
+        e.register.hidden=true;
+        e.input.value="";
+        pendingPhotos=[];
+        if(pendingPreviewUrl){URL.revokeObjectURL(pendingPreviewUrl);pendingPreviewUrl="";}
+        e.registerPreview?.removeAttribute("src");
+    }
+    async function savePhotoRegistration(event) {
+        event.preventDefault();
+        const dateKey=e.registerDate.value;
+        const note=e.registerNote.value.trim();
+        const started=Date.now();
+        for(const [index,file] of pendingPhotos.entries()){
+            await put({id:id(),entryType:"memory",imageBlob:file,fileName:file.name,mimeType:file.type,createdAt:started+index,dateKey,note,title:"",body:"",time:""});
+        }
+        closePhotoRegistration();
+        await renderAlbum();
     }
     async function savePhoto(){if(!currentPhoto)return;await put({...currentPhoto,note:e.note.value.trim(),dateKey:e.photoDate.value,updatedAt:Date.now()});closePhoto();renderAlbum();}
     async function deletePhoto(){if(!currentPhoto||!confirm("この写真をVestigioから削除しますか？"))return;await remove(currentPhoto.id);closePhoto();renderAlbum();}
@@ -129,7 +164,7 @@
     async function importEntries(entries,{replace=true}={}){if(replace)await clearEntries();for(const entry of entries||[])if(entry?.id)await put(entry);await renderAlbum();}
 
     e.open?.addEventListener("click",openOverlay);e.close?.addEventListener("click",closeOverlay);e.albumTab?.addEventListener("click",()=>switchMode("album"));e.calendarTab?.addEventListener("click",()=>switchMode("calendar"));
-    e.add?.addEventListener("click",()=>e.input.click());e.input?.addEventListener("change",event=>addPhotos(event.target.files));$("huellaViewerClose")?.addEventListener("click",closePhoto);$("huellaViewerSave")?.addEventListener("click",savePhoto);$("huellaViewerDelete")?.addEventListener("click",deletePhoto);
+    e.add?.addEventListener("click",()=>e.input.click());e.input?.addEventListener("change",event=>openPhotoRegistration(event.target.files));e.registerForm?.addEventListener("submit",savePhotoRegistration);$("huellaPhotoRegisterClose")?.addEventListener("click",closePhotoRegistration);$("huellaPhotoRegisterCancel")?.addEventListener("click",closePhotoRegistration);$("huellaViewerClose")?.addEventListener("click",closePhoto);$("huellaViewerSave")?.addEventListener("click",savePhoto);$("huellaViewerDelete")?.addEventListener("click",deletePhoto);
     e.prev?.addEventListener("click",()=>{month=new Date(month.getFullYear(),month.getMonth()-1,1);renderCalendar();});e.next?.addEventListener("click",()=>{month=new Date(month.getFullYear(),month.getMonth()+1,1);renderCalendar();});
     $("huellaAddDiary")?.addEventListener("click",()=>openEditor("diary"));$("huellaAddPlan")?.addEventListener("click",()=>openEditor("plan"));$("huellaEntryClose")?.addEventListener("click",closeEditor);e.form?.addEventListener("submit",saveEntry);e.entryDelete?.addEventListener("click",deleteText);
     window.HavenHuella={DB_NAME,STORE_NAME,getAllEntries,importEntries,clearEntries,render:renderAlbum};
