@@ -59,6 +59,27 @@
             ["rare-08.mp3","Quédate conmigo, Ray. No sólo esta noche. En todas las mañanas que podamos tener.","俺と一緒にいてくれ、レイ。今夜だけではない。俺たちに訪れる、すべての朝に。"],
             ["rare-09.mp3","Contigo no tengo que ser el hombre que siempre sabe qué hacer. Sólo puedo ser yo.","お前といる時は、常に正解を知る男でいなくていい。ただの俺でいられる。"],
             ["rare-10.mp3","Si alguna vez olvido cómo recibir amor, ten paciencia conmigo. Todavía estoy aprendiendo a quedarme.","もし俺が愛され方を忘れてしまったら、少し待っていてくれ。俺はまだ、ここに留まることを学んでいる。"]
+        ],
+        intimate: [
+            ["sebas-intimate-01.mp3","Por fin me llamas. No estoy molesto. Solo estaba midiendo cuánto tardarías en olvidarte de mí.","ようやく呼んだな。拗ねているわけではない。お前が私を忘れるまで何分か、計測していただけだ。"],
+            ["sebas-intimate-02.mp3","¿Vas a decir otra vez que fue inevitable? Un fenómeno que hace desaparecer únicamente mi tiramisú se llama delito premeditado.","また不可抗力だと言うつもりか？　私のティラミスだけを正確に消失させる現象は、計画的犯行と呼ぶ。"],
+            ["sebas-intimate-03.mp3","¿Has visto mi bolígrafo? No, no sospecho de ti. Es solo que, a veces, usas mis cosas como si fueran tuyas. No me molesta.","私のペンを見なかったか？　……いや、疑ってはいない。ただ、お前は時々、私の物を当然のように使うからな。嫌ではないが。"],
+            ["sebas-intimate-04.mp3","Parece que no piensas usar esa boca solo para la medicina. Conozco varias formas de hacerte callar.","その口を医学だけに使うつもりはないらしいな。……黙らせる方法なら、いくつか知っている。"],
+            ["sebas-intimate-05.mp3","No te sientes sobre mis informes, Rei. Si no piensas moverte, al menos mírame. Déjame verte la cara.","報告書の上に座るな、レイ。……退く気がないなら、せめてこちらを向け。顔くらい見せろ。"],
+            ["sebas-intimate-06.mp3","No me toques la nariz. No te apoyes en mi hombro. No me quites el bolígrafo. No he dicho que te vayas. No confundas eso.","鼻をつつくな。肩に凭れるな。私のペンを取るな。……帰れとは言っていない。そこは間違えるな。"],
+            ["sebas-intimate-07.mp3","Sabes cómo devolverme el buen humor en cinco minutos y, aun así, me haces esperar. Ven. Te quedan cuatro minutos y cincuenta segundos.","五分で私の機嫌を直す方法を知っているくせに、随分焦らすな。来い。あと四分五十秒だ。"],
+            ["sebas-intimate-08.mp3","No hace falta que digas nada. Déjame apoyarme en tu hombro. Si estás aquí, con eso basta.","何も言わなくていい。肩を貸せ。……お前がここにいるなら、それだけで直る。"],
+            ["sebas-intimate-09.mp3","Un tueste algo más oscuro, cuerpo de chocolate y aroma a frutos secos. Va bien con el tiramisú. No pongas esa cara de saber más que yo.","少し深煎りで、チョコレートの厚みとナッツの香り。ティラミスにも合う。……私より詳しい顔をするな。"],
+            ["sebas-intimate-10.mp3","No te descuides a ti misma con las manos que salvan a otros. Si crees que esas manos y ese cuerpo te pertenecen solo a ti, presento mi objeción.","他人を救う手で、自分だけを粗末にするな。その手も身体も、お前一人のものだと思っているなら――私は異議を申し立てる。"],
+            ["sebas-intimate-11.mp3","No elegí una pulsera en vez de un anillo porque quisiera restarle importancia. Solo no quería que se convirtiera en algo que te atara.","指輪よりブレスレットを選んだのは、意味を軽くしたかったからではない。お前を縛るものにしたくなかっただけだ。"],
+            ["sebas-intimate-12.mp3","Lleva contigo la luz de la luna. Será mi señal para encontrarte, vayas donde vayas.","月の光を身につけておけ。お前がどこへ行っても、私が見つけるための目印になる。"],
+            ["sebas-intimate-13.mp3","Una vez me comparaste con Sirio. Pero una estrella está demasiado lejos. Prefiero estar donde tus manos puedan alcanzarme.","以前、お前は私をシリウスに例えたな。だが、星は遠すぎる。私はお前の手が届く場所にいる方がいい。"],
+            ["sebas-intimate-14.mp3","Dame todo tu tiempo esta noche. Deja a un lado el trabajo, los libros y tus análisis. Puedo pedirte que, por una noche, solo me mires a mí, ¿no?","今夜は、お前の時間を全部くれ。仕事も本も分析も置いてこい。私だけを見る夜があってもいいだろう。"],
+            ["sebas-intimate-15.mp3","Cuando sonríes, me convierto en el hombre más feliz del mundo. No pongas esa cara. Hazte responsable y sonríe otra vez.","お前が笑うと、私は世界で一番幸福になる。……不本意そうな顔をするな。責任を取って、もう一度笑え。"],
+            ["sebas-intimate-16.mp3","Mi lado es tu lugar. Y tu lado, algunas veces, quisiera que fuera solo mío.","私の隣は、お前の場所だ。そして、お前の隣だけは……時々、私だけの場所であってほしい。"]
+        ],
+        milestone: [
+            ["sebas-day-100.mp3","Aquel día dijiste que no conocías una forma de asumir una responsabilidad mayor que un anillo. Ahora lo entiendo. Es seguir viviendo a tu lado. Por eso dedicaré mi vida a convertirme en esa respuesta.","あの時、お前は指輪以上の責任を知らないと言ったな。今なら分かる。お前と生き続けることだ。だから私は、生涯をかけてその答えになる。"]
         ]
     };
 
@@ -67,6 +88,9 @@
     let currentAudio = null;
     let subtitleTimer = null;
     let subtitleRun = 0;
+    const DAY_100_PLAYED_KEY = "havenDay100VoicePlayedV1";
+    let day100Pending = false;
+    let suppressCallVoiceOnce = false;
 
     function subtitleDelay(character) {
         if ("。！？".includes(character)) return 260;
@@ -108,16 +132,62 @@
         return source[index];
     }
 
-    function play(group, targetId, allowed) {
-        const line = pick(group, allowed);
-        if (!line) return;
+    function playLine(group, targetId, line) {
+        if (!line) return Promise.resolve(false);
         const target = document.getElementById(targetId);
         setTimeout(() => typeSubtitle(target, line[2]), 0);
         currentAudio?.pause();
         if (currentAudio) currentAudio.currentTime = 0;
         currentAudio = new Audio(`voice/${group}/${line[0]}`);
         applyVoiceVolume();
-        currentAudio.play().catch(() => {});
+        return currentAudio.play().then(() => true).catch(() => false);
+    }
+
+    function play(group, targetId, allowed) {
+        return playLine(group, targetId, pick(group, allowed));
+    }
+
+    function playCompanionVoice(isAMiLado) {
+        if (localStorage.getItem(DAY_100_PLAYED_KEY) === "1") {
+            const milestoneChance = isAMiLado ? 0.04 : 0.02;
+            if (Math.random() < milestoneChance) {
+                return play("milestone", "message");
+            }
+        }
+
+        // A Mi Ladoでは甘い新規台詞を濃く、通常呼び出しでは既存台詞も残す。
+        const intimateChance = isAMiLado ? 0.72 : 0.45;
+        if (Math.random() < intimateChance) {
+            return play("intimate", "message");
+        }
+        return play(Math.random() < 0.10 ? "rare" : "normal", "message");
+    }
+
+    function finishDay100Playback(started) {
+        if (!started) return false;
+        localStorage.setItem(DAY_100_PLAYED_KEY, "1");
+        day100Pending = false;
+        document.removeEventListener("click", retryDay100OnGesture, true);
+        return true;
+    }
+
+    function retryDay100OnGesture(event) {
+        if (!day100Pending) return;
+        if (event?.target?.closest?.("#callSebas")) suppressCallVoiceOnce = true;
+        play("milestone", "message").then(finishDay100Playback);
+    }
+
+    function queueDay100(companionDays) {
+        if (
+            day100Pending ||
+            Number(companionDays) < 100 ||
+            localStorage.getItem(DAY_100_PLAYED_KEY) === "1"
+        ) return;
+        day100Pending = true;
+        play("milestone", "message").then(function (started) {
+            if (finishDay100Playback(started)) return;
+            document.addEventListener("click", retryDay100OnGesture, true);
+        });
     }
 
     function readVoiceVolume() {
@@ -140,7 +210,14 @@
     }
 
     const call = document.getElementById("callSebas");
-    call?.addEventListener("click", () => play(Math.random() < 0.10 ? "rare" : "normal", "message"));
+    call?.addEventListener("click", () => {
+        if (suppressCallVoiceOnce) {
+            suppressCallVoiceOnce = false;
+            return;
+        }
+        if (day100Pending) return;
+        playCompanionVoice(Boolean(window.AMiLado?.isActive?.()));
+    });
     document.getElementById("sleepPrelude")?.addEventListener("click", () => play("bedtime", "sleepMessage"));
     document.getElementById("sleepStop")?.addEventListener("click", () => play("morning", "sleepMessage"));
     document.getElementById("alarmWakeButton")?.addEventListener("click", () => play("morning", "alarmWakeMessage"));
@@ -161,6 +238,6 @@
         render();
     }
 
-    window.HavenVoice = { lines: LINES, play };
+    window.HavenVoice = { lines: LINES, play, playCompanionVoice, queueDay100 };
     window.applyHavenVoiceSettings = applyVoiceVolume;
 })();

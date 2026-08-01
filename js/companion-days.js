@@ -47,6 +47,7 @@
         if (input) input.value = start;
         if (detailText) detailText.textContent = `${formatDate(start)}から、寄り添い ${days}日目だ。`;
         badge?.setAttribute("aria-label", `寄り添い${days}日目`);
+        window.HavenVoice?.queueDay100?.(days);
     }
 
     function save() {
