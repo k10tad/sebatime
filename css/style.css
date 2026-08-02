@@ -214,7 +214,7 @@ button:active {
 
 #addTask {
     padding: 10px 14px;
-    font-size: 14px;
+    font-size: 13px;
 }
 
 #taskList {
@@ -355,7 +355,7 @@ button:active {
     }
 
     #date {
-        font-size: 14px;
+        font-size: 13px;
     }
 
     #weather-card,
@@ -378,7 +378,7 @@ button:active {
     }
 
     button {
-        font-size: 14px;
+        font-size: 13px;
         padding: 10px 18px;
     }
 
@@ -403,7 +403,7 @@ button:active {
 }
 
 .focus-title {
-    font-size: 14px;
+    font-size: 13px;
     letter-spacing: 2px;
     opacity: 0.75;
     margin-bottom: 6px;
@@ -416,7 +416,7 @@ button:active {
 
 #pomodoroDisplay {
     margin-top: 4px;
-    font-size: 14px;
+    font-size: 13px;
     opacity: 0.8;
 }
 
@@ -447,7 +447,7 @@ button:active {
 
 #sleepStatus,
 #sleepLastRecord {
-    font-size: 14px;
+    font-size: 13px;
     opacity: 0.8;
     margin-top: 8px;
 }
@@ -461,7 +461,7 @@ button:active {
 }
 
 .sleep-buttons button {
-    font-size: 13px;
+    font-size: 10px;
     padding: 8px 12px;
 }
 
@@ -667,7 +667,7 @@ body {
 .bottom-nav .nav-button {
     flex: 1;
     padding: 11px 12px;
-    font-size: 13px;
+    font-size: 10px;
     border-radius: 14px;
     background: transparent;
     box-shadow: none;
@@ -735,7 +735,7 @@ body {
 
 .session-kicker {
     font-size: 10px;
-    letter-spacing: 0.28em;
+    letter-spacing: 0.18em;
     opacity: 0.58;
 }
 
@@ -745,7 +745,7 @@ body {
     border: 1px solid rgba(255, 255, 255, 0.16);
     border-radius: 999px;
     font-size: 12px;
-    letter-spacing: 0.08em;
+    letter-spacing: 0.06em;
     background: rgba(255, 255, 255, 0.07);
 }
 
@@ -796,7 +796,7 @@ body {
 
 .session-buttons button {
     padding: 11px 8px;
-    font-size: 13px;
+    font-size: 10px;
 }
 
 .session-buttons button:disabled {
@@ -871,19 +871,19 @@ body {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    gap: 14px;
-    min-width: min(84vw, 320px);
-    max-width: min(90vw, 420px);
-    margin-top: -22px;
-    padding: 12px 24px;
+    gap: 10px;
+    min-width: min(70vw, 250px);
+    max-width: min(78vw, 330px);
+    margin-top: -16px;
+    padding: 9px 18px;
     border: 1px solid rgba(119, 151, 202, 0.42);
     border-radius: 999px;
     background:
         linear-gradient(145deg, rgba(16, 31, 58, 0.95), rgba(3, 10, 26, 0.96));
     box-shadow:
-        0 16px 34px rgba(0, 0, 0, 0.44),
+        0 12px 24px rgba(0, 0, 0, 0.4),
         inset 0 0 0 1px rgba(255, 255, 255, 0.045),
-        0 0 26px rgba(76, 119, 201, 0.18);
+        0 0 14px rgba(76, 119, 201, 0.1);
     color: rgba(232, 238, 248, 0.94);
     line-height: 1.3;
     text-align: center;
@@ -893,32 +893,32 @@ body {
 .sebas-activity__now {
     display: inline-flex;
     align-items: center;
-    gap: 10px;
+    gap: 7px;
     flex: 0 0 auto;
     color: rgba(212, 187, 124, 0.95);
-    font-size: 13px;
+    font-size: 10px;
     font-weight: 500;
-    letter-spacing: 0.28em;
+    letter-spacing: 0.18em;
     text-transform: uppercase;
     white-space: nowrap;
 }
 
 .sebas-activity__dot {
-    width: 13px;
-    height: 13px;
+    width: 9px;
+    height: 9px;
     border-radius: 50%;
     background: radial-gradient(circle at 35% 35%, rgba(255, 237, 176, 1), rgba(219, 185, 89, 0.94) 58%, rgba(171, 132, 44, 0.94) 100%);
     box-shadow:
         0 0 0 1px rgba(255, 228, 148, 0.22),
-        0 0 14px rgba(220, 184, 88, 0.56);
+        0 0 6px rgba(220, 184, 88, 0.26);
 }
 
 .sebas-activity__label {
     min-width: 0;
     color: rgba(241, 244, 250, 0.95);
-    font-size: clamp(15px, 1.8vw, 18px);
+    font-size: clamp(13px, 1.55vw, 16px);
     font-weight: 500;
-    letter-spacing: 0.08em;
+    letter-spacing: 0.06em;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -939,23 +939,23 @@ body {
 @media (max-width: 640px) {
     .sebas-activity {
         gap: 10px;
-        min-width: min(88vw, 340px);
-        padding: 11px 18px;
+        min-width: min(76vw, 270px);
+        padding: 9px 15px;
     }
 
     .sebas-activity__now {
         gap: 8px;
-        font-size: 11px;
-        letter-spacing: 0.22em;
+        font-size: 10px;
+        letter-spacing: 0.18em;
     }
 
     .sebas-activity__dot {
-        width: 11px;
-        height: 11px;
+        width: 8px;
+        height: 8px;
     }
 
     .sebas-activity__label {
-        font-size: 14px;
+        font-size: 13px;
         letter-spacing: 0.06em;
     }
 }
@@ -967,7 +967,7 @@ body {
     font-size: clamp(17px, 1.8vw, 25px);
     line-height: 1.75;
     color: rgba(246, 246, 248, 0.83);
-    letter-spacing: 0.08em;
+    letter-spacing: 0.06em;
 }
 
 .haven-dashboard {
@@ -1052,13 +1052,13 @@ body {
     margin-top: 12px;
     font-size: 15px;
     opacity: 0.65;
-    letter-spacing: 0.08em;
+    letter-spacing: 0.06em;
 }
 
 #pressure-level {
     margin-top: 13px;
     font-size: 18px;
-    letter-spacing: 0.08em;
+    letter-spacing: 0.06em;
 }
 
 #weather-comment {
@@ -1070,7 +1070,7 @@ body {
 
 .weather-card #humidity {
     margin-top: 14px;
-    font-size: 13px;
+    font-size: 10px;
     opacity: 0.48;
 }
 
@@ -1170,7 +1170,7 @@ body {
 .sleep-page-header p {
     margin: 0;
     color: rgba(244, 246, 251, 0.68);
-    letter-spacing: 0.08em;
+    letter-spacing: 0.06em;
 }
 
 .sleep-panel,
@@ -1194,8 +1194,8 @@ body {
 }
 
 .sleep-label {
-    font-size: 11px;
-    letter-spacing: 0.28em;
+    font-size: 10px;
+    letter-spacing: 0.18em;
     color: rgba(205, 220, 255, 0.58);
 }
 
@@ -1219,13 +1219,13 @@ body {
     margin: 32px 0 12px;
     text-align: center;
     font-size: clamp(46px, 10vw, 72px);
-    letter-spacing: 0.08em;
+    letter-spacing: 0.06em;
     text-shadow: 0 0 28px rgba(150, 184, 255, 0.22);
 }
 
 .sleep-last-record {
     text-align: center;
-    font-size: 13px;
+    font-size: 10px;
     color: rgba(244, 246, 251, 0.58);
 }
 
@@ -1330,7 +1330,7 @@ body {
 .alarm-countdown {
     min-height: 20px;
     margin-top: 6px;
-    font-size: 13px;
+    font-size: 10px;
     color: rgba(185, 207, 255, 0.65);
 }
 
@@ -1388,7 +1388,7 @@ body {
     color: rgba(244, 246, 251, 0.78);
     font-family: "Georgia", "Times New Roman", "Yu Mincho", serif;
     font-size: clamp(15px, 3.6vw, 19px);
-    letter-spacing: 0.08em;
+    letter-spacing: 0.06em;
     line-height: 1.7;
     text-shadow: 0 0 18px rgba(0, 0, 0, 0.9);
 }
@@ -1427,7 +1427,7 @@ body.sleep-mode #sleepSebas {
 
 .alarm-ringing-label {
     font-size: 12px;
-    letter-spacing: 0.28em;
+    letter-spacing: 0.18em;
     opacity: 0.68;
 }
 
@@ -1529,7 +1529,7 @@ body.alarm-mode::before {
 }
 
 .settings-label {
-    font-size: 11px;
+    font-size: 10px;
     letter-spacing: 0.24em;
     color: rgba(218, 230, 250, 0.6);
 }
@@ -1537,7 +1537,7 @@ body.alarm-mode::before {
 .settings-field {
     display: grid;
     gap: 9px;
-    font-size: 14px;
+    font-size: 13px;
 }
 
 .settings-field input[type="text"],
@@ -1651,7 +1651,7 @@ body.alarm-mode::before {
 .settings-about strong {
     display: block;
     margin-top: 4px;
-    font-size: 14px;
+    font-size: 13px;
     font-weight: 500;
 }
 
@@ -1702,7 +1702,7 @@ body.alarm-mode::before {
 
     .frequency-options span {
         padding: 11px 4px;
-        font-size: 13px;
+        font-size: 10px;
     }
 }
 
@@ -2434,7 +2434,7 @@ body.splash-active #appPages {
 @media (max-height: 690px) {
     .splash-content { transform: translateY(-1vh); }
     .splash-orion { width: min(52vw, 245px); max-height: 43vh; }
-    .splash-brand { margin-top: -22px; }
+    .splash-brand { margin-top: -16px; }
     .splash-subtitle { margin-top: 10px; }
 }
 
@@ -2485,7 +2485,7 @@ body.splash-active #appPages {
     grid-column: 1 / -1;
     margin-bottom: 2px;
     color: rgba(244, 246, 251, 0.66);
-    font-size: 14px;
+    font-size: 13px;
     letter-spacing: 0.14em;
     text-align: center;
 }
@@ -2530,7 +2530,7 @@ body.splash-active #appPages {
     padding: 9px 10px;
     border-radius: 14px;
     color: rgba(246, 246, 248, 0.84);
-    font-size: 13px;
+    font-size: 10px;
     letter-spacing: 0.06em;
 }
 
@@ -2811,7 +2811,7 @@ body[data-haven-page="sleep"] .alarm-panel::after {
         "icon temperature pressure"
         "icon level humidity"
         "comment comment comment";
-    column-gap: 14px;
+    column-gap: 10px;
     row-gap: 4px;
     width: min(100%, 500px);
     margin: 0 auto 18px;
@@ -2837,14 +2837,14 @@ body[data-haven-page="sleep"] .alarm-panel::after {
     grid-area: pressure;
     align-self: end;
     margin: 0;
-    font-size: 13px;
+    font-size: 10px;
     text-align: right;
 }
 
 .weather-card #pressure-level {
     grid-area: level;
     margin: 0;
-    font-size: 14px;
+    font-size: 13px;
 }
 
 .weather-card #humidity {
@@ -2860,7 +2860,7 @@ body[data-haven-page="sleep"] .alarm-panel::after {
     margin: 8px 0 0;
     padding-top: 9px;
     border-top: 1px solid rgba(205, 222, 249, 0.10);
-    font-size: 14px;
+    font-size: 13px;
     line-height: 1.55;
 }
 
@@ -2885,7 +2885,7 @@ body[data-haven-page="sleep"] .alarm-panel::after {
 
 .haven-dashboard .session-time-block span {
     margin-bottom: 5px;
-    font-size: 11px;
+    font-size: 10px;
 }
 
 .haven-dashboard .session-time-block strong {
@@ -2909,7 +2909,7 @@ body[data-haven-page="sleep"] .alarm-panel::after {
 
     .weather-location {
         margin-bottom: 10px;
-        font-size: 11px;
+        font-size: 10px;
     }
 
     .weather-card {
@@ -2954,7 +2954,7 @@ body[data-haven-page="sleep"] .alarm-panel::after {
 
     .haven-dashboard .session-status {
         padding: 6px 9px;
-        font-size: 11px;
+        font-size: 10px;
     }
 
     .haven-dashboard .session-times {
@@ -3072,7 +3072,7 @@ body[data-haven-page="sleep"] .alarm-panel::after {
 
 .bottom-nav .nav-label {
     font-family: Georgia, "Times New Roman", serif;
-    font-size: 14px;
+    font-size: 13px;
     line-height: 1;
     letter-spacing: 0.045em;
 }
@@ -3124,7 +3124,7 @@ body[data-haven-page="sleep"] .alarm-panel::after {
     }
 
     .bottom-nav .nav-label {
-        font-size: 13px;
+        font-size: 10px;
         letter-spacing: 0.025em;
     }
 }
