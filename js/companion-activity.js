@@ -231,9 +231,28 @@
         if (!status) return;
         status.hidden = !visible || !current;
         if (current) {
-            status.textContent = current.label;
             status.dataset.activity = current.id;
             status.dataset.preview = previewActivityId ? "true" : "false";
+            status.innerHTML = "";
+
+            const now = document.createElement("span");
+            now.className = "sebas-activity__now";
+
+            const dot = document.createElement("span");
+            dot.className = "sebas-activity__dot";
+            dot.setAttribute("aria-hidden", "true");
+
+            const nowText = document.createElement("span");
+            nowText.className = "sebas-activity__now-text";
+            nowText.textContent = "NOW";
+
+            now.append(dot, nowText);
+
+            const label = document.createElement("span");
+            label.className = "sebas-activity__label";
+            label.textContent = current.label;
+
+            status.append(now, label);
         }
     }
 
