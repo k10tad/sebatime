@@ -14,6 +14,7 @@ const havenAudio = {
     shower: new Audio("sound/shower.mp3"), bathtub: new Audio("sound/bathtub.mp3"),
     blanket: new Audio("sound/blanket.mp3"),
     glass: new Audio("sound/glass.mp3"), wine: new Audio("sound/Wine.mp3"),
+    piano: new Audio("sound/sebas_piano.mp3"),
     step: new Audio("sound/step.mp3"), sleepBreath: new Audio("sound/sleep_breath.mp3"),
     heartbeat: new Audio("sound/heartbeat.mp3"), alarm: new Audio("sound/alarm.mp3")
 };
@@ -181,6 +182,9 @@ function playHavenActivitySound(activityName) {
         "sofa-nap": [
             havenAudio.blanket,
             havenAudio.breath
+        ],
+        piano: [
+            havenAudio.piano
         ]
     };
     const pool = pools[activityName];
