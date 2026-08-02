@@ -24,10 +24,12 @@
         "残しておけ。お前の言葉なら、俺が持っている。",
         "読んだ。……安心しろ、失くさない。"
     ];
+    const timers = new Map();
     let editingId = "";
     let activeTab = "note";
 
-    if (e.overlay && e.overlay.parentElement !== document.body) document.body.appendChild(e.overlay);
+    if (!e.overlay || !e.form || !e.thread) return;
+    if (e.overlay.parentElement !== document.body) document.body.appendChild(e.overlay);
 
     function load() {
         try {
@@ -52,7 +54,16 @@
         });
     }
 
-    function bubble(text, role, time, noteId) {
+    function notePhase(note, now = Date.now()) {
+        if (!note.readAt || !note.replyAt) return "replied";
+        if (now >= note.replyAt) return "replied";
+        if (now >= note.readAt) return "read";
+        return "sent";
+    }
+
+    function bubble(text, role, time, noteId, statusText = "") {
+        const group = document.createElement("div");
+        group.className = `private-note-message-group private-note-message-group--${role}`;
         const article = document.createElement("article");
         article.className = `private-note-message private-note-message--${role}`;
         const body = document.createElement("p");
@@ -63,6 +74,12 @@
         stamp.dateTime = new Date(time).toISOString();
         stamp.textContent = formatTime(time);
         meta.append(stamp);
+        if (role === "user" && statusText) {
+            const delivery = document.createElement("span");
+            delivery.className = "private-note-delivery";
+            delivery.textContent = statusText;
+            meta.append(delivery);
+        }
         if (role === "user" && noteId) {
             const edit = document.createElement("button");
             edit.type = "button";
@@ -74,23 +91,81 @@
             remove.addEventListener("click", () => deleteNote(noteId));
             meta.append(edit, remove);
         }
-        article.append(body, meta);
+        article.append(body);
+        group.append(article, meta);
+        return group;
+    }
+
+    function typingBubble() {
+        const article = document.createElement("article");
+        article.className = "private-note-message private-note-message--sebas private-note-message--typing";
+        article.setAttribute("aria-label", "セバスが入力中");
+        article.innerHTML = "<span></span><span></span><span></span>";
         return article;
     }
 
-    function render({animateLast=false}={}) {
-        const notes = load().sort((a,b) => (a.createdAt || 0) - (b.createdAt || 0));
+    function deliveryLabel(phase) {
+        if (phase === "sent") return "Enviado ✓";
+        return "Leído ✓✓";
+    }
+
+    function clearTimers() {
+        timers.forEach(timer => clearTimeout(timer));
+        timers.clear();
+    }
+
+    function scheduleRefresh(notes) {
+        clearTimers();
+        const now = Date.now();
+        notes.forEach(note => {
+            if (!note.readAt || !note.replyAt) return;
+            [note.readAt, note.replyAt].forEach((at, index) => {
+                if (at <= now) return;
+                const key = `${note.id}-${index}`;
+                timers.set(key, setTimeout(() => {
+                    timers.delete(key);
+                    render({animateLast: index === 1});
+                }, Math.max(0, at - Date.now()) + 20));
+            });
+        });
+    }
+
+    function setComposerPending(pending) {
+        const submit = e.form.querySelector("button[type=submit]");
+        submit.disabled = pending && !editingId;
+        e.input.disabled = pending && !editingId;
+        e.form.classList.toggle("is-waiting", pending && !editingId);
+    }
+
+    function render({animateLast = false} = {}) {
+        const notes = load().sort((a, b) => (a.createdAt || 0) - (b.createdAt || 0));
+        const now = Date.now();
         e.thread.replaceChildren();
         if (!notes.length) {
             e.empty.hidden = false;
             e.thread.append(e.empty);
         }
-        notes.forEach((note,index) => {
-            e.thread.append(bubble(note.text, "user", note.updatedAt || note.createdAt, note.id));
-            const reply = bubble(note.reply, "sebas", note.createdAt + 1, note.id);
-            if (animateLast && index === notes.length - 1) reply.classList.add("private-note-message--arriving");
-            e.thread.append(reply);
+        notes.forEach((note, index) => {
+            const phase = notePhase(note, now);
+            const hasDelivery = Boolean(note.readAt && note.replyAt);
+            e.thread.append(bubble(
+                note.text,
+                "user",
+                note.updatedAt || note.createdAt,
+                note.id,
+                hasDelivery ? deliveryLabel(phase) : "Leído ✓✓"
+            ));
+            if (phase === "read") {
+                e.thread.append(typingBubble());
+            } else if (phase === "replied") {
+                const reply = bubble(note.reply, "sebas", note.replyAt || note.createdAt + 1, note.id);
+                if (animateLast && index === notes.length - 1) reply.classList.add("private-note-message--arriving");
+                e.thread.append(reply);
+            }
         });
+        const pending = notes.some(note => notePhase(note, now) !== "replied");
+        setComposerPending(pending);
+        scheduleRefresh(notes);
         requestAnimationFrame(() => { e.thread.scrollTop = e.thread.scrollHeight; });
     }
 
@@ -112,9 +187,7 @@
     }
 
     function promiseReply(promise) {
-        if (promise.status === "declined") {
-            return "分かった。予定が決まらない日もある。無事に戻れば、それでいい。";
-        }
+        if (promise.status === "declined") return "分かった。予定が決まらない日もある。無事に戻れば、それでいい。";
         return promise.type === "return"
             ? `${promise.label || "その時刻"}だな。分かった。気をつけて戻れ。`
             : "約束だ。今夜は、私の隣へ戻ってこい。";
@@ -190,12 +263,20 @@
         else render();
     }
 
+    function signalLauncher() {
+        if (!e.open) return;
+        e.open.classList.remove("is-signaling");
+        void e.open.offsetWidth;
+        e.open.classList.add("is-signaling");
+        setTimeout(() => e.open?.classList.remove("is-signaling"), 1500);
+    }
+
     function open() {
+        signalLauncher();
         renderPromises();
         switchTab(activeTab);
         e.overlay.hidden = false;
         document.body.classList.add("private-note-open");
-        window.setTimeout(() => e.input.focus(), 80);
     }
 
     function close() {
@@ -207,15 +288,18 @@
     function cancelEdit() {
         editingId = "";
         e.form.reset();
-        e.form.querySelector("button[type=submit]").textContent = "送る";
+        e.form.querySelector("button[type=submit]").textContent = "Enviar";
+        render();
     }
 
     function beginEdit(id) {
         const note = load().find(item => item.id === id);
         if (!note) return;
         editingId = id;
+        e.input.disabled = false;
         e.input.value = note.text;
-        e.form.querySelector("button[type=submit]").textContent = "更新";
+        e.form.querySelector("button[type=submit]").disabled = false;
+        e.form.querySelector("button[type=submit]").textContent = "Actualizar";
         e.input.focus();
     }
 
@@ -223,7 +307,7 @@
         if (!confirm("この伝言を削除しますか？")) return;
         save(load().filter(note => note.id !== id));
         if (editingId === id) cancelEdit();
-        render();
+        else render();
     }
 
     function submit(event) {
@@ -239,20 +323,23 @@
             }
             save(notes);
             cancelEdit();
-            render();
             return;
         }
         const createdAt = Date.now();
+        const readDelay = 700 + Math.floor(Math.random() * 401);
+        const replyDelay = Math.min(3500, Math.max(1800, 1500 + text.length * 38));
         notes.push({
             id: makeId(),
             text,
             reply: replies[Math.floor(Math.random() * replies.length)],
             createdAt,
-            updatedAt: createdAt
+            updatedAt: createdAt,
+            readAt: createdAt + readDelay,
+            replyAt: createdAt + readDelay + replyDelay
         });
         save(notes);
         e.form.reset();
-        render({animateLast:true});
+        render();
     }
 
     e.open?.addEventListener("click", open);
@@ -263,6 +350,10 @@
     e.overlay?.addEventListener("click", event => { if (event.target === e.overlay) close(); });
     document.addEventListener("keydown", event => {
         if (event.key === "Escape" && !e.overlay?.hidden) close();
+    });
+
+    window.addEventListener("storage", event => {
+        if (event.key === STORAGE_KEY && !e.overlay.hidden) render();
     });
 
     window.HavenPrivateNote = { open, render, renderPromises };
