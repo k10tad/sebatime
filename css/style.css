@@ -872,10 +872,11 @@ body {
     align-items: center;
     justify-content: center;
     gap: 8px;
-    min-width: min(62vw, 220px);
-    max-width: min(72vw, 300px);
+    width: fit-content;
+    min-width: 0;
+    max-width: min(78vw, 300px);
     margin-top: -12px;
-    padding: 7px 15px;
+    padding: 7px 12px;
     border: 1px solid rgba(108, 139, 191, 0.34);
     border-radius: 999px;
     background:
@@ -919,9 +920,9 @@ body {
     font-size: clamp(12px, 1.35vw, 14px);
     font-weight: 400;
     letter-spacing: 0.04em;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    white-space: normal;
+    overflow-wrap: anywhere;
+    text-wrap: balance;
 }
 
 .sebas-activity[data-preview="true"] .sebas-activity__now {
@@ -939,8 +940,9 @@ body {
 @media (max-width: 640px) {
     .sebas-activity {
         gap: 7px;
-        min-width: min(68vw, 240px);
-        max-width: min(74vw, 280px);
+        width: fit-content;
+        min-width: 0;
+        max-width: min(78vw, 260px);
         padding: 7px 13px;
     }
 

@@ -51,7 +51,7 @@
         "after-shower": [24, 52],
         drinking: [28, 58],
         "sofa-nap": [34, 70],
-        piano: [72, 148]
+        piano: [105, 185]
     };
 
     function localDateKey(date) {
