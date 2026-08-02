@@ -31,8 +31,19 @@
     privateNoteButton.className = "private-note-launcher";
     privateNoteButton.type = "button";
     privateNoteButton.setAttribute("aria-label", "Digaを開く");
-    privateNoteButton.innerHTML = `<span class="private-note-launcher-icon" aria-hidden="true"><svg class="diga-lepus" viewBox="0 0 72 48" focusable="false"><path class="diga-lepus-line" d="M10 28 23 19 35 25 48 17 62 23M23 19 19 8M23 19 31 7M35 25 31 39M35 25 48 38M48 17 59 9"/><circle class="diga-lepus-star" cx="10" cy="28" r="1.5"/><circle class="diga-lepus-star" cx="19" cy="8" r="1.25"/><circle class="diga-lepus-star" cx="31" cy="7" r="1.15"/><circle class="diga-lepus-star diga-lepus-star--arneb" cx="23" cy="19" r="2.5"/><circle class="diga-lepus-star" cx="35" cy="25" r="1.45"/><circle class="diga-lepus-star" cx="48" cy="17" r="1.4"/><circle class="diga-lepus-star" cx="62" cy="23" r="1.2"/><circle class="diga-lepus-star" cx="59" cy="9" r="1.1"/><circle class="diga-lepus-star" cx="31" cy="39" r="1.2"/><circle class="diga-lepus-star" cx="48" cy="38" r="1.3"/></svg></span><span>DIGA</span>`;
-    document.body.prepend(privateNoteButton);
+    privateNoteButton.innerHTML = `<span class="private-note-launch-copy"><strong>DIGA</strong><small>話して</small></span><span class="private-note-lepus" aria-hidden="true"><svg viewBox="0 0 72 48" focusable="false"><path class="diga-lepus-line" d="M10 28 23 19 35 25 48 17 62 23M23 19 19 8M23 19 31 7M35 25 31 39M35 25 48 38M48 17 59 9"/><circle class="diga-lepus-star" cx="10" cy="28" r="1.5"/><circle class="diga-lepus-star" cx="19" cy="8" r="1.25"/><circle class="diga-lepus-star" cx="31" cy="7" r="1.15"/><circle class="diga-lepus-star diga-lepus-star--arneb" cx="23" cy="19" r="2.5"/><circle class="diga-lepus-star" cx="35" cy="25" r="1.45"/><circle class="diga-lepus-star" cx="48" cy="17" r="1.4"/><circle class="diga-lepus-star" cx="62" cy="23" r="1.2"/><circle class="diga-lepus-star" cx="59" cy="9" r="1.1"/><circle class="diga-lepus-star" cx="31" cy="39" r="1.2"/><circle class="diga-lepus-star" cx="48" cy="38" r="1.3"/></svg></span><span class="private-note-shimmer" aria-hidden="true"></span>`;
+    const havenPresence = document.querySelector(".haven-presence");
+    const presenceImage = document.getElementById("sebas");
+    let havenPresenceVisual = document.querySelector(".haven-presence-visual");
+    if (havenPresence && presenceImage && !havenPresenceVisual) {
+        havenPresenceVisual = document.createElement("div");
+        havenPresenceVisual.className = "haven-presence-visual";
+        havenPresence.insertBefore(havenPresenceVisual, presenceImage);
+        havenPresenceVisual.appendChild(presenceImage);
+    }
+    if (havenPresenceVisual) havenPresenceVisual.appendChild(privateNoteButton);
+    else if (havenPresence) havenPresence.appendChild(privateNoteButton);
+    else document.body.prepend(privateNoteButton);
 
     const sebas = $("sebas");
     const sleepSebas = $("sleepSebas");
@@ -91,14 +102,14 @@
     if (!document.querySelector('link[data-haven-diga]')) {
         const digaStyles = document.createElement("link");
         digaStyles.rel = "stylesheet";
-        digaStyles.href = "css/diga.css?v=2";
+        digaStyles.href = "css/diga.css?v=4";
         digaStyles.dataset.havenDiga = "";
         document.head.appendChild(digaStyles);
     }
 
     if (!document.querySelector('script[data-haven-diga]')) {
         const digaScript = document.createElement("script");
-        digaScript.src = "js/private-note.js?v=3";
+        digaScript.src = "js/private-note.js?v=4";
         digaScript.dataset.havenDiga = "";
         document.body.appendChild(digaScript);
     }
