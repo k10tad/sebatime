@@ -15,6 +15,8 @@ const havenAudio = {
     blanket: new Audio("sound/blanket.mp3"),
     glass: new Audio("sound/glass.mp3"), wine: new Audio("sound/Wine.mp3"),
     piano: new Audio("sound/sebas_piano.mp3"),
+    piano2: new Audio("sound/sebas_piano2.mp3"),
+    piano3: new Audio("sound/sebas_piano3.mp3"),
     step: new Audio("sound/step.mp3"), sleepBreath: new Audio("sound/sleep_breath.mp3"),
     heartbeat: new Audio("sound/heartbeat.mp3"), alarm: new Audio("sound/alarm.mp3")
 };
@@ -25,6 +27,8 @@ havenActivityAudio.preload = "auto";
 Object.values(havenAudio).forEach(audio => { audio.preload = "auto"; audio.volume = 1; });
 let deskTimer, humanTimer, coffeeTimer, sleepDeepBreathTimer, coughStopTimer;
 let lastLivingSound = null;
+let currentActivitySound = null;
+let lastPianoTrack = null;
 
 function safePlay(audio) {
     if (!audio) return Promise.resolve(false);
@@ -46,6 +50,7 @@ function clearAudioTimers() {
 function stopAllAudioElements() {
     Object.values(havenAudio).forEach(audio => stopAudio(audio));
     stopAudio(havenActivityAudio);
+    currentActivitySound = null;
 }
 function randomBetween(min, max) { return min + Math.random() * (max - min); }
 function chooseDifferent(list) {
@@ -184,20 +189,42 @@ function playHavenActivitySound(activityName) {
             havenAudio.breath
         ],
         piano: [
-            havenAudio.piano
+            havenAudio.piano,
+            havenAudio.piano2,
+            havenAudio.piano3
         ]
     };
     const pool = pools[activityName];
     if (!pool || !pool.length) return false;
 
-    const selectedAudio = pool[Math.floor(Math.random() * pool.length)];
+    if (activityName === "piano" && currentActivitySound === "piano" && !havenActivityAudio.paused) {
+        return true;
+    }
+
+    const candidates = activityName === "piano" && pool.length > 1
+        ? pool.filter(audio => audio !== lastPianoTrack)
+        : pool;
+    const selectedAudio = candidates[Math.floor(Math.random() * candidates.length)];
+    if (activityName === "piano") lastPianoTrack = selectedAudio;
+
     havenActivityAudio.pause();
     havenActivityAudio.src = selectedAudio.currentSrc || selectedAudio.src;
     havenActivityAudio.volume = selectedAudio.volume;
+    currentActivitySound = activityName;
     try { havenActivityAudio.currentTime = 0; } catch (_) {}
     safePlay(havenActivityAudio);
     return true;
 }
+havenActivityAudio.addEventListener("ended", () => {
+    if (currentActivitySound !== "piano") {
+        currentActivitySound = null;
+        return;
+    }
+
+    const currentActivity = window.HavenActivity?.getCurrent?.();
+    if (currentActivity?.id === "piano") playHavenActivitySound("piano");
+    else currentActivitySound = null;
+});
 document.addEventListener("visibilitychange", () => {
     if (document.hidden || !audioUnlocked) return;
     if (audioMode === "work") { safePlay(havenAudio.workBgm); safePlay(havenAudio.clock); }
