@@ -127,9 +127,9 @@
       .sant-jordi-year{color:#c7aa69;letter-spacing:.18em}
       .sant-jordi-title{margin:12px 0 8px;font-family:serif;font-size:1.2rem;line-height:1.7}
       .sant-jordi-flower{color:#d9c8cb}
-      .sant-jordi-note{margin:24px 0 4px;padding-top:20px;border-top:1px solid rgba(190,203,225,.18);font-family:serif;font-style:italic;line-height:1.8}
-      .sant-jordi-note-ja{margin:0;color:#bec7d6;line-height:1.8}
-      .sant-jordi-reason{margin:20px 0 0;color:#9ca8ba;font-size:.9rem;line-height:1.75}
+      .sant-jordi-note{margin:24px 0 4px;padding-top:20px;border-top:1px solid rgba(190,203,225,.18);font-family:var(--sebas-handwriting-font,serif);font-size:1.08rem;font-style:normal;line-height:1.9;letter-spacing:.035em}
+      .sant-jordi-note-ja{margin:0;color:#bec7d6;font-family:var(--sebas-handwriting-font,serif);font-size:1.04rem;line-height:1.9;letter-spacing:.035em}
+      .sant-jordi-reason{margin:20px 0 0;color:#9ca8ba;font-family:var(--sebas-handwriting-font,serif);font-size:1rem;line-height:1.85;letter-spacing:.025em}
       .sant-jordi-history-title{margin:28px 0 12px;color:#c7aa69;letter-spacing:.16em;font-size:.78rem}
       .sant-jordi-history{display:grid;gap:10px}
       .sant-jordi-history button{width:100%;padding:14px 16px;text-align:left;border:1px solid rgba(116,145,190,.25);border-radius:10px;background:rgba(13,31,60,.6);color:#e8edf5;font:inherit}
