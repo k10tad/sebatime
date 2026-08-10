@@ -173,7 +173,7 @@
                 <section class="haven-weekly-report" role="dialog" aria-modal="true" aria-labelledby="havenWeeklyTitle">
                     <button id="havenWeeklyClose" class="haven-weekly-close" type="button" aria-label="閉じる">×</button>
                     <p class="haven-weekly-kicker">SUNDAY · WEEKLY NOTE</p>
-                    <h2 id="havenWeeklyTitle">今週のお前について</h2>
+                    <h2 id="havenWeeklyTitle">今週の生活について</h2>
                     <p id="havenWeeklyRange" class="haven-weekly-range"></p>
                     <div id="havenWeeklyMetrics" class="haven-weekly-metrics"></div>
                     <div id="havenWeeklyComment" class="haven-weekly-comment"></div>
