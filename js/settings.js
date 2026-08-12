@@ -56,9 +56,50 @@ const HAVEN_PREFECTURES = [
 
 const havenDefaultSettings = {
     userName: "レイ",
-    weatherPrefecture: "osaka",
+    weatherRegion: "大阪市",
+    weatherLocation: {
+        query: "大阪市",
+        prefecture: "大阪府",
+        city: "大阪市",
+        displayName: "大阪市・大阪府",
+        latitude: 34.6937,
+        longitude: 135.5023,
+        timezone: "Asia/Tokyo"
+    },
     idleFrequency: "normal"
 };
+
+function normalizeStoredWeatherLocation(value) {
+    if (!value || !Number.isFinite(Number(value.latitude)) || !Number.isFinite(Number(value.longitude))) {
+        return null;
+    }
+    return {
+        query: String(value.query || value.city || value.displayName || "").trim(),
+        prefecture: String(value.prefecture || "").trim(),
+        city: String(value.city || "").trim(),
+        displayName: String(value.displayName || value.city || value.query || "観測地点").trim(),
+        latitude: Number(value.latitude),
+        longitude: Number(value.longitude),
+        timezone: String(value.timezone || "Asia/Tokyo")
+    };
+}
+
+function migrateLegacyWeatherLocation(saved) {
+    const current = normalizeStoredWeatherLocation(saved?.weatherLocation);
+    if (current) return current;
+
+    const legacy = HAVEN_PREFECTURES.find(item => item.id === saved?.weatherPrefecture)
+        || HAVEN_PREFECTURES.find(item => item.id === "osaka");
+    return {
+        query: legacy.id === "osaka" ? "大阪市" : legacy.label,
+        prefecture: legacy.label,
+        city: legacy.id === "osaka" ? "大阪市" : "",
+        displayName: legacy.id === "osaka" ? "大阪市・大阪府" : `${legacy.label}（従来設定）`,
+        latitude: legacy.latitude,
+        longitude: legacy.longitude,
+        timezone: "Asia/Tokyo"
+    };
+}
 
 function clampSetting(value, min, max) {
     return Math.min(max, Math.max(min, Number(value)));
@@ -67,12 +108,12 @@ function clampSetting(value, min, max) {
 function loadHavenSettings() {
     try {
         const saved = JSON.parse(localStorage.getItem(HAVEN_SETTINGS_KEY));
+        const weatherLocation = migrateLegacyWeatherLocation(saved);
         return {
             ...havenDefaultSettings,
             userName: String(saved?.userName || "レイ").trim() || "レイ",
-            weatherPrefecture: HAVEN_PREFECTURES.some(item => item.id === saved?.weatherPrefecture)
-                ? saved.weatherPrefecture
-                : "osaka",
+            weatherRegion: String(saved?.weatherRegion || weatherLocation.query || "大阪市").trim() || "大阪市",
+            weatherLocation,
             idleFrequency: ["low", "normal", "high"].includes(saved?.idleFrequency)
                 ? saved.idleFrequency
                 : "normal"
@@ -86,7 +127,8 @@ let havenSettings = loadHavenSettings();
 let lastSavedUserName = havenSettings.userName;
 
 const userNameInput = document.getElementById("userNameInput");
-const weatherPrefectureInput = document.getElementById("weatherPrefecture");
+const weatherRegionInput = document.getElementById("weatherRegionInput");
+const weatherResolvedLocation = document.getElementById("weatherResolvedLocation");
 const saveSettingsButton = document.getElementById("saveSettings");
 const resetSettingsButton = document.getElementById("resetSettings");
 const settingsSavedMessage = document.getElementById("settingsSavedMessage");
@@ -101,8 +143,13 @@ function getHavenUserName() {
 }
 
 function getHavenWeatherLocation() {
-    return HAVEN_PREFECTURES.find(item => item.id === havenSettings.weatherPrefecture)
-        || HAVEN_PREFECTURES.find(item => item.id === "osaka");
+    return normalizeStoredWeatherLocation(havenSettings.weatherLocation)
+        || { ...havenDefaultSettings.weatherLocation };
+}
+
+function renderResolvedWeatherLocation(location = getHavenWeatherLocation()) {
+    if (!weatherResolvedLocation) return;
+    weatherResolvedLocation.textContent = `現在の観測地点：${location.displayName}`;
 }
 
 function personalizeHavenText(text) {
@@ -131,15 +178,8 @@ function getHavenIdleDelay(stage = "next") {
 
 function fillSettingsForm() {
     if (userNameInput) userNameInput.value = havenSettings.userName;
-    if (weatherPrefectureInput) {
-        weatherPrefectureInput.replaceChildren(...HAVEN_PREFECTURES.map(function (prefecture) {
-            const option = document.createElement("option");
-            option.value = prefecture.id;
-            option.textContent = prefecture.label;
-            return option;
-        }));
-        weatherPrefectureInput.value = havenSettings.weatherPrefecture;
-    }
+    if (weatherRegionInput) weatherRegionInput.value = havenSettings.weatherRegion;
+    renderResolvedWeatherLocation();
     frequencyInputs.forEach(input => input.checked = input.value === havenSettings.idleFrequency);
 }
 
@@ -147,9 +187,8 @@ function readSettingsForm() {
     const selected = frequencyInputs.find(input => input.checked);
     return {
         userName: String(userNameInput?.value || "レイ").trim() || "レイ",
-        weatherPrefecture: HAVEN_PREFECTURES.some(item => item.id === weatherPrefectureInput?.value)
-            ? weatherPrefectureInput.value
-            : "osaka",
+        weatherRegion: String(weatherRegionInput?.value || "").trim(),
+        weatherLocation: havenSettings.weatherLocation,
         idleFrequency: selected?.value || "normal"
     };
 }
@@ -162,15 +201,45 @@ function showSaved(text) {
     showSaved.timer = setTimeout(() => settingsSavedMessage.classList.remove("visible"), 2400);
 }
 
-function commitSettings() {
+async function commitSettings() {
     const oldName = lastSavedUserName;
-    const oldPrefecture = havenSettings.weatherPrefecture;
-    havenSettings = readSettingsForm();
+    const previousRegion = havenSettings.weatherRegion;
+    const nextSettings = readSettingsForm();
+
+    if (nextSettings.weatherRegion.length < 2) {
+        showSaved("市区町村名をもう少し詳しく入力しろ。");
+        weatherRegionInput?.focus();
+        return;
+    }
+
+    const regionChanged = nextSettings.weatherRegion !== previousRegion;
+    if (regionChanged || !normalizeStoredWeatherLocation(nextSettings.weatherLocation)) {
+        if (typeof resolveHavenWeatherLocation !== "function") {
+            showSaved("地域検索の準備中だ。少し待て。");
+            return;
+        }
+        try {
+            if (saveSettingsButton) saveSettingsButton.disabled = true;
+            showSaved("観測地点を確認している……");
+            nextSettings.weatherLocation = await resolveHavenWeatherLocation(nextSettings.weatherRegion);
+        } catch (error) {
+            showSaved(error?.message || "地域を確認できなかった。市区町村名を見直せ。");
+            return;
+        } finally {
+            if (saveSettingsButton) saveSettingsButton.disabled = false;
+        }
+    }
+
+    havenSettings = nextSettings;
     lastSavedUserName = havenSettings.userName;
     saveHavenSettings();
     updateVisibleName(oldName, havenSettings.userName);
-    if (oldPrefecture !== havenSettings.weatherPrefecture && typeof loadWeather === "function") {
-        loadWeather();
+    renderResolvedWeatherLocation(havenSettings.weatherLocation);
+    if (regionChanged && typeof clearHavenWeatherCache === "function") {
+        clearHavenWeatherCache();
+    }
+    if (regionChanged && typeof loadWeather === "function") {
+        await loadWeather(true);
     }
     showSaved("保存した。");
 }
@@ -189,6 +258,9 @@ function resetHavenSettings() {
 if (saveSettingsButton) saveSettingsButton.addEventListener("click", commitSettings);
 if (resetSettingsButton) resetSettingsButton.addEventListener("click", resetHavenSettings);
 if (userNameInput) userNameInput.addEventListener("keydown", event => {
+    if (event.key === "Enter") commitSettings();
+});
+if (weatherRegionInput) weatherRegionInput.addEventListener("keydown", event => {
     if (event.key === "Enter") commitSettings();
 });
 

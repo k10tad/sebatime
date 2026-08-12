@@ -248,12 +248,13 @@
                 <h2 id="weatherSettingsTitle">天気・気圧の地域</h2>
             </div>
 
-            <label class="settings-field" for="weatherPrefecture">
-                <span>観測する都道府県</span>
-                <select id="weatherPrefecture" aria-describedby="weatherLocationNote"></select>
+            <label class="settings-field" for="weatherRegionInput">
+                <span>観測する市区町村</span>
+                <input id="weatherRegionInput" type="text" maxlength="80" autocomplete="address-level2" placeholder="吹田市" aria-describedby="weatherLocationNote weatherResolvedLocation">
             </label>
+            <p id="weatherResolvedLocation" class="settings-note" aria-live="polite"></p>
             <p id="weatherLocationNote" class="settings-note">
-                気象情報は選択地域の代表地点から取得する。……表記はMadridのままだが。
+                入力した地域を検索し、その市区町村の座標から天気と気圧を取得する。……リビングの表記はMadridのままだが。
             </p>
         </section>
 
@@ -339,7 +340,7 @@
 <script src="js/message.js?v=13"></script>
 <script src="js/sound.js?v=23"></script>
 <script src="js/voice.js?v=6"></script>
-<script src="js/settings.js?v=5"></script>
+<script src="js/settings.js?v=6"></script>
 <script src="js/events.js?v=1"></script>
 <script src="js/companion-days.js?v=2"></script>
 <script src="js/huella.js?v=2"></script>
@@ -351,7 +352,7 @@
 <script src="js/sleep.js?v=8"></script>
 <script src="js/mood.js?v=3"></script>
 <script src="js/memory.js"></script>
-<script src="js/weather.js?v=4"></script>
+<script src="js/weather.js?v=5"></script>
 <script src="js/clock.js?v=2"></script>
 <script src="js/navigation.js?v=5"></script>
 <script src="js/companion-engine.js?v=5"></script>

@@ -4,8 +4,86 @@
 
 const HAVEN_WEATHER_CACHE_KEY = "havenLastWeather";
 const HAVEN_WEATHER_REFRESH_MS = 15 * 60 * 1000;
+const HAVEN_WEATHER_CACHE_MS = 30 * 60 * 1000;
 let havenWeatherRetryTimer = null;
 let havenWeatherRequest = null;
+
+function normalizeHavenRegionQuery(region) {
+    return String(region || "").trim().replace(/\s+/g, " ");
+}
+
+function normalizeHavenPlaceName(value) {
+    return String(value || "").trim().replace(/[市区町村都道府県]$/, "").toLocaleLowerCase("ja");
+}
+
+async function resolveHavenWeatherLocation(region) {
+    const query = normalizeHavenRegionQuery(region);
+    if (query.length < 2) throw new Error("地域名をもう少し詳しく入力しろ。");
+
+    const parameters = new URLSearchParams({
+        name: query,
+        count: "10",
+        language: "ja",
+        format: "json"
+    });
+    if (/[ぁ-んァ-ヶ一-龠々]/.test(query)) parameters.set("countryCode", "JP");
+
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 12000);
+    try {
+        const response = await fetch(`https://geocoding-api.open-meteo.com/v1/search?${parameters}`, {
+            cache: "no-store",
+            signal: controller.signal
+        });
+        if (!response.ok) throw new Error("地域を確認できなかった。もう一度試せ。");
+
+        const data = await response.json();
+        const candidates = Array.isArray(data.results) ? data.results : [];
+        const normalizedQuery = normalizeHavenPlaceName(query);
+        const place = candidates.find(candidate => normalizeHavenPlaceName(candidate.name) === normalizedQuery)
+            || candidates.find(candidate => normalizeHavenPlaceName(candidate.admin1) === normalizedQuery)
+            || candidates[0];
+        if (!place) throw new Error("地域が見つからなかった。市区町村名で試せ。");
+
+        const names = [place.name, place.admin1, place.country]
+            .filter(Boolean)
+            .filter((value, index, values) => values.indexOf(value) === index);
+        return {
+            query,
+            prefecture: String(place.admin1 || ""),
+            city: String(place.name || query),
+            displayName: names.join("・") || query,
+            latitude: Number(place.latitude),
+            longitude: Number(place.longitude),
+            timezone: String(place.timezone || "auto")
+        };
+    } catch (error) {
+        if (error?.name === "AbortError") throw new Error("地域の確認に時間がかかっている。通信を確かめろ。");
+        throw error;
+    } finally {
+        clearTimeout(timeout);
+    }
+}
+
+function getHavenWeatherLocationKey(location) {
+    return `${Number(location.latitude).toFixed(4)},${Number(location.longitude).toFixed(4)}`;
+}
+
+function readHavenWeatherCache(location) {
+    try {
+        const cached = JSON.parse(localStorage.getItem(HAVEN_WEATHER_CACHE_KEY));
+        const matchesLocation = !cached?.locationKey
+            || cached.locationKey === getHavenWeatherLocationKey(location);
+        if (cached?.current && matchesLocation && Date.now() - Number(cached.savedAt || 0) < HAVEN_WEATHER_CACHE_MS) {
+            return cached.current;
+        }
+    } catch (_) {}
+    return null;
+}
+
+function clearHavenWeatherCache() {
+    localStorage.removeItem(HAVEN_WEATHER_CACHE_KEY);
+}
 
 function getPressurePresentation(pressureValue) {
     const hour = new Date().getHours();
@@ -72,7 +150,7 @@ function renderWeather(current) {
     if (!temperature || !pressure || !humidity || !weatherIcon || !pressureLevel || !weatherComment) return false;
 
     const code = Number(current.weather_code);
-    const pressureValue = Number(current.surface_pressure);
+    const pressureValue = Number(current.pressure_msl ?? current.surface_pressure);
     const temperatureValue = Number(current.temperature_2m);
     const humidityValue = Number(current.relative_humidity_2m);
 
@@ -110,17 +188,26 @@ function showWeatherUnavailable() {
     document.body.classList.remove("weather-rain", "weather-fog", "weather-snow");
 }
 
-async function loadWeather() {
+async function loadWeather(force = false) {
     if (havenWeatherRequest) return havenWeatherRequest;
 
     const location = typeof getHavenWeatherLocation === "function"
         ? getHavenWeatherLocation()
-        : { latitude: 34.6937, longitude: 135.5023 };
+        : { latitude: 34.6937, longitude: 135.5023, timezone: "Asia/Tokyo" };
+
+    if (!force) {
+        const cachedCurrent = readHavenWeatherCache(location);
+        if (cachedCurrent) {
+            renderWeather(cachedCurrent);
+            return true;
+        }
+    }
+
     const parameters = new URLSearchParams({
         latitude: String(location.latitude),
         longitude: String(location.longitude),
-        current: "temperature_2m,weather_code,surface_pressure,relative_humidity_2m",
-        timezone: "Asia/Tokyo",
+        current: "temperature_2m,weather_code,pressure_msl,relative_humidity_2m",
+        timezone: String(location.timezone || "auto"),
         forecast_days: "1"
     });
     const url = `https://api.open-meteo.com/v1/forecast?${parameters}`;
@@ -147,6 +234,7 @@ async function loadWeather() {
             renderWeather(data.current);
             localStorage.setItem(HAVEN_WEATHER_CACHE_KEY, JSON.stringify({
                 savedAt: Date.now(),
+                locationKey: getHavenWeatherLocationKey(location),
                 current: data.current
             }));
             clearTimeout(havenWeatherRetryTimer);
@@ -154,7 +242,9 @@ async function loadWeather() {
             let restored = false;
             try {
                 const cached = JSON.parse(localStorage.getItem(HAVEN_WEATHER_CACHE_KEY));
-                restored = Boolean(cached?.current) && renderWeather(cached.current);
+                const matchesLocation = !cached?.locationKey
+                    || cached.locationKey === getHavenWeatherLocationKey(location);
+                restored = Boolean(cached?.current) && matchesLocation && renderWeather(cached.current);
             } catch (_) {}
             if (!restored) showWeatherUnavailable();
             clearTimeout(havenWeatherRetryTimer);
@@ -170,3 +260,6 @@ async function loadWeather() {
 }
 
 setInterval(loadWeather, HAVEN_WEATHER_REFRESH_MS);
+
+window.resolveHavenWeatherLocation = resolveHavenWeatherLocation;
+window.clearHavenWeatherCache = clearHavenWeatherCache;
