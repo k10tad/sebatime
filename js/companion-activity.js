@@ -44,6 +44,9 @@
     let currentSlot = "";
     let soundTimer = null;
     let previewActivityId = readPreviewActivityId();
+    const PRESENCE_RARE_CHANCE = 0.04;
+    const PRESENCE_ACTIVITY_CHANCE = 0.68;
+    const lastPresenceIndexes = {};
 
     const SOUND_DELAYS = {
         working: [20, 46],
@@ -273,6 +276,77 @@
             !document.body.classList.contains("a-mi-lado-mode");
     }
 
+    function canShowPresenceDialogue() {
+        if (!current || !currentPageIsLiving() || !sessionIsIdle()) return false;
+        if (document.body.classList.contains("a-mi-lado-mode")) return false;
+        if (
+            typeof window.getHavenEventDialogue === "function" &&
+            window.getHavenEventDialogue("living")
+        ) {
+            return false;
+        }
+        return true;
+    }
+
+    function pickPresenceLine(lines, poolKey) {
+        if (!Array.isArray(lines) || !lines.length) return "";
+
+        const previousIndex = lastPresenceIndexes[poolKey];
+        const availableIndexes = lines
+            .map(function (_, index) { return index; })
+            .filter(function (index) {
+                return lines.length === 1 || index !== previousIndex;
+            });
+        const selectedIndex = availableIndexes[
+            Math.floor(Math.random() * availableIndexes.length)
+        ];
+        lastPresenceIndexes[poolKey] = selectedIndex;
+
+        const name = typeof getHavenUserName === "function"
+            ? getHavenUserName()
+            : "レイ";
+        return String(lines[selectedIndex]).replaceAll("{name}", name);
+    }
+
+    function showPresenceDialogue() {
+        if (!canShowPresenceDialogue()) return false;
+
+        const dialogues = window.HavenDialogues;
+        if (!dialogues) return false;
+
+        const activityLines = dialogues.activityPresence?.[current.id];
+        let pool = dialogues.activityPresenceGeneral;
+        let poolKey = "general";
+        const roll = Math.random();
+
+        if (
+            roll < PRESENCE_RARE_CHANCE &&
+            Array.isArray(dialogues.activityPresenceRare) &&
+            dialogues.activityPresenceRare.length
+        ) {
+            pool = dialogues.activityPresenceRare;
+            poolKey = "rare";
+        } else if (
+            roll < PRESENCE_RARE_CHANCE + PRESENCE_ACTIVITY_CHANCE &&
+            Array.isArray(activityLines) &&
+            activityLines.length
+        ) {
+            pool = activityLines;
+            poolKey = current.id;
+        }
+
+        const line = pickPresenceLine(pool, poolKey);
+        if (!line) return false;
+
+        if (typeof window.setHavenDialogue === "function") {
+            window.setHavenDialogue("message", line);
+        } else {
+            const message = document.getElementById("message");
+            if (message) message.textContent = line;
+        }
+        return true;
+    }
+
     function scheduleActivitySound(initial = false) {
         window.clearTimeout(soundTimer);
         if (!current) return;
@@ -321,6 +395,7 @@
         currentSlot = resolved.slot;
 
         if (changed) recordActivity(current, currentSlot);
+        if (changed) showPresenceDialogue();
         if (changed || !soundTimer) scheduleActivitySound(changed);
 
         if (typeof window.syncSessionCompanionImage === "function") {
@@ -369,6 +444,7 @@
         },
         refresh,
         renderStatus,
+        showPresenceDialogue,
         preview: startPreview,
         stopPreview,
         isPreviewing: function () {
