@@ -6,10 +6,10 @@
     const observers = new WeakMap();
 
     function characterDelay(character) {
-        if ("。！？!?".includes(character)) return 380;
-        if ("、，,；;：:…".includes(character)) return 180;
-        if (character === "\n") return 180;
-        return 34;
+        if ("。！？!?".includes(character)) return 430;
+        if ("、，,；;：:…".includes(character)) return 210;
+        if (character === "\n") return 210;
+        return 44;
     }
 
     function resolveTarget(targetOrId) {
