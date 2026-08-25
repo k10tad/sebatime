@@ -5,13 +5,11 @@
     const states = new WeakMap();
     const observers = new WeakMap();
 
-    function characterDelay(character, profile = "reading") {
-        const voice = profile === "voice";
-        if ("。！？!?".includes(character)) return voice ? 260 : 340;
-        if ("、，,；;：:".includes(character)) return voice ? 135 : 175;
-        if ("…".includes(character)) return voice ? 190 : 250;
-        if (character === "\n") return voice ? 150 : 210;
-        return voice ? 62 : 88;
+    function characterDelay(character) {
+        if ("。！？!?".includes(character)) return 380;
+        if ("、，,；;：:…".includes(character)) return 180;
+        if (character === "\n") return 180;
+        return 34;
     }
 
     function resolveTarget(targetOrId) {
@@ -56,7 +54,7 @@
             index += 1;
 
             if (index < text.length) {
-                state.timer = setTimeout(writeNext, options.speed || characterDelay(character, options.profile));
+                state.timer = setTimeout(writeNext, options.speed || characterDelay(character));
             } else {
                 state.complete = true;
                 state.timer = null;

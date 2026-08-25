@@ -93,15 +93,15 @@
     let suppressCallVoiceOnce = false;
 
     function subtitleDelay(character) {
-        if ("。！？".includes(character)) return 260;
-        if ("、，".includes(character)) return 135;
-        if ("……".includes(character)) return 190;
-        return 62;
+        if ("。！？!?".includes(character)) return 380;
+        if ("、，,；;：:…".includes(character)) return 180;
+        if (character === "\n") return 180;
+        return 34;
     }
 
     function typeSubtitle(target, text) {
         if (typeof window.setHavenDialogue === "function") {
-            window.setHavenDialogue(target, text, { profile: "voice" });
+            window.setHavenDialogue(target, text);
             return;
         }
 

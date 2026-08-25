@@ -313,8 +313,8 @@
         const line = type === "return"
             ? "おかえり、レイ。待っていた。約束どおりだな。"
             : "約束どおり来たな。俺の隣へ横になれ。";
-        if (type === "return") setMessage("message", line, { profile: "voice" });
-        else setBothMessages(line, { profile: "voice" });
+        if (type === "return") setMessage("message", line);
+        else setBothMessages(line);
 
         // 就寝達成時は「寝る」の直接操作中に再生を始め、
         // iOSのユーザー操作制限を越えないようにする。
