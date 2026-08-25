@@ -1,15 +1,15 @@
 
-/* Sebas handwriting font: place fonts/ShokakiKaigetsu-Free.ttf in the project. */
+/* Sebas handwriting font */
 @font-face {
-    font-family: "Shokaki Kaigetsu";
-    src: url("../fonts/ShokakiKaigetsu-Free.ttf") format("truetype");
+    font-family: "Shokaki Sarari Gyotai";
+    src: url("../fonts/ShokakiSarariGyotai.ttf?v=1") format("truetype");
     font-display: swap;
     font-style: normal;
     font-weight: 400;
 }
 
 :root {
-    --sebas-handwriting-font: "Shokaki Kaigetsu", "Yu Mincho", "Hiragino Mincho ProN", serif;
+    --sebas-handwriting-font: "Shokaki Sarari Gyotai", "Yu Mincho", "Hiragino Mincho ProN", serif;
 }
 .weather-location{display:flex;justify-content:center;gap:12px;margin-bottom:18px;color:#b8c9e3;font-size:12px;letter-spacing:.16em}
 .haven-side-rail{position:fixed;z-index:10010;top:clamp(108px,18dvh,156px);right:max(5px,env(safe-area-inset-right));display:flex;flex-direction:column;align-items:flex-end;gap:8px;pointer-events:none}.haven-side-rail>*{pointer-events:auto}
