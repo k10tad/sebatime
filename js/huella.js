@@ -3,11 +3,13 @@
 
     const DB_NAME = "haven-huella-db";
     const STORE_NAME = "memories";
+    const ALBUM_PAGE_SIZE = 25;
     const $ = id => document.getElementById(id);
     const e = {
         open:$("openHuella"), close:$("closeHuella"), overlay:$("huellaOverlay"),
         albumTab:$("huellaAlbumTab"), calendarTab:$("huellaCalendarTab"), album:$("huellaAlbumPanel"), calendar:$("huellaCalendarPanel"),
         input:$("huellaFileInput"), add:$("huellaAddButton"), grid:$("huellaGrid"), empty:$("huellaEmpty"), count:$("huellaCount"),
+        pager:$("huellaPager"), pageStatus:$("huellaPageStatus"), prevPage:$("huellaPrevPage"), nextPage:$("huellaNextPage"),
         register:$("huellaPhotoRegister"), registerForm:$("huellaPhotoRegisterForm"), registerPreview:$("huellaPhotoRegisterPreview"),
         registerCount:$("huellaPhotoRegisterCount"), registerDate:$("huellaPhotoRegisterDate"), registerNote:$("huellaPhotoRegisterNote"),
         viewer:$("huellaViewer"), image:$("huellaViewerImage"), note:$("huellaViewerNote"), photoDate:$("huellaViewerDate"), comment:$("huellaSebasComment"),
@@ -23,6 +25,7 @@
     let currentPhoto;
     let pendingPhotos=[];
     let pendingPreviewUrl="";
+    let albumPage=0;
     let selected = new Date();
     let month = new Date(selected.getFullYear(), selected.getMonth(), 1);
     const urls = new Set();
@@ -84,8 +87,15 @@
             if(aDate!==bDate)return aDate?-1:1;
             return (b.createdAt||0)-(a.createdAt||0);
         });
+        const totalPages=Math.max(1,Math.ceil(photos.length/ALBUM_PAGE_SIZE));
+        albumPage=Math.min(Math.max(0,albumPage),totalPages-1);
+        const pagePhotos=photos.slice(albumPage*ALBUM_PAGE_SIZE,(albumPage+1)*ALBUM_PAGE_SIZE);
         e.grid.replaceChildren(); e.count.textContent=`${photos.length}枚`; e.empty.hidden=photos.length>0;
-        photos.forEach(photo => {
+        e.pager.hidden=photos.length<=ALBUM_PAGE_SIZE;
+        e.pageStatus.textContent=`${albumPage+1} / ${totalPages}`;
+        e.prevPage.disabled=albumPage===0;
+        e.nextPage.disabled=albumPage>=totalPages-1;
+        pagePhotos.forEach(photo => {
             const button=document.createElement("button"); button.type="button"; button.className="huella-photo";
             const image=document.createElement("img"); image.src=objectUrl(photo.imageBlob); image.alt=photo.note || "Vestigioの写真";
             const label=document.createElement("span"); label.textContent=photo.dateKey?fromKey(photo.dateKey).toLocaleDateString("ja-JP",{month:"numeric",day:"numeric"}):"日付なし";
@@ -122,7 +132,7 @@
         const album=mode==="album"; e.album.hidden=!album;e.calendar.hidden=album;e.albumTab.classList.toggle("active",album);e.calendarTab.classList.toggle("active",!album);
         album?renderAlbum():renderCalendar();
     }
-    function openOverlay(){e.overlay.hidden=false;document.body.classList.add("huella-open");switchMode("album");}
+    function openOverlay(){albumPage=0;e.overlay.hidden=false;document.body.classList.add("huella-open");switchMode("album");}
     function closeOverlay(){e.overlay.hidden=true;e.register.hidden=true;e.viewer.hidden=true;e.editor.hidden=true;closePhotoRegistration();document.body.classList.remove("huella-open");}
     function openPhoto(photo){currentPhoto=photo;e.image.src=objectUrl(photo.imageBlob);e.note.value=photo.note||"";e.photoDate.value=photo.dateKey;e.comment.textContent=comments[Math.floor(Math.random()*comments.length)];e.viewer.hidden=false;}
     function closePhoto(){e.viewer.hidden=true;e.image.removeAttribute("src");currentPhoto=null;}
@@ -153,6 +163,7 @@
             await put({id:id(),entryType:"memory",imageBlob:file,fileName:file.name,mimeType:file.type,createdAt:started+index,dateKey,note,title:"",body:"",time:""});
         }
         closePhotoRegistration();
+        albumPage=0;
         await renderAlbum();
     }
     async function savePhoto(){if(!currentPhoto)return;await put({...currentPhoto,note:e.note.value.trim(),dateKey:e.photoDate.value,updatedAt:Date.now()});closePhoto();renderAlbum();}
@@ -164,6 +175,7 @@
     async function importEntries(entries,{replace=true}={}){if(replace)await clearEntries();for(const entry of entries||[])if(entry?.id)await put(entry);await renderAlbum();}
 
     e.open?.addEventListener("click",openOverlay);e.close?.addEventListener("click",closeOverlay);e.albumTab?.addEventListener("click",()=>switchMode("album"));e.calendarTab?.addEventListener("click",()=>switchMode("calendar"));
+    e.prevPage?.addEventListener("click",()=>{if(albumPage>0){albumPage-=1;renderAlbum();}});e.nextPage?.addEventListener("click",()=>{albumPage+=1;renderAlbum();});
     e.add?.addEventListener("click",()=>e.input.click());e.input?.addEventListener("change",event=>openPhotoRegistration(event.target.files));e.registerForm?.addEventListener("submit",savePhotoRegistration);$("huellaPhotoRegisterClose")?.addEventListener("click",closePhotoRegistration);$("huellaPhotoRegisterCancel")?.addEventListener("click",closePhotoRegistration);$("huellaViewerClose")?.addEventListener("click",closePhoto);$("huellaViewerSave")?.addEventListener("click",savePhoto);$("huellaViewerDelete")?.addEventListener("click",deletePhoto);
     e.prev?.addEventListener("click",()=>{month=new Date(month.getFullYear(),month.getMonth()-1,1);renderCalendar();});e.next?.addEventListener("click",()=>{month=new Date(month.getFullYear(),month.getMonth()+1,1);renderCalendar();});
     $("huellaAddDiary")?.addEventListener("click",()=>openEditor("diary"));$("huellaAddPlan")?.addEventListener("click",()=>openEditor("plan"));$("huellaEntryClose")?.addEventListener("click",closeEditor);e.form?.addEventListener("submit",saveEntry);e.entryDelete?.addEventListener("click",deleteText);
